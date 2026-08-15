@@ -74,13 +74,18 @@ Use **Configurações → Testar conexão** se quiser confirmar.
 
 ## Lista pública + QR (celular)
 
-1. Abra o programa (com a planilha já configurada).
-2. Vá em **Lista pública** → **Gerar / imprimir QR**.
-3. Salve o PNG e imprima.
-4. Na **mesma rede Wi‑Fi** do notebook, qualquer pessoa aponta a câmera no QR e vê os REAPs **ao vivo** (a página atualiza a cada 60s).
+### Na mesma Wi‑Fi
+1. Abra o programa (planilha configurada).
+2. **Lista pública** → **Gerar QR** → salve o PNG e imprima.
+3. Celular na mesma rede aponta a câmera e vê os REAPs ao vivo.
 
-O servidor local sobe em `http://IP-DO-NOTEBOOK:8765`.  
-Se precisar de acesso pela internet, use um túnel (Cloudflare/ngrok) e coloque a URL em **Configurações → URL pública do QR**.
+### Fora da Wi‑Fi (internet / 4G)
+1. Em **Configurações** (ou no diálogo do QR), clique em **Criar link público**.
+2. O programa baixa o Cloudflare Tunnel (1ª vez) e gera um `https://….trycloudflare.com`.
+3. A URL é salva sozinha — gere o QR de novo e imprima.
+4. Qualquer celular com internet abre a lista.
+
+O notebook precisa ficar ligado com o programa aberto enquanto o link público estiver em uso.
   
 
 ---
