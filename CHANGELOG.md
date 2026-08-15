@@ -6,6 +6,26 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.3.0] — 2026-08-15 — QR estável + consulta CPF + UI premium
+
+**Tag:** [`v1.3.0`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.3.0)
+
+### Melhorias
+- UI pública/desktop mais premium
+- Página **/consulta** — associado digita CPF e vê só o próprio REAP
+- QR com padrão visual único (selo Sinapesc + moldura)
+- Cofre `qr-codes/` — QRs permanentes (consulta, lista, individual)
+- Link público **reutilizado** (não gera URL nova à toa)
+- Túnel pode permanecer ativo ao fechar o app
+
+### Bugs / ajustes
+- Removido texto `X/12 pagos` das páginas do QR
+- Removida frase “CPF parcialmente oculto” da lista pública online
+- QR individual/`lista` não mudam a cada geração enquanto o link estiver válido
+
+---
+
+
 ## [v1.2.0] — 2026-08-15 — Casa Nova + link público + lote
 
 **Tag:** [`v1.2.0`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.2.0)  
