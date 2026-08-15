@@ -9,12 +9,19 @@ Controle de contribuição **REAP** (Windows `.exe` + site público gratuito).
 | Item | Link |
 |------|------|
 | **EXE pronto** | [Baixar `SinapescREAP-Windows`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31863086521) |
+| **Site público (consulta CPF)** | https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL/consulta.html |
 | **Tutorial completo** | [`TUTORIAL_IMPLEMENTACAO.md`](./TUTORIAL_IMPLEMENTACAO.md) |
-| Site público | [`site-publico/`](./site-publico/) |
+| Site (código) | [`site-publico/`](./site-publico/) |
 | API Google | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
 | Changelog | [`CHANGELOG.md`](./CHANGELOG.md) |
 
 > Actions → **Artifacts** → **SinapescREAP-Windows** → ZIP com `SinapescREAP.exe` (~42 MB).
+
+**URL do site para colar no EXE:**
+
+```text
+https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL
+```
 
 ---
 

@@ -25,9 +25,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # enablement: true ativa Pages automaticamente (Source = GitHub Actions)
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site-publico
+
       - id: deployment
         uses: actions/deploy-pages@v4

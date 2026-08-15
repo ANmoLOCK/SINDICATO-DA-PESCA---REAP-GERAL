@@ -101,16 +101,24 @@
     const pessoas = [];
     for (const r of pessoasTable.rows) {
       if (!r[0]) continue;
+      // gviz às vezes devolve o cabeçalho como 1ª linha (id/nome/cpf)
+      const id = String(r[0] || "").trim();
+      const nome = String(r[1] || "").trim();
+      const cpf = onlyDigits(r[2] || "");
+      if (!id || id.toLowerCase() === "id") continue;
+      if (!nome || nome.toLowerCase() === "nome") continue;
       pessoas.push({
-        id: String(r[0] || ""),
-        nome: String(r[1] || ""),
-        cpf: onlyDigits(r[2] || ""),
+        id,
+        nome,
+        cpf,
         anos: [],
       });
     }
     const byId = Object.fromEntries(pessoas.map((p) => [p.id, p]));
     for (const r of reapTable.rows) {
       if (!r[0] || !r[1]) continue;
+      const rid = String(r[0] || "").trim();
+      if (rid.toLowerCase() === "id") continue;
       const personId = String(r[1]);
       const p = byId[personId];
       if (!p) continue;
@@ -120,7 +128,7 @@
         meses[m] = raw === "TRUE" || raw === "VERDADEIRO" || raw === "1";
       });
       p.anos.push({
-        id: String(r[0]),
+        id: rid,
         personId,
         ano: Number(r[2]) || 0,
         meses,

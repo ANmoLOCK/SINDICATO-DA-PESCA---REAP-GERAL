@@ -1,45 +1,30 @@
-# Site público Sinapesc (Opção A — gratuito e estável)
+# Site público Sinapesc (GitHub Pages)
 
-Consulta online **sem depender do notebook ligado**.
+Consulta online **sem o notebook ligado**.
 
-## O que é
+## Link publicado
 
-Páginas estáticas que leem a Google Planilha publicada/compartilhada:
+Depois do deploy automático:
 
-- `consulta.html` — associado digita o CPF
-- `lista.html` — lista pública
-- `pessoa.html?id=...` — comprovante individual (QR do sócio)
+- Site: https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL/
+- Consulta CPF: https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL/consulta.html
+- Lista: https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL/lista.html
 
-## Como colocar no ar (grátis)
+Planilha (modo leitor):  
+https://docs.google.com/spreadsheets/d/1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrRePft4/edit?usp=sharing
 
-### 1) Liberar a planilha
-Na Google Planilha: **Compartilhar** → **Qualquer pessoa com o link** → **Leitor**.
+## Deploy automático
 
-### 2) Configurar
-Edite `config.js` e cole o ID da planilha:
+O workflow `.github/workflows/deploy-site.yml` publica esta pasta no GitHub Pages a cada push na `main`.
 
-```js
-spreadsheetId: "COLE_O_ID_AQUI",
-```
+Se for a primeira vez no repositório, o passo `configure-pages` com `enablement: true` ativa o Pages sozinho.
 
-### 3) Publicar o site
-Opções gratuitas:
+## No EXE
 
-**GitHub Pages (já preparado neste repo)**  
-Pasta `site-publico/` + workflow `.github/workflows/deploy-site.yml`  
-URL típica: `https://SEU_USUARIO.github.io/SINDICATO-DA-PESCA---REAP-GERAL/`
-
-**Cloudflare Pages / Netlify**  
-Envie a pasta `site-publico` como projeto estático.
-
-### 4) No programa EXE
-Em **Configurações**, preencha **URL do site público** com o endereço publicado.  
-Os QRs passam a apontar para esse link **fixo** (não muda).
-
-## QR da sede (recomendado)
-
-Imprima o QR de:
+Em **Configurações**, cole:
 
 ```text
-https://SEU-SITE/consulta.html
+https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL
 ```
+
+Depois: **Gerar QRs do site** → **QR Consulta CPF** → imprimir.
