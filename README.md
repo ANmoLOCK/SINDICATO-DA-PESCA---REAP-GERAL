@@ -17,11 +17,14 @@ Controle de contribuição **REAP** (Windows `.exe` + site público gratuito).
 
 > Actions → **Artifacts** → **SinapescREAP-Windows** → ZIP com `SinapescREAP.exe` (~42 MB).
 
-**URL do site para colar no EXE:**
+**URL do site para colar no EXE** (depois do Pages verde):
 
 ```text
 https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL
 ```
+
+> O repositório está **privado**. Para o GitHub Pages gratuito funcionar, torne-o **público** e ligue Pages (Actions).  
+> Passo a passo: [`COMO_PUBLICAR_SITE.md`](./COMO_PUBLICAR_SITE.md)
 
 ---
 
