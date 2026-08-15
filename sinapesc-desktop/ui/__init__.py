@@ -177,13 +177,17 @@ class SinapescApp(tk.Tk):
         return self.service
 
     def _ensure_public_server(self) -> str:
+        """Sobe o servidor local e devolve a URL que deve ir no QR."""
+        self.cfg = load_config()
         svc = self._ensure_service()
 
         def fetch():
             return svc.get_all_pessoas_com_reap()
 
-        local = start_public_server(fetch, port=int(self.cfg.get("public_port") or 8765))
-        return public_base_url(str(self.cfg.get("public_base_url") or "")) or local
+        port = int(self.cfg.get("public_port") or 8765)
+        start_public_server(fetch, port=port)
+        configured = str(self.cfg.get("public_base_url") or "").strip()
+        return public_base_url(configured)
 
     def _nav_button(self, text: str, command: Callable) -> None:
         tk.Button(

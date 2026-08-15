@@ -1,8 +1,0 @@
-COMO USAR
-=========
-1. Leia COMO_INTEGRAR_API.md
-2. Renomeie o JSON do Google Cloud para google-credentials.json
-   e coloque na mesma pasta deste exe.
-3. Edite config.json e cole o ID da planilha.
-4. Compartilhe a planilha com o client_email do JSON (Editor).
-5. Execute SinapescREAP.exe
