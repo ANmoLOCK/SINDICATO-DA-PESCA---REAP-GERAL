@@ -10,6 +10,13 @@ hiddenimports = [
     "googleapiclient",
     "googleapiclient.discovery",
     "googleapiclient.http",
+    "qrcode",
+    "qrcode.image.pil",
+    "PIL",
+    "PIL.Image",
+    "PIL.ImageTk",
+    "PIL.ImageDraw",
+    "PIL.ImageFont",
 ]
 
 tmp_ret = collect_all("googleapiclient")

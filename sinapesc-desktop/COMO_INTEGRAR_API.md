@@ -72,11 +72,16 @@ Use **Configurações → Testar conexão** se quiser confirmar.
 
 ---
 
-## Login do programa (não é login do Google)
+## Lista pública + QR (celular)
 
-- E-mail / senha do admin ficam no `config.json` (ou na tela Configurações)  
-- Padrão: `admin@sinapesc.local` / `sinapesc`  
-- Altere depois do primeiro acesso  
+1. Abra o programa (com a planilha já configurada).
+2. Vá em **Lista pública** → **Gerar / imprimir QR**.
+3. Salve o PNG e imprima.
+4. Na **mesma rede Wi‑Fi** do notebook, qualquer pessoa aponta a câmera no QR e vê os REAPs **ao vivo** (a página atualiza a cada 60s).
+
+O servidor local sobe em `http://IP-DO-NOTEBOOK:8765`.  
+Se precisar de acesso pela internet, use um túnel (Cloudflare/ngrok) e coloque a URL em **Configurações → URL pública do QR**.
+  
 
 ---
 

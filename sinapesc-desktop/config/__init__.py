@@ -54,6 +54,8 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "credentials_json": None,
     "admin_email": "admin@sinapesc.local",
     "admin_password": "sinapesc",
+    "public_base_url": "",
+    "public_port": 8765,
 }
 
 
