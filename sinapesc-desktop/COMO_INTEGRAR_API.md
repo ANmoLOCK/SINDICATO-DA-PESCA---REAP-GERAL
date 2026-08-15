@@ -74,18 +74,18 @@ Use **Configurações → Testar conexão** se quiser confirmar.
 
 ## Lista pública + QR (celular)
 
-### Na mesma Wi‑Fi
-1. Abra o programa (planilha configurada).
-2. **Lista pública** → **Gerar QR** → salve o PNG e imprima.
-3. Celular na mesma rede aponta a câmera e vê os REAPs ao vivo.
+### QR permanente (recomendado)
+1. **Configurações** → **Ativar link estável** (uma vez).
+2. Clique em **QR Consulta CPF** → salve/imprima o PNG.
+3. O associado aponta a câmera, digita o **CPF** e vê só os próprios REAPs.
+4. Enquanto o link estiver ativo, **o mesmo QR continua válido** (não precisa gerar outro).
+5. QRs ficam salvos na pasta `qr-codes/` ao lado do `.exe`.
 
-### Fora da Wi‑Fi (internet / 4G)
-1. Em **Configurações** (ou no diálogo do QR), clique em **Criar link público**.
-2. O programa baixa o Cloudflare Tunnel (1ª vez) e gera um `https://….trycloudflare.com`.
-3. A URL é salva sozinha — gere o QR de novo e imprima.
-4. Qualquer celular com internet abre a lista.
+Use **Renovar link** somente se o link antigo parar de abrir (isso invalida QRs impressos).
 
-O notebook precisa ficar ligado com o programa aberto enquanto o link público estiver em uso.
+### Outros QRs
+- **QR Lista** — lista geral  
+- **QR** em cada sócio — comprovante individual (`/p/{id}`), também permanente
   
 
 ---
