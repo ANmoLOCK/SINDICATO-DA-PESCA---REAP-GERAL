@@ -47,19 +47,44 @@ def save_manifest(data: dict) -> None:
     meta_path().write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def normalize_public_base(url: str) -> str:
+    """
+    Aceita a raiz do site OU links colados com /consulta.html etc.
+    Ex.: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
+      → https://anmolock.github.io/sinapesc-casanova-reap
+    """
+    base = (url or "").strip()
+    if not base:
+        return ""
+    # remove query/fragment acidentais
+    base = base.split("?", 1)[0].split("#", 1)[0].rstrip("/")
+    for suffix in (
+        "/consulta.html",
+        "/lista.html",
+        "/pessoa.html",
+        "/index.html",
+        "/consulta",
+        "/lista",
+    ):
+        if base.lower().endswith(suffix):
+            base = base[: -len(suffix)].rstrip("/")
+            break
+    return base
+
+
 def preferred_public_base() -> str:
     cfg = load_config()
-    site = str(cfg.get("public_site_url") or "").strip().rstrip("/")
+    site = normalize_public_base(str(cfg.get("public_site_url") or ""))
     if site:
         return site
-    return str(cfg.get("public_base_url") or "").strip().rstrip("/")
+    return normalize_public_base(str(cfg.get("public_base_url") or ""))
 
 
 def _is_static_site(base: str) -> bool:
     """Site estático (Opção A) usa *.html; servidor local do EXE usa rotas /consulta."""
-    base = base.rstrip("/")
+    base = normalize_public_base(base)
     cfg = load_config()
-    site = str(cfg.get("public_site_url") or "").strip().rstrip("/")
+    site = preferred_public_base()
     if site and base == site:
         return True
     markers = ("github.io", "pages.dev", "netlify.app", "site-publico", "cloudflare")
@@ -67,7 +92,7 @@ def _is_static_site(base: str) -> bool:
 
 
 def consulta_url(base: str) -> str:
-    base = base.rstrip("/")
+    base = normalize_public_base(base)
     if base.endswith(".html"):
         return base
     if _is_static_site(base):
@@ -76,14 +101,14 @@ def consulta_url(base: str) -> str:
 
 
 def lista_url(base: str) -> str:
-    base = base.rstrip("/")
+    base = normalize_public_base(base)
     if _is_static_site(base):
         return base + "/lista.html"
     return base + "/lista"
 
 
 def pessoa_url(base: str, person_id: str) -> str:
-    base = base.rstrip("/")
+    base = normalize_public_base(base)
     if _is_static_site(base):
         return base + f"/pessoa.html?id={person_id}"
     return base + f"/p/{person_id}"

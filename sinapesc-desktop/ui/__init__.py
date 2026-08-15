@@ -26,6 +26,7 @@ from ui.public_link import ensure_site_qrs, resolve_base, urls_for
 from ui.public_web import start_public_server
 from ui.qr_vault import (
     ensure_stable_qrs,
+    normalize_public_base,
     path_for_consulta,
     path_for_lista,
     path_for_pessoa,
@@ -420,8 +421,8 @@ class SinapescApp(tk.Tk):
         sheet_id = labeled(0, "ID da planilha Google (admin / API)", value=cfg.get("spreadsheet_id", ""))
         site_url = labeled(
             2,
-            "URL do site público (GitHub Pages / Cloudflare / Netlify) — QR fixo",
-            value=cfg.get("public_site_url", "") or cfg.get("public_base_url", ""),
+            "URL do site público (cole SEM /consulta.html) — ex.: https://anmolock.github.io/sinapesc-casanova-reap",
+            value=normalize_public_base(cfg.get("public_site_url", "") or cfg.get("public_base_url", "")),
         )
         admin_email = labeled(4, "E-mail do administrador", width=40, value=cfg.get("admin_email", "admin@sinapesc.local"))
         admin_password = labeled(6, "Senha do administrador", width=40, show="•", value=cfg.get("admin_password", "sinapesc"))
@@ -468,20 +469,40 @@ class SinapescApp(tk.Tk):
         )
         tk.Label(site_box, textvariable=site_status, bg=COLORS["surface_soft"], fg=COLORS["accent"], font=(FONT_FAMILY, 9, "bold")).pack(anchor="w", pady=(0, 8))
 
-        def gerar_qrs_site() -> None:
-            # salva URL antes
+        def persist_site_url() -> str:
+            """Salva a URL do site (normalizada) sem exigir login Google."""
+            base = normalize_public_base(site_url.get())
+            if not base:
+                return ""
             new_cfg = load_config()
-            new_cfg["public_site_url"] = site_url.get().strip().rstrip("/")
-            new_cfg["public_base_url"] = new_cfg["public_site_url"]
-            if sheet_id.get().strip():
-                new_cfg["spreadsheet_id"] = sheet_id.get().strip()
+            new_cfg["public_site_url"] = base
+            new_cfg["public_base_url"] = base
             save_config(new_cfg)
             self.cfg = new_cfg
-            # sync config.js hint
-            self._sync_site_config_js(new_cfg.get("spreadsheet_id", ""))
+            site_url.delete(0, "end")
+            site_url.insert(0, base)
+            site_status.set(f"Site: {base}")
+            return base
 
-            def done(base, _mudou):
-                site_status.set(f"QRs prontos → {base}")
+        def gerar_qrs_site() -> None:
+            base = persist_site_url()
+            if not base:
+                messagebox.showwarning(
+                    "Site público",
+                    "Cole a URL do site, por exemplo:\n"
+                    "https://anmolock.github.io/sinapesc-casanova-reap\n\n"
+                    "(sem /consulta.html no final)",
+                )
+                return
+            if sheet_id.get().strip():
+                new_cfg = load_config()
+                new_cfg["spreadsheet_id"] = sheet_id.get().strip()
+                save_config(new_cfg)
+                self.cfg = new_cfg
+                self._sync_site_config_js(new_cfg.get("spreadsheet_id", ""))
+
+            def done(b, _mudou):
+                site_status.set(f"QRs prontos → {b}")
 
             self._activate_link(force_new=True, on_done=done)
 
@@ -495,37 +516,53 @@ class SinapescApp(tk.Tk):
             else:
                 subprocess.Popen(["xdg-open", path])
 
+        def qr_consulta_agora() -> None:
+            persist_site_url()
+            self._show_qr_consulta()
+
         row = tk.Frame(site_box, bg=COLORS["surface_soft"])
         row.pack(anchor="w")
         self._btn(row, "Gerar QRs do site", gerar_qrs_site).pack(side="left", padx=(0, 6))
-        self._btn(row, "QR Consulta CPF", self._show_qr_consulta, kind="primary").pack(side="left", padx=(0, 6))
+        self._btn(row, "QR Consulta CPF", qr_consulta_agora, kind="primary").pack(side="left", padx=(0, 6))
         self._btn(row, "Pasta dos QRs", abrir_pasta_qr, kind="ghost").pack(side="left")
 
         def save() -> None:
             new_cfg = load_config()
             new_cfg["spreadsheet_id"] = sheet_id.get().strip()
-            new_cfg["public_site_url"] = site_url.get().strip().rstrip("/")
-            if new_cfg["public_site_url"]:
-                new_cfg["public_base_url"] = new_cfg["public_site_url"]
+            site = normalize_public_base(site_url.get())
+            new_cfg["public_site_url"] = site
+            if site:
+                new_cfg["public_base_url"] = site
             new_cfg["admin_email"] = admin_email.get().strip()
             new_cfg["admin_password"] = admin_password.get()
             if credentials_holder["json"]:
                 new_cfg["credentials_json"] = credentials_holder["json"]
                 new_cfg["service_account_email"] = credentials_holder["json"].get("client_email", "")
                 new_cfg["private_key"] = credentials_holder["json"].get("private_key", "")
-            if not new_cfg["spreadsheet_id"]:
-                messagebox.showerror("Configuração", "Informe o ID da planilha.")
+            # Sempre pode salvar a URL do site; Sheets só é obrigatório se for usar admin
+            if site:
+                save_config(new_cfg)
+                self.cfg = new_cfg
+                site_url.delete(0, "end")
+                site_url.insert(0, site)
+                site_status.set(f"Site: {site}")
+            if new_cfg["spreadsheet_id"] and not is_sheets_configured(new_cfg):
+                messagebox.showwarning(
+                    "Configuração",
+                    "URL do site salva.\nPara o admin, importe também o JSON da Conta de Serviço.",
+                )
                 return
-            if not is_sheets_configured(new_cfg):
-                messagebox.showerror("Configuração", "Importe o JSON da Conta de Serviço.")
+            if not new_cfg["spreadsheet_id"]:
+                if site:
+                    messagebox.showinfo("Configuração", f"URL do site salva:\n{site}")
+                else:
+                    messagebox.showerror("Configuração", "Informe o ID da planilha ou a URL do site.")
                 return
             save_config(new_cfg)
             self.cfg = new_cfg
             self.service = None
             self._sync_site_config_js(new_cfg.get("spreadsheet_id", ""))
-            site_status.set(
-                f"Site: {new_cfg['public_site_url']}" if new_cfg.get("public_site_url") else "Site ainda não configurado."
-            )
+            site_status.set(f"Site: {site}" if site else "Site ainda não configurado.")
             messagebox.showinfo("Configuração", "Salvo com sucesso.")
 
         def test_connection() -> None:
@@ -999,7 +1036,9 @@ class SinapescApp(tk.Tk):
         if not base:
             messagebox.showwarning(
                 "Site público",
-                "Configure a URL do site público em Configurações antes de gerar o QR.",
+                "Cole esta URL em Configurações e clique Salvar:\n\n"
+                "https://anmolock.github.io/sinapesc-casanova-reap\n\n"
+                "(sem /consulta.html no final)",
             )
             self.show_settings()
             return
