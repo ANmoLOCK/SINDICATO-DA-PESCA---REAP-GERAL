@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 APP_NAME = "SinapescREAP"
+CREDENTIALS_FILENAME = "google-credentials.json"
+CONFIG_FILENAME = "config.json"
 
 
 def app_data_dir() -> Path:
@@ -21,8 +24,27 @@ def app_data_dir() -> Path:
     return path
 
 
+def exe_dir() -> Path:
+    """Pasta onde está o .exe (ou a pasta do projeto em modo desenvolvimento)."""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent.parent
+
+
 def config_path() -> Path:
-    return app_data_dir() / "config.json"
+    """Prefere config.json ao lado do .exe; senão usa AppData."""
+    beside_exe = exe_dir() / CONFIG_FILENAME
+    if beside_exe.exists():
+        return beside_exe
+    return app_data_dir() / CONFIG_FILENAME
+
+
+def credentials_path_candidates() -> list[Path]:
+    """Locais onde o JSON da Conta de Serviço pode estar."""
+    return [
+        exe_dir() / CREDENTIALS_FILENAME,
+        app_data_dir() / CREDENTIALS_FILENAME,
+    ]
 
 
 DEFAULT_CONFIG: Dict[str, Any] = {
@@ -35,22 +57,46 @@ DEFAULT_CONFIG: Dict[str, Any] = {
 }
 
 
+def _apply_credentials_file(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Se existir google-credentials.json ao lado do .exe (ou em AppData),
+    carrega automaticamente — assim a API já fica integrada sem abrir a tela.
+    """
+    if isinstance(cfg.get("credentials_json"), dict):
+        return cfg
+    for path in credentials_path_candidates():
+        if not path.exists():
+            continue
+        try:
+            data = import_credentials_file(path)
+        except (ValueError, OSError, json.JSONDecodeError):
+            continue
+        cfg["credentials_json"] = data
+        cfg["service_account_email"] = data.get("client_email", "")
+        cfg["private_key"] = data.get("private_key", "")
+        break
+    return cfg
+
+
 def load_config() -> Dict[str, Any]:
     path = config_path()
-    if not path.exists():
-        return dict(DEFAULT_CONFIG)
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-        merged = dict(DEFAULT_CONFIG)
-        merged.update(data if isinstance(data, dict) else {})
-        return merged
-    except (json.JSONDecodeError, OSError):
-        return dict(DEFAULT_CONFIG)
+    merged = dict(DEFAULT_CONFIG)
+    if path.exists():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                merged.update(data)
+        except (json.JSONDecodeError, OSError):
+            pass
+    return _apply_credentials_file(merged)
 
 
 def save_config(cfg: Dict[str, Any]) -> None:
-    path = config_path()
-    path.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+    """Salva em AppData (não sobrescreve o config.json ao lado do .exe sem querer)."""
+    path = app_data_dir() / CONFIG_FILENAME
+    # Não grava a chave privada duplicada se já temos o arquivo JSON ao lado do exe
+    to_save = dict(cfg)
+    path.write_text(json.dumps(to_save, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def is_sheets_configured(cfg: Optional[Dict[str, Any]] = None) -> bool:

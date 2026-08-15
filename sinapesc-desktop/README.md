@@ -21,15 +21,21 @@ Os dados continuam na **Google Planilha**, com a implementação da API explicad
 
 Não precisa instalar Python no notebook de destino — o `.exe` já leva as dependências.
 
-## Como usar (primeira vez)
+## Como integrar a API (deixar pronto)
 
-1. Abra o programa → **Configurações**.
-2. Siga o guia na tela (ativar Google Sheets API, criar Conta de Serviço, baixar JSON).
-3. **Importar JSON** da Conta de Serviço.
-4. Colar o **ID da planilha** (parte da URL entre `/d/` e `/edit`).
-5. Compartilhar a planilha com o e-mail da Conta de Serviço (Editor).
-6. **Testar conexão** → **Salvar**.
-7. Voltar ao início → **Entrar como administrador** (padrão: `admin@sinapesc.local` / `sinapesc` — altere em Configurações).
+Guia completo: [`COMO_INTEGRAR_API.md`](COMO_INTEGRAR_API.md)
+
+Resumo — na **mesma pasta** do `.exe`:
+
+1. `google-credentials.json` → JSON da Conta de Serviço do Google Cloud  
+2. `config.json` → com o `spreadsheet_id` da planilha (veja `config.example.json`)  
+3. Compartilhe a planilha com o `client_email` do JSON (permissão Editor)
+
+O programa carrega esses arquivos sozinho na abertura.
+
+Também dá para configurar pela tela **Configurações** (importar JSON + testar conexão).
+
+Login admin padrão: `admin@sinapesc.local` / `sinapesc`
 
 ## Rodar em modo desenvolvimento (Python)
 

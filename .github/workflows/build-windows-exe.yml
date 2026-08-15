@@ -1,0 +1,58 @@
+name: Build Sinapesc Windows EXE
+
+on:
+  push:
+    branches:
+      - cursor/sinapesc-desktop-exe-46d6
+      - main
+    paths:
+      - "sinapesc-desktop/**"
+      - ".github/workflows/build-windows-exe.yml"
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: sinapesc-desktop
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Build EXE
+        run: python -m PyInstaller --noconfirm build_exe.spec
+
+      - name: Prepare release folder
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Copy-Item dist\SinapescREAP.exe release\
+          Copy-Item config.example.json release\config.json
+          Copy-Item COMO_INTEGRAR_API.md release\
+          Copy-Item README.md release\
+          @"
+          COMO USAR
+          =========
+          1. Leia COMO_INTEGRAR_API.md
+          2. Renomeie o JSON do Google Cloud para google-credentials.json
+             e coloque na mesma pasta deste exe.
+          3. Edite config.json e cole o ID da planilha.
+          4. Compartilhe a planilha com o client_email do JSON (Editor).
+          5. Execute SinapescREAP.exe
+          "@ | Set-Content -Encoding UTF8 release\LEIA-ME.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SinapescREAP-Windows
+          path: sinapesc-desktop/release/*
