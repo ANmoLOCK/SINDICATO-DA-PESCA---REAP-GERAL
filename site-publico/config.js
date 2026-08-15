@@ -12,7 +12,7 @@ window.SINAPESC_CONFIG = {
   orgShort: "Sinapesc",
   orgFull: "Sindicato Dos Aquicultores E Pescadores De Casa Nova",
   // ID da planilha Google (obrigatório)
-  spreadsheetId: "",
+  spreadsheetId: "1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrRePft4",
   // Opcional: URLs CSV publicadas (se preencher, têm prioridade sobre spreadsheetId)
   pessoasCsvUrl: "",
   reapCsvUrl: "",
