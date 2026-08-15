@@ -186,15 +186,15 @@ def render_lista_html(pessoas: List[PessoaComReap]) -> str:
 <html lang="pt-BR"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta http-equiv="refresh" content="60"/>
-<title>Sinapesc — Lista REAP</title>
+<title>Sinapesc Casa Nova — Lista REAP</title>
 <style>{_css()}</style>
 </head><body>
-<header><h1>Sinapesc</h1><p>Lista pública de REAP · atualiza a cada 60s</p></header>
+<header><h1>Sinapesc</h1><p>Sindicato Dos Aquicultores E Pescadores De Casa Nova · Lista pública de REAP</p></header>
 <main>
 <p class="meta">Consulta pública · CPF parcialmente oculto · Atualizado em {agora}</p>
 {content}
 </main>
-<footer>Sinapesc — Sindicato Nacional dos Pescadores</footer>
+<footer>Sinapesc — Sindicato Dos Aquicultores E Pescadores De Casa Nova</footer>
 </body></html>"""
 
 
@@ -219,5 +219,5 @@ def render_pessoa_html(pessoa: PessoaComReap) -> str:
 <p class="meta">Documento intransferível · Atualizado em {agora}</p>
 {body}
 </main>
-<footer>Sinapesc — válido apenas para {html.escape(pessoa.nome)}</footer>
+<footer>Sinapesc Casa Nova — válido apenas para {html.escape(pessoa.nome)}</footer>
 </body></html>"""

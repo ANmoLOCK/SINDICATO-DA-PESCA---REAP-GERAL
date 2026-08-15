@@ -168,6 +168,48 @@ class SheetsService:
             ],
         )
 
+    def add_pessoas_lote(self, itens: List[tuple[str, str]]) -> dict:
+        """
+        Cadastra vários sócios de uma vez.
+        itens = [(nome, cpf), ...]
+        Retorna {ok: int, erros: list[str], ids: list[str]}.
+        """
+        self.client.ensure_tabs()
+        existentes = {p.cpf for p in self.get_all_pessoas()}
+        now = _now_iso()
+        ano_atual = datetime.now().year
+
+        pessoas_rows: List[list] = []
+        reap_rows: List[list] = []
+        ids: List[str] = []
+        erros: List[str] = []
+        vistos: set[str] = set()
+
+        for i, (nome, cpf) in enumerate(itens, start=1):
+            nome = (nome or "").strip()
+            cpf = "".join(ch for ch in (cpf or "") if ch.isdigit())[:11]
+            if not nome:
+                erros.append(f"Linha {i}: nome vazio.")
+                continue
+            if len(cpf) != 11:
+                erros.append(f"Linha {i} ({nome}): CPF deve ter 11 dígitos.")
+                continue
+            if cpf in existentes or cpf in vistos:
+                erros.append(f"Linha {i} ({nome}): CPF já cadastrado ou duplicado no lote.")
+                continue
+            vistos.add(cpf)
+            person_id = str(uuid.uuid4())
+            reap_id = str(uuid.uuid4())
+            pessoas_rows.append([person_id, nome, cpf, now])
+            reap_rows.append([reap_id, person_id, ano_atual, *(["FALSE"] * len(MESES)), now])
+            ids.append(person_id)
+
+        if pessoas_rows:
+            self.client.append_values(f"{PESSOAS_TAB}!A2", pessoas_rows)
+            self.client.append_values(f"{REAP_TAB}!A2", reap_rows)
+
+        return {"ok": len(ids), "erros": erros, "ids": ids}
+
     def update_pessoa(self, person_id: str, nome: str, cpf: str) -> None:
         rows, start = self._pessoas_rows()
         idx = next((i for i, r in enumerate(rows) if r and r[0] == person_id), -1)
