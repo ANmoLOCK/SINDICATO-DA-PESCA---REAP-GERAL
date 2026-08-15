@@ -9,7 +9,7 @@ Formato: mais recente primeiro.
 ## [v1.4.0] — 2026-08-15 — Site público gratuito + UI azul Sinapesc
 
 **Tag:** `v1.4.0`  
-**EXE:** https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31862885717  
+**EXE:** https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31863086521  
 **Tutorial:** [`TUTORIAL_IMPLEMENTACAO.md`](./TUTORIAL_IMPLEMENTACAO.md)
 
 ### Melhorias

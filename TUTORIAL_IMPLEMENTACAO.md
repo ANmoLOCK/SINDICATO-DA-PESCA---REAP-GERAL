@@ -2,7 +2,7 @@
 
 Guia completo para colocar no ar o **programa Windows** e o **site público gratuito** (consulta por CPF sem o notebook ligado).
 
-**Download do EXE:** [SinapescREAP-Windows (Actions v1.4.0)](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31862885717)  
+**Download do EXE:** [SinapescREAP-Windows (Actions v1.4.0)](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31863086521)  
 → Artifacts → **SinapescREAP-Windows** → baixe o ZIP → extraia.
 
 ---
@@ -163,7 +163,7 @@ Os QRs ficam em `qr-codes/` ao lado do `.exe` e **não mudam** enquanto a URL do
 
 | Item | Link |
 |------|------|
-| **EXE v1.4.0** | https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31862885717 |
+| **EXE v1.4.0** | https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31863086521 |
 | Código | https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL |
 | API detalhada | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
 | Site público | [`site-publico/README.md`](./site-publico/README.md) |

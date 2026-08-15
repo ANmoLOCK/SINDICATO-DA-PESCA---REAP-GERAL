@@ -8,7 +8,7 @@ Controle de contribuição **REAP** (Windows `.exe` + site público gratuito).
 
 | Item | Link |
 |------|------|
-| **EXE pronto** | [Baixar `SinapescREAP-Windows`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31862885717) |
+| **EXE pronto** | [Baixar `SinapescREAP-Windows`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31863086521) |
 | **Tutorial completo** | [`TUTORIAL_IMPLEMENTACAO.md`](./TUTORIAL_IMPLEMENTACAO.md) |
 | Site público | [`site-publico/`](./site-publico/) |
 | API Google | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
@@ -40,7 +40,7 @@ Controle de contribuição **REAP** (Windows `.exe` + site público gratuito).
 
 | Versão | Destaque | EXE |
 |--------|----------|-----|
-| **v1.4.0** | Site público + UI azul + logo/peixe | [Actions](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31862885717) |
+| **v1.4.0** | Site público + UI azul + logo/peixe | [Actions](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31863086521) |
 | v1.3.0 | QR estável · consulta CPF | [Actions](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31860049095) |
 | v1.2.0 | Casa Nova · lote · link público | [Actions](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31858767536) |
 
