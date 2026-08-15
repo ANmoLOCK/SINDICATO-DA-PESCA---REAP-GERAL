@@ -1,17 +1,18 @@
 """
-Cofre de QRs estáveis.
+Cofre de QRs estáveis apontando para o site público (Opção A).
 
-Os QRs são gerados UMA vez a partir da URL pública salva e ficam na pasta
-`qr-codes/` (ao lado do .exe). Só regeneram se o usuário renovar o link.
+Prioridade da URL base:
+1) public_site_url  → site gratuito fixo (GitHub Pages / Cloudflare)
+2) public_base_url  → túnel (legado)
 """
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 
-from config import app_data_dir, exe_dir
+from config import app_data_dir, exe_dir, load_config
 from ui.qrutil import save_qr_png
 from ui.theme import ORG_SHORT
 
@@ -20,9 +21,7 @@ def qr_dir() -> Path:
     path = exe_dir() / "qr-codes"
     try:
         path.mkdir(parents=True, exist_ok=True)
-        # teste de escrita
-        probe = path / ".ok"
-        probe.write_text("1", encoding="utf-8")
+        (path / ".ok").write_text("1", encoding="utf-8")
         return path
     except OSError:
         path = app_data_dir() / "qr-codes"
@@ -48,16 +47,46 @@ def save_manifest(data: dict) -> None:
     meta_path().write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def preferred_public_base() -> str:
+    cfg = load_config()
+    site = str(cfg.get("public_site_url") or "").strip().rstrip("/")
+    if site:
+        return site
+    return str(cfg.get("public_base_url") or "").strip().rstrip("/")
+
+
+def _is_static_site(base: str) -> bool:
+    """Site estático (Opção A) usa *.html; servidor local do EXE usa rotas /consulta."""
+    base = base.rstrip("/")
+    cfg = load_config()
+    site = str(cfg.get("public_site_url") or "").strip().rstrip("/")
+    if site and base == site:
+        return True
+    markers = ("github.io", "pages.dev", "netlify.app", "site-publico", "cloudflare")
+    return any(m in base for m in markers)
+
+
 def consulta_url(base: str) -> str:
-    return base.rstrip("/") + "/consulta"
+    base = base.rstrip("/")
+    if base.endswith(".html"):
+        return base
+    if _is_static_site(base):
+        return base + "/consulta.html"
+    return base + "/consulta"
 
 
 def lista_url(base: str) -> str:
-    return base.rstrip("/") + "/lista"
+    base = base.rstrip("/")
+    if _is_static_site(base):
+        return base + "/lista.html"
+    return base + "/lista"
 
 
 def pessoa_url(base: str, person_id: str) -> str:
-    return base.rstrip("/") + f"/p/{person_id}"
+    base = base.rstrip("/")
+    if _is_static_site(base):
+        return base + f"/pessoa.html?id={person_id}"
+    return base + f"/p/{person_id}"
 
 
 def ensure_stable_qrs(
@@ -66,16 +95,11 @@ def ensure_stable_qrs(
     pessoas: Optional[Iterable] = None,
     force: bool = False,
 ) -> dict:
-    """
-    Garante QRs estáveis para consulta (principal), lista e cada sócio.
-    Retorna o manifesto.
-    """
     base = base_url.rstrip("/")
     manifest = load_manifest()
     same_base = manifest.get("base_url") == base
 
     if same_base and not force and (qr_dir() / "consulta.png").exists():
-        # Atualiza sócios novos sem mudar QRs existentes
         if pessoas:
             files = dict(manifest.get("pessoas") or {})
             changed = False
@@ -99,18 +123,17 @@ def ensure_stable_qrs(
                 save_manifest(manifest)
         return manifest
 
-    # Regenera pacote completo (primeira vez ou base mudou / force)
     save_qr_png(
         consulta_url(base),
         qr_dir() / "consulta.png",
         title=f"{ORG_SHORT} — Consulta por CPF",
-        subtitle="Sócio digita o CPF e vê só o próprio REAP",
+        subtitle="Site público online · digite o CPF",
     )
     save_qr_png(
         lista_url(base),
         qr_dir() / "lista.png",
         title=f"{ORG_SHORT} — Lista pública",
-        subtitle="Lista geral de associados · QR permanente",
+        subtitle="Lista geral online · QR permanente",
     )
 
     files = {}

@@ -55,9 +55,10 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "admin_email": "admin@sinapesc.local",
     "admin_password": "sinapesc",
     "public_base_url": "",
+    "public_site_url": "",
     "public_port": 8765,
     "keep_tunnel_alive": True,
-    "auto_start_tunnel": True,
+    "auto_start_tunnel": False,
 }
 
 

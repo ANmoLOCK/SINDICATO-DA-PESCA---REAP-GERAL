@@ -33,16 +33,16 @@ def make_qr_image(
     )
     qr.add_data(url)
     qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="#0B243F", back_color="white").convert("RGB")
+    qr_img = qr.make_image(fill_color="#0A2F52", back_color="white").convert("RGB")
 
-    # Selo central (padrão único)
+    # Selo central (padrão único azul Sinapesc)
     seal_size = max(48, qr_img.width // 5)
-    seal = Image.new("RGB", (seal_size, seal_size), "#0C7F72")
+    seal = Image.new("RGB", (seal_size, seal_size), "#1B6CA8")
     draw_seal = ImageDraw.Draw(seal)
     margin = 4
     draw_seal.rectangle(
         [margin, margin, seal_size - margin - 1, seal_size - margin - 1],
-        outline="#B8923E",
+        outline="#C4A35A",
         width=3,
     )
     try:
@@ -66,8 +66,8 @@ def make_qr_image(
     draw = ImageDraw.Draw(poster)
 
     # Moldura dourada (padrão institucional)
-    draw.rectangle([8, 8, width - 9, height - 9], outline="#B8923E", width=3)
-    draw.rectangle([14, 14, width - 15, height - 15], outline="#0B243F", width=1)
+    draw.rectangle([8, 8, width - 9, height - 9], outline="#C4A35A", width=3)
+    draw.rectangle([14, 14, width - 15, height - 15], outline="#0A2F52", width=1)
 
     try:
         font_title = ImageFont.truetype("arialbd.ttf", 20)
@@ -83,16 +83,16 @@ def make_qr_image(
             font_sub = font_title
             font_url = font_title
 
-    draw.text((pad, pad - 4), title, fill="#0B243F", font=font_title)
-    draw.text((pad, pad + 26), subtitle, fill="#5A6B78", font=font_sub)
-    draw.text((pad, pad + 44), ORG_SHORT.upper(), fill="#B8923E", font=font_sub)
+    draw.text((pad, pad - 4), title, fill="#0A2F52", font=font_title)
+    draw.text((pad, pad + 26), subtitle, fill="#5A7388", font=font_sub)
+    draw.text((pad, pad + 44), ORG_SHORT.upper(), fill="#C4A35A", font=font_sub)
 
     x = (width - qr_img.width) // 2
     y = title_h + pad - 8
     poster.paste(qr_img, (x, y))
 
     url_show = url if len(url) < 72 else url[:69] + "..."
-    draw.text((pad, y + qr_img.height + 14), url_show, fill="#0C7F72", font=font_url)
+    draw.text((pad, y + qr_img.height + 14), url_show, fill="#1B6CA8", font=font_url)
     return poster
 
 
