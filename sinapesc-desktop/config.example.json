@@ -2,6 +2,9 @@
   "spreadsheet_id": "COLE_AQUI_O_ID_DA_PLANILHA",
   "admin_email": "admin@sinapesc.local",
   "admin_password": "sinapesc",
+  "public_site_url": "https://SEU_USUARIO.github.io/SINDICATO-DA-PESCA---REAP-GERAL",
   "public_base_url": "",
-  "public_port": 8765
+  "public_port": 8765,
+  "auto_start_tunnel": false,
+  "keep_tunnel_alive": true
 }

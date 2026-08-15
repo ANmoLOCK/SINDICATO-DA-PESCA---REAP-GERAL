@@ -6,6 +6,24 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.4.0] — 2026-08-15 — Site público gratuito + UI azul Sinapesc
+
+**Tag:** `v1.4.0`
+
+### Melhorias
+- **Opção A:** pasta `site-publico/` (consulta/lista/pessoa) lendo a planilha sem o notebook ligado
+- Deploy GitHub Pages via `.github/workflows/deploy-site.yml`
+- EXE: tema premium **azul oceano**, logo Sinapesc e gráfica de peixe
+- QRs permanentes apontam para `public_site_url` (URL fixa do site)
+- Configurações: campo **URL do site público** + gerar QRs do site
+- Poster do QR com cores institucionais azuis + dourado
+
+### Bugs / ajustes
+- Consulta pública deixa de depender de túnel/PC ligado (B11)
+- Salvamento de configurações alinhado ao fluxo do site (sem campos órfãos do túnel)
+
+---
+
 ## [v1.3.0] — 2026-08-15 — QR estável + consulta CPF + UI premium
 
 **Tag:** [`v1.3.0`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.3.0)

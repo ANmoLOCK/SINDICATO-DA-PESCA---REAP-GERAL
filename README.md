@@ -1,6 +1,6 @@
 # Sinapesc — Sindicato Dos Aquicultores E Pescadores De Casa Nova
 
-Controle de contribuição **REAP** para notebook/computador (Windows `.exe`), integrado à **Google Planilha**.
+Controle de contribuição **REAP** para notebook/computador (Windows `.exe`), integrado à **Google Planilha**, com **site público gratuito** (consulta por CPF sem o PC ligado).
 
 ---
 
@@ -8,11 +8,12 @@ Controle de contribuição **REAP** para notebook/computador (Windows `.exe`), i
 
 | Item | Link |
 |------|------|
-| **EXE v1.3.0 (recomendado)** | [Baixar artefato `SinapescREAP-Windows`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31860049095) |
-| Release | [v1.3.0](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.3.0) |
-| Código-fonte | [`sinapesc-desktop/`](./sinapesc-desktop/) |
+| **EXE v1.4.0 (recomendado)** | Após o build Actions: artefato `SinapescREAP-Windows` |
+| Release | [v1.4.0](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.4.0) (quando publicada) |
+| Código-fonte EXE | [`sinapesc-desktop/`](./sinapesc-desktop/) |
+| Site público (Opção A) | [`site-publico/`](./site-publico/) |
 | Como integrar a API Google | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
-| Histórico completo | [`CHANGELOG.md`](./CHANGELOG.md) |
+| Histórico | [`CHANGELOG.md`](./CHANGELOG.md) |
 
 > Actions → **Artifacts** → **SinapescREAP-Windows** → ZIP com `SinapescREAP.exe`.
 
@@ -22,26 +23,34 @@ Controle de contribuição **REAP** para notebook/computador (Windows `.exe`), i
 
 - Cadastro de sócios (individual e **em lote**)
 - Marcação mês a mês do REAP (clique no nome para abrir)
-- **Consulta por CPF** no celular (`/consulta`) — sócio vê só o próprio REAP
-- QR Code **permanente** (consulta, lista e individual) com padrão visual único
-- Link público estável (reutiliza a mesma URL; não troca QR à toa)
+- **Site público gratuito** (`site-publico/`) — consulta por CPF online **sem notebook ligado**
+- QR Code **permanente** apontando para o site (consulta, lista e individual)
+- Interface premium azul com logo Sinapesc e gráfica de peixe
 - Dados na Google Planilha (abas `Pessoas` e `Reap`)
 
 ---
 
-## Versões (tags) — links diretos
+## Site público (Opção A) — passo a passo
 
-| Versão | Tag | O que entrou | Bugs resolvidos | EXE |
-|--------|-----|--------------|-----------------|-----|
-| **v1.3.0** | [`v1.3.0`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.3.0) | QR estável · consulta CPF · UI premium · cofre `qr-codes/` | `X/12 pagos` no QR · frase CPF oculto · QR mudava sempre | [Actions](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31860049095) |
-| **v1.2.0** | [`v1.2.0`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.2.0) | Casa Nova · link público · lote | `0/12` na lista desktop · túnel manual | [Actions](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31858767536) |
-| **v1.1.0** | [`v1.1.0`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.1.0) | Scroll · accordion · QR online | Scroll quebrado · tela poluída | [Actions](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31857220864) |
-| **v1.0.0** | [`v1.0.0`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.0.0) | 1º EXE · Sheets didático | Build ícone PNG · API confusa | [Actions](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31854798304) |
+1. Na planilha: **Compartilhar** → **Qualquer pessoa com o link** → **Leitor**
+2. Edite `site-publico/config.js` e cole o `spreadsheetId`
+3. Publique a pasta `site-publico/` (GitHub Pages já tem workflow `deploy-site.yml`)
+4. No EXE → **Configurações** → cole a **URL do site público** → **Gerar QRs do site**
+5. Imprima o **QR Consulta CPF** na sede
 
-```text
-git fetch --tags
-git checkout v1.3.0   # última
-```
+Detalhes: [`site-publico/README.md`](./site-publico/README.md)
+
+---
+
+## Versões (tags)
+
+| Versão | Tag | O que entrou |
+|--------|-----|--------------|
+| **v1.4.0** | `v1.4.0` | Site público estático · UI azul + logo + peixe · QR fixo no site |
+| **v1.3.0** | [`v1.3.0`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.3.0) | QR estável · consulta CPF · UI premium |
+| **v1.2.0** | [`v1.2.0`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.2.0) | Casa Nova · link público · lote |
+| **v1.1.0** | [`v1.1.0`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.1.0) | Scroll · accordion · QR online |
+| **v1.0.0** | [`v1.0.0`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/releases/tag/v1.0.0) | 1º EXE · Sheets didático |
 
 ---
 
@@ -58,40 +67,17 @@ git checkout v1.3.0   # última
 | B07 | Cadastro um a um inviável | v1.2.0 | Resolvido |
 | B08 | Texto `X/12 pagos` nas páginas do QR online | v1.3.0 | Resolvido |
 | B09 | Frase “CPF parcialmente oculto” no QR/lista online | v1.3.0 | Resolvido |
-| B10 | QR/túnel mudavam a cada geração (precisava reimprimir) | v1.3.0 | Resolvido |
-
----
-
-## Melhorias por versão (resumo)
-
-### v1.3.0 — atual
-- Consulta por CPF online
-- QR permanente com padrão Sinapesc + pasta `qr-codes/`
-- Link público reutilizado (só renova se você pedir ou se o antigo morrer)
-- UI mais premium
-
-### v1.2.0
-- Marca Casa Nova · cadastro em lote · link público 1 clique
-
-### v1.1.0
-- Scroll · accordion · QR online
-
-### v1.0.0
-- Primeiro EXE estável + Google Sheets
+| B10 | QR/túnel mudavam a cada geração | v1.3.0 | Resolvido |
+| B11 | Consulta pública dependia do notebook/túnel | v1.4.0 | Resolvido (site estático) |
 
 ---
 
 ## Instalação rápida
 
-1. Baixe o ZIP da [v1.3.0](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31860049095)
+1. Baixe o ZIP do artefato Windows (Actions)
 2. Extraia · coloque `google-credentials.json` + `config.json`
 3. Compartilhe a planilha com o e-mail da Conta de Serviço (**Editor**)
-4. Abra o `.exe` → **Ativar link estável** → **QR Consulta CPF** → imprima
+4. Publique o site (`site-publico/`) e configure a URL no EXE
+5. Gere o **QR Consulta CPF** e imprima
 
 Detalhes: [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md)
-
----
-
-## Próxima ideia
-
-**Painel de inadimplência + cobrança rápida** (atrasados do ano, marcar em lote, mensagem WhatsApp pronta).

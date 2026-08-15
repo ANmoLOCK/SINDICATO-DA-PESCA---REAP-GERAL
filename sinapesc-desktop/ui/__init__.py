@@ -7,20 +7,31 @@ from __future__ import annotations
 import re
 import threading
 import tkinter as tk
+from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 from typing import Callable, List, Optional, Set
 
 from config import (
+    app_data_dir,
+    exe_dir,
     import_credentials_file,
     is_sheets_configured,
     load_config,
     save_config,
 )
 from sheets import MESES, MESES_LABEL, MesKey, PessoaComReap, SheetsConfigError, SheetsService
+from ui.brand import load_fish, load_logo, load_school
 from ui.formatters import format_cpf, format_cpf_masked, get_initials, only_digits
-from ui.public_web import public_base_url, start_public_server
-from ui.public_link import activate_public_link, resolve_base, urls_for
-from ui.qr_vault import ensure_stable_qrs, path_for_consulta, path_for_lista, path_for_pessoa, qr_dir
+from ui.public_link import ensure_site_qrs, resolve_base, urls_for
+from ui.public_web import start_public_server
+from ui.qr_vault import (
+    ensure_stable_qrs,
+    path_for_consulta,
+    path_for_lista,
+    path_for_pessoa,
+    preferred_public_base,
+    qr_dir,
+)
 from ui.qrutil import make_qr_image, pil_to_tk, save_qr_png
 from ui.scroll import ScrollableFrame
 from ui.theme import (
@@ -32,7 +43,7 @@ from ui.theme import (
     ORG_SHORT,
     ORG_TITLE,
 )
-from ui.tunnel import current_public_url, is_tunnel_running, start_tunnel, stop_tunnel
+from ui.tunnel import stop_tunnel
 
 
 class SinapescApp(tk.Tk):
@@ -57,7 +68,6 @@ class SinapescApp(tk.Tk):
         self._build_shell()
         self.show_home()
         self.protocol("WM_DELETE_WINDOW", self._on_close)
-        self.after(800, self._maybe_autostart_tunnel)
 
         try:
             self.iconphoto(True, tk.PhotoImage(file=_asset("icon.png")))
@@ -66,7 +76,6 @@ class SinapescApp(tk.Tk):
 
     def _on_close(self) -> None:
         cfg = load_config()
-        # Mantém o túnel vivo para o QR impresso continuar válido
         if not cfg.get("keep_tunnel_alive", True):
             stop_tunnel()
         if self._scroll is not None:
@@ -75,35 +84,6 @@ class SinapescApp(tk.Tk):
             except tk.TclError:
                 pass
         self.destroy()
-
-    def _maybe_autostart_tunnel(self) -> None:
-        cfg = load_config()
-        if not cfg.get("auto_start_tunnel"):
-            return
-        if not cfg.get("public_base_url"):
-            return
-        if not is_sheets_configured(cfg):
-            return
-
-        def work():
-            svc = SheetsService.from_config(cfg)
-            return activate_public_link(
-                fetch_pessoas=svc.get_all_pessoas_com_reap,
-                force_new=False,
-                progress=lambda m: self.after(0, lambda: self.status.set(m)),
-            )
-
-        def ok(result):
-            base, mudou = result
-            if mudou:
-                self.status.set(f"Link público renovado (reimprima QRs): {base}")
-            else:
-                self.status.set(f"Link público estável ativo: {base}")
-
-        def err(exc):
-            self.status.set(f"Túnel automático: {exc}")
-
-        self._run_bg(work, ok, err, "Reativando link público estável…")
 
     def _setup_style(self) -> None:
         style = ttk.Style(self)
@@ -122,21 +102,33 @@ class SinapescApp(tk.Tk):
     def _build_shell(self) -> None:
         self.header = tk.Frame(self, bg=COLORS["primary"])
         self.header.pack(fill="x")
-
-        # faixa dourada premium
         tk.Frame(self.header, bg=COLORS["gold"], height=3).pack(fill="x")
 
         inner = tk.Frame(self.header, bg=COLORS["primary"])
-        inner.pack(fill="x", padx=22, pady=14)
+        inner.pack(fill="x", padx=18, pady=12)
 
         left = tk.Frame(inner, bg=COLORS["primary"])
         left.pack(side="left", fill="x", expand=True)
-        tk.Label(left, text=ORG_SHORT, bg=COLORS["primary"], fg=COLORS["primary_fg"], font=(FONT_DISPLAY, 16, "bold")).pack(anchor="w")
-        tk.Label(left, text=ORG_FULL, bg=COLORS["primary"], fg="#A9C0D4", font=(FONT_FAMILY, 9)).pack(anchor="w")
-        tk.Label(left, text=APP_TAGLINE, bg=COLORS["primary"], fg="#7E9BB3", font=(FONT_FAMILY, 8)).pack(anchor="w", pady=(2, 0))
+
+        brand = tk.Frame(left, bg=COLORS["primary"])
+        brand.pack(anchor="w")
+        self._logo_img = load_logo(self, size=52)
+        if self._logo_img is not None:
+            tk.Label(brand, image=self._logo_img, bg=COLORS["primary"]).pack(side="left", padx=(0, 12))
+        titles = tk.Frame(brand, bg=COLORS["primary"])
+        titles.pack(side="left")
+        tk.Label(titles, text=ORG_SHORT, bg=COLORS["primary"], fg=COLORS["primary_fg"], font=(FONT_DISPLAY, 17, "bold")).pack(anchor="w")
+        tk.Label(titles, text=ORG_FULL, bg=COLORS["primary"], fg="#9CB8D0", font=(FONT_FAMILY, 9)).pack(anchor="w")
+        tk.Label(titles, text=APP_TAGLINE, bg=COLORS["primary"], fg="#7E9BB3", font=(FONT_FAMILY, 8)).pack(anchor="w", pady=(2, 0))
 
         self.nav = tk.Frame(inner, bg=COLORS["primary"])
         self.nav.pack(side="right")
+
+        self._school_img = load_school(self, width=220)
+        if self._school_img is not None:
+            tk.Label(inner, image=self._school_img, bg=COLORS["primary"]).pack(side="right", padx=(8, 10))
+
+        tk.Frame(self.header, bg=COLORS["accent"], height=4).pack(fill="x")
 
         self.body = tk.Frame(self, bg=COLORS["bg"])
         self.body.pack(fill="both", expand=True)
@@ -207,7 +199,10 @@ class SinapescApp(tk.Tk):
         return self.service
 
     def _ensure_public_server(self) -> str:
+        """Servidor local só como fallback; site público é o canal principal."""
         self.cfg = load_config()
+        if self.cfg.get("public_site_url"):
+            return resolve_base()
         svc = self._ensure_service()
 
         def fetch():
@@ -218,47 +213,74 @@ class SinapescApp(tk.Tk):
         return resolve_base()
 
     def _activate_link(self, *, force_new: bool = False, on_done=None) -> None:
-        try:
-            svc = self._ensure_service()
-        except Exception as exc:  # noqa: BLE001
-            messagebox.showerror("Link público", str(exc))
+        """Gera QRs para o site público configurado (URL fixa)."""
+        if not preferred_public_base():
+            messagebox.showwarning(
+                "Site público",
+                "Configure a URL do site público em Configurações "
+                "(GitHub Pages / Cloudflare / Netlify).",
+            )
+            self.show_settings()
             return
 
         def work():
-            pessoas = svc.get_all_pessoas_com_reap()
-            base, mudou = activate_public_link(
-                fetch_pessoas=svc.get_all_pessoas_com_reap,
-                force_new=force_new,
-                progress=lambda m: self.after(0, lambda: self.status.set(m)),
-                pessoas=pessoas,
-            )
-            return base, mudou, pessoas
+            pessoas = []
+            try:
+                svc = self._ensure_service()
+                pessoas = svc.get_all_pessoas_com_reap()
+            except Exception:
+                pass
+            base = ensure_site_qrs(pessoas=pessoas or None, force=force_new)
+            return base, force_new, pessoas
 
         def ok(result):
             base, mudou, _pessoas = result
             self.cfg = load_config()
             if on_done:
                 on_done(base, mudou)
-            elif mudou:
-                messagebox.showinfo(
-                    "Link público",
-                    f"Novo link gerado:\n{base}\n\n"
-                    f"QRs atualizados em:\n{qr_dir()}\n\n"
-                    "Reimprima apenas se o link anterior parou de funcionar.",
-                )
             else:
                 messagebox.showinfo(
-                    "Link público",
-                    f"Link estável já ativo (QR antigo continua válido):\n{base}\n\n"
-                    f"Pasta de QRs:\n{qr_dir()}",
+                    "QRs do site público",
+                    f"QRs apontando para:\n{base}\n\n"
+                    f"Pasta:\n{qr_dir()}\n\n"
+                    "Este endereço é fixo — não precisa gerar QR novo depois.",
                 )
 
         self._run_bg(
             work,
             ok,
-            lambda e: messagebox.showerror("Link público", str(e)),
-            "Ativando link público estável…",
+            lambda e: messagebox.showerror("Site público", str(e)),
+            "Gerando QRs do site público…",
         )
+
+    def _sync_site_config_js(self, spreadsheet_id: str) -> None:
+        """Atualiza spreadsheetId em site-publico/config.js quando existir no disco."""
+        sid = (spreadsheet_id or "").strip()
+        if not sid:
+            return
+        candidates = [
+            Path(__file__).resolve().parents[2] / "site-publico" / "config.js",
+            exe_dir().parent / "site-publico" / "config.js",
+            exe_dir() / "site-publico" / "config.js",
+            app_data_dir() / "site-publico" / "config.js",
+        ]
+        for path in candidates:
+            if not path.exists():
+                continue
+            try:
+                text = path.read_text(encoding="utf-8")
+                updated = re.sub(
+                    r'spreadsheetId:\s*"[^"]*"',
+                    f'spreadsheetId: "{sid}"',
+                    text,
+                    count=1,
+                )
+                if updated != text:
+                    path.write_text(updated, encoding="utf-8")
+                    self.status.set(f"config.js atualizado: {path}")
+                return
+            except OSError:
+                continue
 
     # ------------------------------------------------------------------
     # Home / Login
@@ -269,32 +291,57 @@ class SinapescApp(tk.Tk):
         self._nav_button("Configurações", self.show_settings)
 
         wrap = tk.Frame(self.body, bg=COLORS["bg"])
-        wrap.pack(fill="both", expand=True, padx=48, pady=40)
+        wrap.pack(fill="both", expand=True, padx=40, pady=28)
 
-        tk.Label(wrap, text=ORG_SHORT, bg=COLORS["bg"], fg=COLORS["primary"], font=(FONT_DISPLAY, 28, "bold")).pack(anchor="w")
-        tk.Label(wrap, text=ORG_FULL, bg=COLORS["bg"], fg=COLORS["accent"], font=(FONT_FAMILY, 12)).pack(anchor="w", pady=(2, 8))
+        hero = tk.Frame(wrap, bg=COLORS["primary"], padx=22, pady=20)
+        hero.pack(fill="x", pady=(0, 18))
+        tk.Frame(hero, bg=COLORS["gold"], height=3).pack(fill="x", pady=(0, 12))
+        row = tk.Frame(hero, bg=COLORS["primary"])
+        row.pack(fill="x")
+        if getattr(self, "_logo_img", None) is not None:
+            tk.Label(row, image=self._logo_img, bg=COLORS["primary"]).pack(side="left", padx=(0, 14))
+        col = tk.Frame(row, bg=COLORS["primary"])
+        col.pack(side="left", fill="x", expand=True)
+        tk.Label(col, text=ORG_SHORT, bg=COLORS["primary"], fg=COLORS["foam"], font=(FONT_DISPLAY, 26, "bold")).pack(anchor="w")
+        tk.Label(col, text=ORG_FULL, bg=COLORS["primary"], fg="#B7D3E8", font=(FONT_FAMILY, 11)).pack(anchor="w", pady=(2, 6))
         tk.Label(
-            wrap,
-            text="Controle premium da contribuição REAP: cadastro de sócios, meses pagos e lista pública com QR.",
-            bg=COLORS["bg"], fg=COLORS["muted"], font=(FONT_FAMILY, 11), wraplength=760, justify="left",
-        ).pack(anchor="w", pady=(0, 28))
+            col,
+            text="Sistema profissional de REAP · consulta online gratuita · QR permanente",
+            bg=COLORS["primary"], fg="#8EB0C9", font=(FONT_FAMILY, 9),
+        ).pack(anchor="w")
+        self._fish_hero = load_fish(self, size=96)
+        if self._fish_hero is not None:
+            tk.Label(row, image=self._fish_hero, bg=COLORS["primary"]).pack(side="right", padx=(8, 0))
 
         cards = tk.Frame(wrap, bg=COLORS["bg"])
         cards.pack(fill="x")
         self._home_card(
             cards,
-            "Área administrativa",
-            "Cadastre sócios, marque REAPs e importe lotes.",
+            "Secretaria",
+            "Cadastre sócios, marque REAPs e importe lotes na planilha Google.",
             "Entrar como administrador",
             self.show_login,
         ).pack(side="left", fill="both", expand=True, padx=(0, 10))
         self._home_card(
             cards,
-            "Consulta / QR",
-            "Lista pública, QR permanente e consulta por CPF no celular.",
+            "Consulta & QR",
+            "Site público online (CPF) e QRs permanentes para imprimir na sede.",
             "Abrir lista e QRs",
             self.show_lista,
         ).pack(side="left", fill="both", expand=True, padx=(10, 0))
+
+        tip = tk.Frame(wrap, bg=COLORS["surface_soft"], padx=16, pady=12)
+        tip.pack(fill="x", pady=(18, 0))
+        tip.configure(highlightbackground=COLORS["border"], highlightthickness=1)
+        tk.Label(
+            tip,
+            text="Opção A — site gratuito: compartilhe a planilha como Leitor, publique site-publico/, cole a URL em Configurações e gere o QR Consulta.",
+            bg=COLORS["surface_soft"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 9),
+            wraplength=880,
+            justify="left",
+        ).pack(anchor="w")
 
     def _home_card(self, parent, title, desc, btn_text, command) -> tk.Frame:
         outer = tk.Frame(parent, bg=COLORS["border"], padx=1, pady=1)
@@ -344,7 +391,7 @@ class SinapescApp(tk.Tk):
         password.bind("<Return>", lambda _e: do_login())
 
     # ------------------------------------------------------------------
-    # Configurações + túnel
+    # Configurações + site público
     # ------------------------------------------------------------------
     def show_settings(self) -> None:
         self._clear_body()
@@ -370,15 +417,14 @@ class SinapescApp(tk.Tk):
             ent.insert(0, value)
             return ent
 
-        sheet_id = labeled(0, "ID da planilha Google", value=cfg.get("spreadsheet_id", ""))
-        self._public_url_entry = labeled(
+        sheet_id = labeled(0, "ID da planilha Google (admin / API)", value=cfg.get("spreadsheet_id", ""))
+        site_url = labeled(
             2,
-            "URL pública fixa dos QRs (não muda enquanto o link estiver ativo)",
-            value=cfg.get("public_base_url", "") or current_public_url(),
+            "URL do site público (GitHub Pages / Cloudflare / Netlify) — QR fixo",
+            value=cfg.get("public_site_url", "") or cfg.get("public_base_url", ""),
         )
-        public_port = labeled(4, "Porta local da lista", width=12, value=str(cfg.get("public_port") or 8765))
-        admin_email = labeled(6, "E-mail do administrador", width=40, value=cfg.get("admin_email", "admin@sinapesc.local"))
-        admin_password = labeled(8, "Senha do administrador", width=40, show="•", value=cfg.get("admin_password", "sinapesc"))
+        admin_email = labeled(4, "E-mail do administrador", width=40, value=cfg.get("admin_email", "admin@sinapesc.local"))
+        admin_password = labeled(6, "Senha do administrador", width=40, show="•", value=cfg.get("admin_password", "sinapesc"))
 
         cred_label = tk.StringVar(
             value=(
@@ -387,7 +433,7 @@ class SinapescApp(tk.Tk):
                 else "Nenhuma credencial carregada."
             )
         )
-        tk.Label(form, textvariable=cred_label, bg=COLORS["surface"], fg=COLORS["accent"], font=(FONT_FAMILY, 9, "bold")).grid(row=10, column=0, sticky="w", pady=(0, 8))
+        tk.Label(form, textvariable=cred_label, bg=COLORS["surface"], fg=COLORS["accent"], font=(FONT_FAMILY, 9, "bold")).grid(row=8, column=0, sticky="w", pady=(0, 8))
         credentials_holder = {"json": cfg.get("credentials_json")}
 
         def pick_json() -> None:
@@ -402,55 +448,42 @@ class SinapescApp(tk.Tk):
             credentials_holder["json"] = data
             cred_label.set(f"JSON: {data.get('client_email')}")
 
-        self._btn(form, "Importar JSON da Conta de Serviço…", pick_json, kind="primary").grid(row=11, column=0, sticky="w", pady=(0, 12))
+        self._btn(form, "Importar JSON da Conta de Serviço…", pick_json, kind="primary").grid(row=9, column=0, sticky="w", pady=(0, 12))
 
-        tunnel_box = tk.Frame(form, bg=COLORS["surface_soft"], padx=14, pady=14)
-        tunnel_box.grid(row=12, column=0, sticky="we", pady=(0, 14))
-        tk.Label(tunnel_box, text="Link público estável + QRs permanentes", bg=COLORS["surface_soft"], fg=COLORS["primary"], font=(FONT_DISPLAY, 11, "bold")).pack(anchor="w")
+        site_box = tk.Frame(form, bg=COLORS["surface_soft"], padx=14, pady=14)
+        site_box.grid(row=10, column=0, sticky="we", pady=(0, 14))
+        tk.Label(site_box, text="Site público online (Opção A — gratuito)", bg=COLORS["surface_soft"], fg=COLORS["primary"], font=(FONT_DISPLAY, 11, "bold")).pack(anchor="w")
         tk.Label(
-            tunnel_box,
+            site_box,
             text=(
-                "1) Ative o link uma vez · 2) Imprima o QR de Consulta por CPF ·\n"
-                "3) Enquanto o link estiver ativo, o mesmo QR continua válido.\n"
-                "Use “Renovar” só se o link antigo parar de abrir."
+                "1) Compartilhe a planilha como Leitor (qualquer pessoa com o link)\n"
+                "2) Publique a pasta site-publico/ (GitHub Pages)\n"
+                "3) Cole a URL do site acima · 4) Gere os QRs permanentes\n"
+                "O notebook NÃO precisa ficar ligado para a consulta no celular."
             ),
             bg=COLORS["surface_soft"], fg=COLORS["muted"], font=(FONT_FAMILY, 9), justify="left",
         ).pack(anchor="w", pady=(4, 10))
-        tunnel_status = tk.StringVar(
-            value=(
-                f"Ativo: {cfg.get('public_base_url')}"
-                if cfg.get("public_base_url")
-                else "Link ainda não ativado."
-            )
+        site_status = tk.StringVar(
+            value=(f"Site: {cfg.get('public_site_url')}" if cfg.get("public_site_url") else "Site ainda não configurado.")
         )
-        tk.Label(tunnel_box, textvariable=tunnel_status, bg=COLORS["surface_soft"], fg=COLORS["accent"], font=(FONT_FAMILY, 9, "bold")).pack(anchor="w", pady=(0, 8))
+        tk.Label(site_box, textvariable=site_status, bg=COLORS["surface_soft"], fg=COLORS["accent"], font=(FONT_FAMILY, 9, "bold")).pack(anchor="w", pady=(0, 8))
 
-        def criar_link_publico() -> None:
-            def done(base, mudou):
-                self._public_url_entry.delete(0, "end")
-                self._public_url_entry.insert(0, base)
-                tunnel_status.set(("Renovado: " if mudou else "Estável: ") + base)
-
-            self._activate_link(force_new=False, on_done=done)
-
-        def renovar_link() -> None:
-            if not messagebox.askyesno(
-                "Renovar link",
-                "Isso gera um link NOVO e invalida os QRs já impressos.\nContinuar?",
-            ):
-                return
+        def gerar_qrs_site() -> None:
+            # salva URL antes
+            new_cfg = load_config()
+            new_cfg["public_site_url"] = site_url.get().strip().rstrip("/")
+            new_cfg["public_base_url"] = new_cfg["public_site_url"]
+            if sheet_id.get().strip():
+                new_cfg["spreadsheet_id"] = sheet_id.get().strip()
+            save_config(new_cfg)
+            self.cfg = new_cfg
+            # sync config.js hint
+            self._sync_site_config_js(new_cfg.get("spreadsheet_id", ""))
 
             def done(base, _mudou):
-                self._public_url_entry.delete(0, "end")
-                self._public_url_entry.insert(0, base)
-                tunnel_status.set("Renovado: " + base)
+                site_status.set(f"QRs prontos → {base}")
 
             self._activate_link(force_new=True, on_done=done)
-
-        def parar_tunel() -> None:
-            stop_tunnel()
-            tunnel_status.set("Túnel encerrado (QRs online param até reativar).")
-            self.status.set("Túnel encerrado.")
 
         def abrir_pasta_qr() -> None:
             import os
@@ -462,23 +495,18 @@ class SinapescApp(tk.Tk):
             else:
                 subprocess.Popen(["xdg-open", path])
 
-        row = tk.Frame(tunnel_box, bg=COLORS["surface_soft"])
+        row = tk.Frame(site_box, bg=COLORS["surface_soft"])
         row.pack(anchor="w")
-        self._btn(row, "Ativar link estável", criar_link_publico).pack(side="left", padx=(0, 6))
+        self._btn(row, "Gerar QRs do site", gerar_qrs_site).pack(side="left", padx=(0, 6))
         self._btn(row, "QR Consulta CPF", self._show_qr_consulta, kind="primary").pack(side="left", padx=(0, 6))
-        self._btn(row, "Pasta dos QRs", abrir_pasta_qr, kind="ghost").pack(side="left", padx=(0, 6))
-        self._btn(row, "Renovar link", renovar_link, kind="ghost").pack(side="left", padx=(0, 6))
-        self._btn(row, "Encerrar túnel", parar_tunel, kind="ghost").pack(side="left")
+        self._btn(row, "Pasta dos QRs", abrir_pasta_qr, kind="ghost").pack(side="left")
 
         def save() -> None:
             new_cfg = load_config()
             new_cfg["spreadsheet_id"] = sheet_id.get().strip()
-            new_cfg["public_base_url"] = self._public_url_entry.get().strip()
-            try:
-                new_cfg["public_port"] = int(public_port.get().strip() or "8765")
-            except ValueError:
-                messagebox.showerror("Configuração", "Porta inválida.")
-                return
+            new_cfg["public_site_url"] = site_url.get().strip().rstrip("/")
+            if new_cfg["public_site_url"]:
+                new_cfg["public_base_url"] = new_cfg["public_site_url"]
             new_cfg["admin_email"] = admin_email.get().strip()
             new_cfg["admin_password"] = admin_password.get()
             if credentials_holder["json"]:
@@ -494,6 +522,10 @@ class SinapescApp(tk.Tk):
             save_config(new_cfg)
             self.cfg = new_cfg
             self.service = None
+            self._sync_site_config_js(new_cfg.get("spreadsheet_id", ""))
+            site_status.set(
+                f"Site: {new_cfg['public_site_url']}" if new_cfg.get("public_site_url") else "Site ainda não configurado."
+            )
             messagebox.showinfo("Configuração", "Salvo com sucesso.")
 
         def test_connection() -> None:
@@ -963,68 +995,56 @@ class SinapescApp(tk.Tk):
             self._pessoa_row(self.lista_frame, p, editable=False, mask_cpf=True)
 
     def _show_qr_consulta(self) -> None:
-        def open_dialog(base: str, _mudou: bool = False):
-            url = urls_for(base)["consulta"]
-            ensure_stable_qrs(base, force=False)
-            self._qr_dialog(
-                url,
-                title=f"{ORG_SHORT} — Consulta por CPF",
-                subtitle="O associado digita o CPF e vê apenas os próprios REAPs. QR permanente.",
-                offer_tunnel=True,
-                kind="consulta",
+        base = preferred_public_base()
+        if not base:
+            messagebox.showwarning(
+                "Site público",
+                "Configure a URL do site público em Configurações antes de gerar o QR.",
             )
-
-        if resolve_base().startswith("http://127.") or not load_config().get("public_base_url"):
-            self._activate_link(force_new=False, on_done=lambda b, m: open_dialog(b, m))
-        else:
-            try:
-                self._ensure_public_server()
-            except Exception:
-                pass
-            open_dialog(resolve_base())
+            self.show_settings()
+            return
+        ensure_stable_qrs(base, force=False)
+        self._qr_dialog(
+            urls_for(base)["consulta"],
+            title=f"{ORG_SHORT} — Consulta por CPF",
+            subtitle="QR permanente do site público. O associado digita o CPF e vê só os próprios REAPs.",
+            kind="consulta",
+        )
 
     def _show_qr_lista(self) -> None:
-        def open_dialog(base: str, _mudou: bool = False):
-            url = urls_for(base)["lista"]
-            ensure_stable_qrs(base, force=False)
-            self._qr_dialog(
-                url,
-                title=f"{ORG_SHORT} — Lista pública",
-                subtitle="Lista geral de associados. Mesmo QR enquanto o link estiver ativo.",
-                offer_tunnel=True,
-                kind="lista",
+        base = preferred_public_base()
+        if not base:
+            messagebox.showwarning(
+                "Site público",
+                "Configure a URL do site público em Configurações antes de gerar o QR.",
             )
-
-        if not load_config().get("public_base_url"):
-            self._activate_link(force_new=False, on_done=lambda b, m: open_dialog(b, m))
-        else:
-            try:
-                self._ensure_public_server()
-            except Exception:
-                pass
-            open_dialog(resolve_base())
+            self.show_settings()
+            return
+        ensure_stable_qrs(base, force=False)
+        self._qr_dialog(
+            urls_for(base)["lista"],
+            title=f"{ORG_SHORT} — Lista pública",
+            subtitle="Lista geral no site público. Mesmo QR enquanto a URL do site não mudar.",
+            kind="lista",
+        )
 
     def _show_qr_pessoa(self, pessoa: PessoaComReap) -> None:
-        def open_dialog(base: str, _mudou: bool = False):
-            url = urls_for(base, pessoa)["pessoa"]
-            ensure_stable_qrs(base, pessoas=[pessoa], force=False)
-            self._qr_dialog(
-                url,
-                title=f"{ORG_SHORT} — {pessoa.nome}",
-                subtitle="Comprovante individual com QR permanente deste associado.",
-                offer_tunnel=True,
-                kind="pessoa",
-                person_id=pessoa.id,
+        base = preferred_public_base()
+        if not base:
+            messagebox.showwarning(
+                "Site público",
+                "Configure a URL do site público em Configurações antes de gerar o QR.",
             )
-
-        if not load_config().get("public_base_url"):
-            self._activate_link(force_new=False, on_done=lambda b, m: open_dialog(b, m))
-        else:
-            try:
-                self._ensure_public_server()
-            except Exception:
-                pass
-            open_dialog(resolve_base())
+            self.show_settings()
+            return
+        ensure_stable_qrs(base, pessoas=[pessoa], force=False)
+        self._qr_dialog(
+            urls_for(base, pessoa)["pessoa"],
+            title=f"{ORG_SHORT} — {pessoa.nome}",
+            subtitle="Comprovante individual no site público · QR permanente.",
+            kind="pessoa",
+            person_id=pessoa.id,
+        )
 
     def _qr_dialog(
         self,
@@ -1032,7 +1052,6 @@ class SinapescApp(tk.Tk):
         *,
         title: str,
         subtitle: str,
-        offer_tunnel: bool = False,
         kind: str = "lista",
         person_id: str = "",
     ) -> None:
@@ -1045,8 +1064,14 @@ class SinapescApp(tk.Tk):
         state = {"url": url}
 
         tk.Frame(win, bg=COLORS["gold"], height=3).pack(fill="x")
-        tk.Label(win, text=title, bg=COLORS["surface"], fg=COLORS["primary"], font=(FONT_DISPLAY, 13, "bold")).pack(padx=16, pady=(16, 4))
-        tk.Label(win, text=subtitle, bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 9), wraplength=400).pack(padx=16)
+        head = tk.Frame(win, bg=COLORS["primary"], padx=16, pady=12)
+        head.pack(fill="x")
+        fish = load_fish(win, size=56)
+        if fish is not None:
+            win._fish = fish  # keep ref
+            tk.Label(head, image=fish, bg=COLORS["primary"]).pack(side="right")
+        tk.Label(head, text=title, bg=COLORS["primary"], fg=COLORS["foam"], font=(FONT_DISPLAY, 13, "bold")).pack(anchor="w")
+        tk.Label(win, text=subtitle, bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 9), wraplength=400).pack(padx=16, pady=(12, 0))
         qr_label = tk.Label(win, bg=COLORS["surface"])
         qr_label.pack(pady=12)
         url_lbl = tk.Label(win, text=url, bg=COLORS["surface"], fg=COLORS["accent"], font=(FONT_FAMILY, 8), wraplength=420)
@@ -1079,7 +1104,6 @@ class SinapescApp(tk.Tk):
                 "lista": "sinapesc-lista-qr.png",
                 "pessoa": f"sinapesc-pessoa-{person_id[:8] or 'socio'}-qr.png",
             }.get(kind, "sinapesc-qr.png")
-            # Prefer file already in vault
             vault_map = {
                 "consulta": path_for_consulta(),
                 "lista": path_for_lista(),
@@ -1101,34 +1125,17 @@ class SinapescApp(tk.Tk):
                 copyfile(suggested, path)
             else:
                 save_qr_png(state["url"], path, title=title, subtitle=subtitle)
-            messagebox.showinfo("QR", f"Salvo em:\n{path}\n\nEste QR permanece válido com o link estável.", parent=win)
+            messagebox.showinfo("QR", f"Salvo em:\n{path}\n\nEste QR permanece válido com a URL do site público.", parent=win)
 
         def copy_url() -> None:
             win.clipboard_clear()
             win.clipboard_append(state["url"])
             self.status.set("URL copiada.")
 
-        def ativar_estavel() -> None:
-            def done(base, mudou):
-                path = {
-                    "consulta": "/consulta",
-                    "lista": "/lista",
-                    "pessoa": f"/p/{person_id}" if person_id else "/consulta",
-                }[kind]
-                render(base.rstrip("/") + path)
-                if mudou:
-                    messagebox.showinfo("Link", "Link renovado — QRs da pasta foram atualizados.", parent=win)
-                else:
-                    messagebox.showinfo("Link", "Link estável reutilizado — QR antigo continua válido.", parent=win)
-
-            self._activate_link(force_new=False, on_done=done)
-
         btns = tk.Frame(win, bg=COLORS["surface"])
         btns.pack(pady=14)
         self._btn(btns, "Salvar PNG", save).pack(side="left", padx=5)
         self._btn(btns, "Copiar link", copy_url, kind="primary").pack(side="left", padx=5)
-        if offer_tunnel:
-            self._btn(btns, "Ativar/reusar link", ativar_estavel, kind="ghost").pack(side="left", padx=5)
         self._btn(btns, "Fechar", win.destroy, kind="ghost").pack(side="left", padx=5)
 
 

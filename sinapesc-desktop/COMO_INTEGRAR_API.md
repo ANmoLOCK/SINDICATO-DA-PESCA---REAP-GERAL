@@ -72,21 +72,24 @@ Use **Configurações → Testar conexão** se quiser confirmar.
 
 ---
 
-## Lista pública + QR (celular)
+## Site público + QR (celular) — Opção A
 
-### QR permanente (recomendado)
-1. **Configurações** → **Ativar link estável** (uma vez).
-2. Clique em **QR Consulta CPF** → salve/imprima o PNG.
-3. O associado aponta a câmera, digita o **CPF** e vê só os próprios REAPs.
-4. Enquanto o link estiver ativo, **o mesmo QR continua válido** (não precisa gerar outro).
-5. QRs ficam salvos na pasta `qr-codes/` ao lado do `.exe`.
+Consulta online **sem o notebook ligado**.
 
-Use **Renovar link** somente se o link antigo parar de abrir (isso invalida QRs impressos).
+1. Compartilhe a planilha como **Leitor** (“qualquer pessoa com o link”).
+2. Em `site-publico/config.js`, cole o mesmo `spreadsheetId`.
+3. Publique a pasta `site-publico/` (GitHub Pages / Cloudflare / Netlify).
+4. No EXE → **Configurações** → cole a **URL do site público**.
+5. Clique em **Gerar QRs do site** → **QR Consulta CPF** → imprima.
+
+O associado aponta a câmera, digita o **CPF** e vê só os próprios REAPs.  
+QRs ficam em `qr-codes/` ao lado do `.exe` e **não mudam** enquanto a URL do site for a mesma.
 
 ### Outros QRs
-- **QR Lista** — lista geral  
-- **QR** em cada sócio — comprovante individual (`/p/{id}`), também permanente
-  
+- **QR Lista** → `lista.html`
+- **QR** em cada sócio → `pessoa.html?id=...`
+
+Detalhes: [`../site-publico/README.md`](../site-publico/README.md)
 
 ---
 
@@ -94,7 +97,8 @@ Use **Renovar link** somente se o link antigo parar de abrir (isso invalida QRs 
 
 | Erro | O que fazer |
 |------|-------------|
-| permission / 403 | Compartilhar a planilha com o `client_email` do JSON |
+| permission / 403 | Compartilhar a planilha com o `client_email` do JSON (Editor no EXE) |
+| Site público vazio / erro | Planilha também precisa estar como Leitor “qualquer pessoa com o link” |
 | API not enabled | Ativar Google Sheets API no Cloud Console |
 | Spreadsheet not found | Conferir o `spreadsheet_id` no `config.json` |
 | Credencial inválida | Usar o JSON de Conta de Serviço (não OAuth de usuário) |

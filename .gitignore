@@ -1,0 +1,4 @@
+sinapesc_extract/
+**/qr-codes/
+*.log
+.DS_Store
