@@ -1,13 +1,15 @@
 """
-Túnel público gratuito via Cloudflare (trycloudflare.com).
+Túnel público via Cloudflare (trycloudflare.com).
 
-Baixa o cloudflared se necessário, sobe o túnel apontando para a porta local
-da lista pública e devolve a URL https gerada.
+Importante para QR estável:
+- Se o túnel JÁ estiver rodando, reutiliza a mesma URL (não gera outra).
+- Ao fechar o app, o túnel pode continuar ativo (keep alive) para o QR impresso
+  continuar funcionando.
+- Só gera URL nova com force_new=True ("Renovar link").
 """
 
 from __future__ import annotations
 
-import os
 import platform
 import re
 import shutil
@@ -15,7 +17,7 @@ import subprocess
 import threading
 import time
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 from urllib.request import urlretrieve
 
 from config import app_data_dir
@@ -25,7 +27,6 @@ _process: Optional[subprocess.Popen] = None
 _public_url: str = ""
 _lock = threading.Lock()
 
-# Releases oficiais (Windows amd64)
 _CLOUDFLARED_WIN = (
     "https://github.com/cloudflare/cloudflared/releases/latest/download/"
     "cloudflared-windows-amd64.exe"
@@ -53,6 +54,7 @@ def stop_tunnel() -> None:
                 except Exception:
                     pass
         _process = None
+        # Mantém _public_url em memória só se quiser — limpamos ao encerrar de fato
         _public_url = ""
 
 
@@ -64,19 +66,16 @@ def _cloudflared_path() -> Path:
 
 
 def ensure_cloudflared(progress: Optional[Callable[[str], None]] = None) -> Path:
-    """Garante que o binário cloudflared exista em AppData."""
     path = _cloudflared_path()
     if path.exists() and path.stat().st_size > 1_000_000:
         return path
 
-    system = platform.system()
-    if system == "Windows":
+    if platform.system() == "Windows":
         if progress:
             progress("Baixando Cloudflare Tunnel (primeira vez)…")
         urlretrieve(_CLOUDFLARED_WIN, str(path))
         return path
 
-    # Linux (dev): tenta PATH ou baixa binário
     which = shutil.which("cloudflared")
     if which:
         return Path(which)
@@ -97,14 +96,24 @@ def start_tunnel(
     *,
     timeout_sec: float = 45.0,
     progress: Optional[Callable[[str], None]] = None,
-) -> str:
+    force_new: bool = False,
+) -> Tuple[str, bool]:
     """
-    Sobe o túnel e retorna a URL https pública.
-    Bloqueia até a URL aparecer ou estourar o timeout.
+    Retorna (url, created_new).
+    created_new=False quando reutilizou túnel já ativo (QR continua válido).
     """
     global _process, _public_url
 
-    stop_tunnel()
+    if not force_new and is_tunnel_running() and _public_url:
+        if progress:
+            progress(f"Link público já ativo: {_public_url}")
+        return _public_url, False
+
+    if force_new or not is_tunnel_running():
+        # Encerra só se vamos criar outro
+        if is_tunnel_running():
+            stop_tunnel()
+
     binary = ensure_cloudflared(progress)
     if progress:
         progress("Abrindo túnel público…")
@@ -140,8 +149,7 @@ def start_tunnel(
             if match and not found["url"]:
                 found["url"] = match.group(0).rstrip("/")
 
-    t = threading.Thread(target=reader, daemon=True)
-    t.start()
+    threading.Thread(target=reader, daemon=True).start()
 
     deadline = time.time() + timeout_sec
     while time.time() < deadline:
@@ -158,9 +166,7 @@ def start_tunnel(
             proc.terminate()
         except Exception:
             pass
-        raise TimeoutError(
-            "Não foi possível obter o link público a tempo. Tente novamente."
-        )
+        raise TimeoutError("Não foi possível obter o link público a tempo. Tente novamente.")
 
     with _lock:
         _process = proc
@@ -168,4 +174,4 @@ def start_tunnel(
 
     if progress:
         progress(f"Link público pronto: {_public_url}")
-    return _public_url
+    return _public_url, True

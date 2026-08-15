@@ -56,7 +56,10 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "admin_password": "sinapesc",
     "public_base_url": "",
     "public_port": 8765,
+    "keep_tunnel_alive": True,
+    "auto_start_tunnel": True,
 }
+
 
 
 def _apply_credentials_file(cfg: Dict[str, Any]) -> Dict[str, Any]:

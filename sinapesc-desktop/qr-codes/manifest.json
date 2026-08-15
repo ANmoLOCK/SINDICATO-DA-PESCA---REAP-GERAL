@@ -1,0 +1,18 @@
+{
+  "base_url": "https://exemplo.trycloudflare.com",
+  "consulta": {
+    "file": "consulta.png",
+    "url": "https://exemplo.trycloudflare.com/consulta"
+  },
+  "lista": {
+    "file": "lista.png",
+    "url": "https://exemplo.trycloudflare.com/lista"
+  },
+  "pessoas": {
+    "pessoa-abc-123.png": {
+      "id": "abc-123",
+      "nome": "Maria",
+      "url": "https://exemplo.trycloudflare.com/p/abc-123"
+    }
+  }
+}
