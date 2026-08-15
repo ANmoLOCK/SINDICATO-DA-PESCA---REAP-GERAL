@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -18,22 +18,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  # Método 1: GitHub Actions Pages (se Pages já estiver ligado como "GitHub Actions")
+  deploy-actions:
+    name: Deploy (GitHub Actions)
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        id: pages
+        continue-on-error: true
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.pages.outcome == 'success'
+        with:
+          path: site-publico
+      - id: deployment
+        if: steps.pages.outcome == 'success'
+        uses: actions/deploy-pages@v4
+
+  # Método 2: branch gh-pages (funciona com 1 clique em Settings → Pages → Branch)
+  deploy-branch:
+    name: Publish gh-pages branch
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # enablement: true ativa Pages automaticamente (Source = GitHub Actions)
-      - uses: actions/configure-pages@v5
+      - name: Publish site-publico to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          enablement: true
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site-publico
-
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site-publico
+          force_orphan: true
+          commit_message: "Deploy site público Sinapesc"
