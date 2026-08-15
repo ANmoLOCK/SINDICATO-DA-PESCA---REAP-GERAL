@@ -7,7 +7,5 @@ build/
 *.spec.bak
 .DS_Store
 *.log
-
 release-windows/
-dist/
-build/
+qr-codes/
