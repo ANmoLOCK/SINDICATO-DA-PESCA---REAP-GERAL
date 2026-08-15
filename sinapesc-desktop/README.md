@@ -1,21 +1,24 @@
-# Sinapesc Desktop — Casa Nova
+# Sinapesc Desktop
 
-**Sinapesc — Sindicato Dos Aquicultores E Pescadores De Casa Nova**
+Código-fonte do programa Windows.
 
-Programa Windows (`.exe`) para controle de contribuição REAP com Google Planilha.
+Documentação principal (versões, bugs, downloads): **[README na raiz do repositório](../README.md)**  
+Histórico: **[CHANGELOG.md](../CHANGELOG.md)**  
+API Google: **[COMO_INTEGRAR_API.md](./COMO_INTEGRAR_API.md)**
 
-## Destaques
+## Versões rápidas
 
-- Interface administrativa com lista compacta (clique no nome)
-- Cadastro individual e **em lote**
-- QR da lista pública + botão **Criar link público** (Cloudflare, funciona no 4G)
-- Integração didática com Google Sheets
+| Versão | EXE |
+|--------|-----|
+| v1.2.0 (atual) | https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31858767536 |
+| v1.1.0 | https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31857220864 |
+| v1.0.0 | https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31854798304 |
 
-## Gerar o .exe
+## Desenvolvimento
 
-No Windows: execute `build_exe.bat`  
-Ou baixe o artefato do GitHub Actions **SinapescREAP-Windows**.
+```bash
+pip install -r requirements.txt
+python main.py
+```
 
-## Integração API
-
-Veja [`COMO_INTEGRAR_API.md`](COMO_INTEGRAR_API.md).
+Gerar EXE no Windows: `build_exe.bat`
