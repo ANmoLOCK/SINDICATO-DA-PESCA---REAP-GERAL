@@ -40,15 +40,21 @@ jobs:
           Copy-Item config.example.json release\config.json
           Copy-Item COMO_INTEGRAR_API.md release\
           Copy-Item README.md release\
+          if (Test-Path ..\TUTORIAL_IMPLEMENTACAO.md) {
+            Copy-Item ..\TUTORIAL_IMPLEMENTACAO.md release\
+          }
           @"
-          COMO USAR
-          =========
-          1. Leia COMO_INTEGRAR_API.md
+          SINAPESC REAP — COMO USAR (v1.4.0)
+          ==================================
+          1. Leia TUTORIAL_IMPLEMENTACAO.md (guia completo) ou COMO_INTEGRAR_API.md
           2. Renomeie o JSON do Google Cloud para google-credentials.json
              e coloque na mesma pasta deste exe.
           3. Edite config.json e cole o ID da planilha.
-          4. Compartilhe a planilha com o client_email do JSON (Editor).
-          5. Execute SinapescREAP.exe
+          4. Compartilhe a planilha com o client_email do JSON (Editor)
+             E também como "qualquer pessoa com o link" (Leitor) para o site.
+          5. Execute SinapescREAP.exe → Configurações → Testar conexão
+          6. Publique site-publico/ (GitHub Pages) e cole a URL do site
+             em Configurações → Gerar QRs → imprima QR Consulta CPF
           "@ | Set-Content -Encoding UTF8 release\LEIA-ME.txt
 
       - name: Upload artifact

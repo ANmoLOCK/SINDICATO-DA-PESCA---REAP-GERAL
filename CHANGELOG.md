@@ -8,7 +8,9 @@ Formato: mais recente primeiro.
 
 ## [v1.4.0] — 2026-08-15 — Site público gratuito + UI azul Sinapesc
 
-**Tag:** `v1.4.0`
+**Tag:** `v1.4.0`  
+**EXE:** https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31862885717  
+**Tutorial:** [`TUTORIAL_IMPLEMENTACAO.md`](./TUTORIAL_IMPLEMENTACAO.md)
 
 ### Melhorias
 - **Opção A:** pasta `site-publico/` (consulta/lista/pessoa) lendo a planilha sem o notebook ligado
@@ -17,6 +19,7 @@ Formato: mais recente primeiro.
 - QRs permanentes apontam para `public_site_url` (URL fixa do site)
 - Configurações: campo **URL do site público** + gerar QRs do site
 - Poster do QR com cores institucionais azuis + dourado
+- Tutorial passo a passo de implementação (`TUTORIAL_IMPLEMENTACAO.md`)
 
 ### Bugs / ajustes
 - Consulta pública deixa de depender de túnel/PC ligado (B11)
