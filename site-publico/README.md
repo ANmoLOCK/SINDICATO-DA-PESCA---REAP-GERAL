@@ -24,7 +24,7 @@ Se for a primeira vez no repositório, o passo `configure-pages` com `enablement
 Em **Configurações**, cole:
 
 ```text
-https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL
+https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 ```
 
 Depois: **Gerar QRs do site** → **QR Consulta CPF** → imprimir.
