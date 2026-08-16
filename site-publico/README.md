@@ -6,7 +6,7 @@ Consulta online **sem o notebook ligado**.
 
 Depois do deploy automático:
 
-- Site: https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL/
+- Site: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 - Consulta CPF: https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL/consulta.html
 - Lista: https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL/lista.html
 
