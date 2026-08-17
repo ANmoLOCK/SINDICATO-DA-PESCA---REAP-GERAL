@@ -9,7 +9,8 @@ Formato: mais recente primeiro.
 ## [v1.5.0] — 2026-08-17 — Lote visual + site no ar + EXE
 
 **Tag:** [`v1.5.0`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0)  
-**EXE (download):** https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734  
+**EXE (download direto):** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip  
+**Página da release:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0  
 **Repo:** https://github.com/ANmoLOCK/sinapesc-casanova-reap  
 **Consulta:** https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 

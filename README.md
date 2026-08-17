@@ -14,30 +14,18 @@ Sistema de controle da contribuição **REAP**: programa Windows para a secretar
 
 ## 1. Download do programa (EXE v1.5.0)
 
-**Arquivo:** `SinapescREAP.exe` (Windows 64 bits, ~42 MB)
+**Clique neste link** (baixa o ZIP, não precisa entrar no Actions):
 
-| | Link |
-|--|------|
-| **Baixar o programa** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734 |
-| Tag da versão | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0 |
+**https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip**
 
-Como baixar no GitHub:
+Ou só o executável:
 
-1. Abra o link do **Actions** acima  
-2. Role até **Artifacts**  
-3. Clique em **SinapescREAP-Windows**  
-4. Extraia o ZIP  
+**https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP.exe**
 
-O ZIP contém:
+Página da versão (notas + arquivos):  
+https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0
 
-```text
-SinapescREAP.exe
-config.json
-google-credentials.json   ← você coloca o JSON do Google
-LEIA-ME.txt
-TUTORIAL_IMPLEMENTACAO.md
-COMO_INTEGRAR_API.md
-```
+O ZIP contém `SinapescREAP.exe`, `config.json` e os tutoriais. Extraia numa pasta (ex.: `C:\Sinapesc\`) e coloque o `google-credentials.json` junto.
 
 ---
 
@@ -117,7 +105,7 @@ Não mistura quantidade nem valor em R$ no lote: o REAP continua sendo **mês pa
 
 ## 4. Como instalar (resumo)
 
-1. Baixe o ZIP no [link do EXE v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734)  
+1. Baixe o ZIP: [SinapescREAP-Windows-v1.5.0.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip)  
 2. Extraia, por exemplo em `C:\Sinapesc\`  
 3. Coloque `google-credentials.json` (JSON da Conta de Serviço) na mesma pasta  
 4. Em `config.json`, confira o ID da planilha e:
@@ -151,7 +139,7 @@ Não é necessário domínio `.com.br`. O endereço gratuito do GitHub Pages já
 
 | Versão | Tag | O que entrou | EXE |
 |--------|-----|----------------|-----|
-| **v1.5.0** | [v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0) | Lote visual · site `sinapesc-casanova-reap` · URL/QR sem travar | [Actions 32050211734](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734) |
+| **v1.5.0** | [v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0) | Lote visual · site `sinapesc-casanova-reap` · URL/QR sem travar | [ZIP direto](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip) |
 | v1.4.0 | — (código na main, tag desta linha é a 1.5.0) | Site estático · UI azul · logo/peixe · Pages | [Actions 31863086521](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31863086521) |
 | v1.3.0 | [v1.3.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.3.0) | QR estável · consulta CPF · cofre `qr-codes/` | [Actions 31860049095](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31860049095) |
 | v1.2.0 | [v1.2.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.2.0) | Nome Casa Nova · lote texto · link público | [Actions 31858767536](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31858767536) |
