@@ -6,25 +6,30 @@ Formato: mais recente primeiro.
 
 ---
 
-## [v1.5.0] — 2026-08-17 — Lote visual + site no ar
+## [v1.5.0] — 2026-08-17 — Lote visual + site no ar + EXE
 
-**Tag:** `v1.5.0`  
-**EXE:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734  
+**Tag:** [`v1.5.0`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0)  
+**EXE (download):** https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734  
 **Repo:** https://github.com/ANmoLOCK/sinapesc-casanova-reap  
-**Site:** https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
+**Consulta:** https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 
-### Melhorias
-- Cadastro em lote com campos lado a lado: **Nome**, **CPF** e **lixeira**
-- Botão **+ Adicionar linha**; importar CSV continua preenchendo as linhas
-- URL pública atualizada para o repositório `sinapesc-casanova-reap`
-- EXE normaliza a URL do site (aceita colar com `/consulta.html`)
-- Salvamento da URL do site sem travar o QR
-- Planilha em modo leitor já no `config.js`
+### Download
+Actions → [run 32050211734](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734) → Artifacts → **SinapescREAP-Windows**.
+
+### Melhorias (detalhe)
+- **Lote visual:** cada sócio em uma linha com Nome, CPF (máscara) e lixeira; botão + Adicionar linha
+- Importar CSV/TXT preenche as linhas (não substitui por caixona de texto)
+- Site público no repositório `sinapesc-casanova-reap` (GitHub Pages / `gh-pages`)
+- `config.js` com spreadsheetId da planilha leitora
+- Parser da aba Pessoas ignora cabeçalho do gviz
+- EXE: `normalize_public_base` — aceita URL com `/consulta.html` e grava a raiz
+- Configurações: salvar URL do site sem bloquear o QR (B12)
+- README da raiz reorganizado (download, atualizações, versões, bugs)
 
 ### O que não mudou
-- Consulta por CPF no celular (sem PC ligado)
+- Consulta por CPF no celular sem o PC ligado
 - Marcação mês a mês no EXE
-- Cores azuis, logo e QR permanente
+- Tema azul, logo Sinapesc, QR permanente em `qr-codes/`
 
 ---
 
