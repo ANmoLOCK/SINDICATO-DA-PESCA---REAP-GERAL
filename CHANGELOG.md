@@ -6,6 +6,27 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.5.0] — 2026-08-17 — Lote visual + site no ar
+
+**Tag:** `v1.5.0`  
+**Repo:** https://github.com/ANmoLOCK/sinapesc-casanova-reap  
+**Site:** https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
+
+### Melhorias
+- Cadastro em lote com campos lado a lado: **Nome**, **CPF** e **lixeira**
+- Botão **+ Adicionar linha**; importar CSV continua preenchendo as linhas
+- URL pública atualizada para o repositório `sinapesc-casanova-reap`
+- EXE normaliza a URL do site (aceita colar com `/consulta.html`)
+- Salvamento da URL do site sem travar o QR
+- Planilha em modo leitor já no `config.js`
+
+### O que não mudou
+- Consulta por CPF no celular (sem PC ligado)
+- Marcação mês a mês no EXE
+- Cores azuis, logo e QR permanente
+
+---
+
 ## [v1.4.0] — 2026-08-15 — Site público gratuito + UI azul Sinapesc
 
 **Tag:** `v1.4.0`  

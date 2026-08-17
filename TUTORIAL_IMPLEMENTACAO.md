@@ -1,9 +1,11 @@
-# Tutorial de implementação — Sinapesc REAP v1.4.0
+# Tutorial de implementação — Sinapesc REAP v1.5.0
 
 Guia completo para colocar no ar o **programa Windows** e o **site público gratuito** (consulta por CPF sem o notebook ligado).
 
-**Download do EXE:** [SinapescREAP-Windows (Actions v1.4.0)](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31863086521)  
-→ Artifacts → **SinapescREAP-Windows** → baixe o ZIP → extraia.
+**Download do EXE:** GitHub → **Actions** → **Build Sinapesc Windows EXE** → artefato `SinapescREAP-Windows`  
+→ baixe o ZIP → extraia.
+
+Site já publicado: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 
 ---
 
@@ -109,13 +111,13 @@ window.SINAPESC_CONFIG = {
 4. URL típica:
 
 ```text
-https://ANmoLOCK.github.io/SINDICATO-DA-PESCA---REAP-GERAL/
+https://anmolock.github.io/sinapesc-casanova-reap/
 ```
 
 Página de consulta:
 
 ```text
-https://ANmoLOCK.github.io/SINDICATO-DA-PESCA---REAP-GERAL/consulta.html
+https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 ```
 
 **Alternativa:** Cloudflare Pages / Netlify → envie só a pasta `site-publico`.
@@ -136,7 +138,7 @@ Os QRs ficam em `qr-codes/` ao lado do `.exe` e **não mudam** enquanto a URL do
 
 ### Secretaria (EXE)
 - Entrar como administrador  
-- Cadastrar sócio (ou **lote** CSV `Nome;CPF`)  
+- Cadastrar sócio (um a um ou **lote** com Nome + CPF nas linhas)  
 - Clicar no nome → marcar meses do REAP  
 
 ### Associado (celular)
@@ -163,8 +165,8 @@ Os QRs ficam em `qr-codes/` ao lado do `.exe` e **não mudam** enquanto a URL do
 
 | Item | Link |
 |------|------|
-| **EXE v1.4.0** | https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31863086521 |
-| Código | https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL |
+| **EXE v1.5.0** | Actions → artefato `SinapescREAP-Windows` |
+| Código | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
 | API detalhada | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
 | Site público | [`site-publico/README.md`](./site-publico/README.md) |
 | Changelog | [`CHANGELOG.md`](./CHANGELOG.md) |

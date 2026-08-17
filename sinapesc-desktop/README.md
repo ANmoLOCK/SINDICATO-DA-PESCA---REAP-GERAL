@@ -9,7 +9,7 @@ Site público: **[site-publico/](../site-publico/)**
 
 ## Versão atual
 
-**v1.4.0** — site público (Opção A) + UI azul com logo e peixe.
+**v1.5.0** — lote visual (Nome + CPF) + site público no GitHub Pages.
 
 ## Desenvolvimento
 

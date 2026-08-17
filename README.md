@@ -1,62 +1,82 @@
 # Sinapesc — Sindicato Dos Aquicultores E Pescadores De Casa Nova
 
-Controle de contribuição **REAP** (Windows `.exe` + site público gratuito).
+Programa de contribuição **REAP**: Windows `.exe` (secretaria) + site público gratuito (consulta por CPF no celular).
+
+Repositório: [ANmoLOCK/sinapesc-casanova-reap](https://github.com/ANmoLOCK/sinapesc-casanova-reap)
 
 ---
 
-## Download do EXE (v1.4.0)
+## Download (v1.5.0)
 
 | Item | Link |
 |------|------|
-| **EXE pronto** | [Baixar `SinapescREAP-Windows`](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31863086521) |
-| **Site público (consulta CPF)** | https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL/consulta.html |
-| **Tutorial completo** | [`TUTORIAL_IMPLEMENTACAO.md`](./TUTORIAL_IMPLEMENTACAO.md) |
-| Site (código) | [`site-publico/`](./site-publico/) |
-| API Google | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
-| Changelog | [`CHANGELOG.md`](./CHANGELOG.md) |
+| **EXE Windows** | Após o build: Actions → artefato `SinapescREAP-Windows` |
+| **Consulta pública (CPF)** | https://anmolock.github.io/sinapesc-casanova-reap/consulta.html |
+| **Lista pública** | https://anmolock.github.io/sinapesc-casanova-reap/lista.html |
+| Tutorial | [`TUTORIAL_IMPLEMENTACAO.md`](./TUTORIAL_IMPLEMENTACAO.md) |
+| API Google (planilha) | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
+| Histórico de versões | [`CHANGELOG.md`](./CHANGELOG.md) |
 
-> Actions → **Artifacts** → **SinapescREAP-Windows** → ZIP com `SinapescREAP.exe` (~42 MB).
+> No GitHub: **Actions** → último workflow **Build Sinapesc Windows EXE** (verde) → **Artifacts** → `SinapescREAP-Windows`.
 
-**URL do site para colar no EXE** (depois do Pages verde):
+**URL para colar no EXE** (Configurações → URL do site público), **sem** `/consulta.html`:
 
 ```text
-https://anmolock.github.io/SINDICATO-DA-PESCA---REAP-GERAL
+https://anmolock.github.io/sinapesc-casanova-reap
 ```
-
-> O repositório está **privado**. Para o GitHub Pages gratuito funcionar, torne-o **público** e ligue Pages (Actions).  
-> Passo a passo: [`COMO_PUBLICAR_SITE.md`](./COMO_PUBLICAR_SITE.md)
 
 ---
 
 ## Comece por aqui
 
-1. Baixe o EXE no link acima  
-2. Siga o **[Tutorial de implementação](./TUTORIAL_IMPLEMENTACAO.md)** (planilha → EXE → site → QR)  
-3. Imprima o **QR Consulta CPF** na sede  
+1. Baixe o ZIP do EXE e extraia  
+2. Coloque `google-credentials.json` + `config.json` na mesma pasta  
+3. No EXE: **Configurações** → cole a URL acima → **Salvar** → **QR Consulta CPF**  
+4. Imprima o QR na sede  
+
+Detalhes: [`TUTORIAL_IMPLEMENTACAO.md`](./TUTORIAL_IMPLEMENTACAO.md)
 
 ---
 
 ## O que o sistema faz
 
-- Cadastro de sócios (individual e em lote) no EXE  
+- Cadastro de sócios (um a um e **em lote**, com Nome + CPF lado a lado)  
 - Marcação mês a mês do REAP  
-- **Site público** — associado digita CPF no celular **sem o PC ligado**  
+- Site público: associado digita o CPF **sem o notebook ligado**  
 - QR permanente apontando para o site  
-- Interface azul premium com logo Sinapesc  
+- Interface azul com logo Sinapesc  
 
 ---
 
-## Versões
+## Melhorias desta versão (v1.5.0)
 
-| Versão | Destaque | EXE |
-|--------|----------|-----|
-| **v1.4.0** | Site público + UI azul + logo/peixe | [Actions](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31863086521) |
-| v1.3.0 | QR estável · consulta CPF | [Actions](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31860049095) |
-| v1.2.0 | Casa Nova · lote · link público | [Actions](https://github.com/ANmoLOCK/SINDICATO-DA-PESCA---REAP-GERAL/actions/runs/31858767536) |
+- Cadastro em lote com linhas **Nome | CPF | lixeira** (mais fácil de entender)  
+- Site público no ar: `anmolock.github.io/sinapesc-casanova-reap`  
+- EXE aceita a URL do site mesmo se colar `/consulta.html`  
+- Planilha leitora já configurada no `site-publico/config.js`  
+- GitHub Pages pela branch `gh-pages`  
+
+Versões anteriores (v1.0–v1.4): site estático, QR estável, UI azul, accordion, scroll — ver [`CHANGELOG.md`](./CHANGELOG.md).
 
 ---
 
-## Bugs (resumo)
+## Versões e EXE
 
-B01–B11 documentados no histórico; consulta pública sem notebook = **v1.4.0** (B11).  
-Detalhes: [`CHANGELOG.md`](./CHANGELOG.md)
+| Versão | Destaque |
+|--------|----------|
+| **v1.5.0** | Lote visual · URL nova do site · QR mais simples de gerar |
+| v1.4.0 | Site público + UI azul + logo/peixe |
+| v1.3.0 | QR estável · consulta CPF |
+| v1.2.0 | Casa Nova · lote · link público |
+| v1.1.0 | Scroll · accordion |
+| v1.0.0 | Primeiro EXE + Google Sheets |
+
+---
+
+## Pastas do projeto
+
+| Pasta | Função |
+|-------|--------|
+| `sinapesc-desktop/` | Programa Windows (código do EXE) |
+| `site-publico/` | Site de consulta (GitHub Pages) |
+| `.github/workflows/` | Build do EXE + publish do site |
