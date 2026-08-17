@@ -34,3 +34,26 @@ def get_initials(name: str) -> str:
     if len(parts) == 1:
         return parts[0][:2].upper()
     return (parts[0][0] + parts[-1][0]).upper()
+
+
+def parse_lote_lines(raw: str) -> list[tuple[str, str]]:
+    """Lê Nome + CPF de texto/CSV (uma pessoa por linha)."""
+    import re
+
+    itens: list[tuple[str, str]] = []
+    for line in raw.splitlines():
+        line = line.strip()
+        if not line or line.lower().startswith("nome"):
+            continue
+        if ";" in line:
+            parts = line.split(";", 1)
+        elif "\t" in line:
+            parts = line.split("\t", 1)
+        elif "," in line:
+            parts = line.rsplit(",", 1)
+        else:
+            parts = re.split(r"\s{2,}", line, maxsplit=1)
+        if len(parts) < 2:
+            continue
+        itens.append((parts[0].strip().strip('"'), parts[1].strip().strip('"')))
+    return itens

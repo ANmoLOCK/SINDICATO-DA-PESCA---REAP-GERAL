@@ -21,7 +21,7 @@ from config import (
 )
 from sheets import MESES, MESES_LABEL, MesKey, PessoaComReap, SheetsConfigError, SheetsService
 from ui.brand import load_fish, load_logo, load_school
-from ui.formatters import format_cpf, format_cpf_masked, get_initials, only_digits
+from ui.formatters import format_cpf, format_cpf_masked, get_initials, only_digits, parse_lote_lines
 from ui.public_link import ensure_site_qrs, resolve_base, urls_for
 from ui.public_web import start_public_server
 from ui.qr_vault import (
@@ -847,19 +847,96 @@ class SinapescApp(tk.Tk):
         win = tk.Toplevel(self)
         win.title("Cadastro em lote")
         win.configure(bg=COLORS["surface"])
-        win.geometry("620x480")
+        win.geometry("720x560")
         win.transient(self)
         win.grab_set()
 
-        tk.Label(win, text="Cadastro de sócios em lote", bg=COLORS["surface"], fg=COLORS["primary"], font=(FONT_DISPLAY, 14, "bold")).pack(anchor="w", padx=16, pady=(16, 4))
+        tk.Frame(win, bg=COLORS["gold"], height=3).pack(fill="x")
         tk.Label(
             win,
-            text="Uma pessoa por linha. Formatos: Nome;CPF   ou   Nome,CPF   ou   Nome[TAB]CPF",
-            bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 9),
+            text="Cadastro de sócios em lote",
+            bg=COLORS["surface"],
+            fg=COLORS["primary"],
+            font=(FONT_DISPLAY, 14, "bold"),
+        ).pack(anchor="w", padx=16, pady=(14, 2))
+        tk.Label(
+            win,
+            text="Uma linha = um sócio. Preencha Nome e CPF lado a lado. A lixeira remove a linha.",
+            bg=COLORS["surface"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 9),
         ).pack(anchor="w", padx=16)
 
-        text = tk.Text(win, height=16, wrap="none", font=(FONT_FAMILY, 10), bg=COLORS["surface_soft"], relief="solid", borderwidth=1)
-        text.pack(fill="both", expand=True, padx=16, pady=10)
+        header = tk.Frame(win, bg=COLORS["surface_soft"])
+        header.pack(fill="x", padx=16, pady=(12, 0))
+        tk.Label(header, text="Nome completo", bg=COLORS["surface_soft"], fg=COLORS["primary"], font=(FONT_FAMILY, 9, "bold"), width=36, anchor="w").pack(side="left", padx=(8, 8))
+        tk.Label(header, text="CPF", bg=COLORS["surface_soft"], fg=COLORS["primary"], font=(FONT_FAMILY, 9, "bold"), width=18, anchor="w").pack(side="left")
+        tk.Label(header, text="", bg=COLORS["surface_soft"], width=4).pack(side="left")
+
+        scroll = ScrollableFrame(win, bg=COLORS["bg"])
+        scroll.pack(fill="both", expand=True, padx=16, pady=8)
+        rows_host = scroll.inner
+        rows_host.configure(bg=COLORS["bg"])
+        linhas: List[dict] = []
+
+        def bind_cpf_mask(entry: ttk.Entry) -> None:
+            def on_key(_evt=None):
+                digits = only_digits(entry.get())
+                shown = format_cpf(digits)
+                if entry.get() != shown:
+                    entry.delete(0, "end")
+                    entry.insert(0, shown)
+                    entry.icursor("end")
+
+            entry.bind("<KeyRelease>", on_key)
+
+        def remover_linha(item: dict) -> None:
+            if len(linhas) <= 1:
+                item["nome"].delete(0, "end")
+                item["cpf"].delete(0, "end")
+                return
+            linhas.remove(item)
+            item["frame"].destroy()
+
+        def add_linha(nome: str = "", cpf: str = "") -> None:
+            frame = tk.Frame(rows_host, bg=COLORS["surface"], highlightbackground=COLORS["border_soft"], highlightthickness=1)
+            frame.pack(fill="x", pady=4)
+            inner = tk.Frame(frame, bg=COLORS["surface"])
+            inner.pack(fill="x", padx=6, pady=6)
+            nome_ent = ttk.Entry(inner, width=38)
+            nome_ent.pack(side="left", padx=(0, 8))
+            if nome:
+                nome_ent.insert(0, nome)
+            cpf_ent = ttk.Entry(inner, width=18)
+            cpf_ent.pack(side="left")
+            if cpf:
+                cpf_ent.insert(0, format_cpf(cpf))
+            bind_cpf_mask(cpf_ent)
+            item = {"frame": frame, "nome": nome_ent, "cpf": cpf_ent}
+            self._btn(
+                inner,
+                "🗑",
+                lambda: remover_linha(item),
+                kind="ghost",
+                padx=8,
+                pady=3,
+                font_size=10,
+                bold=False,
+            ).pack(side="left", padx=(8, 0))
+            linhas.append(item)
+
+        for _ in range(5):
+            add_linha()
+
+        def coletar() -> List[tuple[str, str]]:
+            itens: List[tuple[str, str]] = []
+            for item in linhas:
+                nome = item["nome"].get().strip()
+                cpf = only_digits(item["cpf"].get())
+                if not nome and not cpf:
+                    continue
+                itens.append((nome, cpf))
+            return itens
 
         def load_file() -> None:
             path = filedialog.askopenfilename(
@@ -870,38 +947,26 @@ class SinapescApp(tk.Tk):
             if not path:
                 return
             raw = open(path, encoding="utf-8-sig", errors="replace").read()
-            text.delete("1.0", "end")
-            text.insert("1.0", raw)
-
-        def parse_lines(raw: str) -> List[tuple[str, str]]:
-            itens: List[tuple[str, str]] = []
-            for line in raw.splitlines():
-                line = line.strip()
-                if not line or line.lower().startswith("nome"):
-                    continue
-                if ";" in line:
-                    parts = line.split(";", 1)
-                elif "\t" in line:
-                    parts = line.split("\t", 1)
-                elif "," in line:
-                    # última vírgula separa CPF se houver várias no nome
-                    parts = line.rsplit(",", 1)
-                else:
-                    parts = re.split(r"\s{2,}", line, maxsplit=1)
-                if len(parts) < 2:
-                    continue
-                itens.append((parts[0].strip().strip('"'), parts[1].strip().strip('"')))
-            return itens
+            parsed = parse_lote_lines(raw)
+            if not parsed:
+                messagebox.showerror("Lote", "Nenhuma linha válida no arquivo.\nUse Nome;CPF", parent=win)
+                return
+            for item in list(linhas):
+                linhas.remove(item)
+                item["frame"].destroy()
+            for nome, cpf in parsed:
+                add_linha(nome, cpf)
+            add_linha()
 
         def salvar() -> None:
-            itens = parse_lines(text.get("1.0", "end"))
+            itens = coletar()
             if not itens:
-                messagebox.showerror("Lote", "Nenhuma linha válida encontrada.", parent=win)
+                messagebox.showerror("Lote", "Preencha pelo menos um Nome e CPF.", parent=win)
                 return
             try:
                 svc = self._ensure_service()
-            except Exception as exc:  # noqa: BLE001
-                messagebox.showerror("Sheets", str(exc), parent=win)
+            except Exception as extra:  # noqa: BLE001
+                messagebox.showerror("Sheets", str(extra), parent=win)
                 return
 
             def work():
@@ -921,6 +986,10 @@ class SinapescApp(tk.Tk):
                 self._load_admin_data()
 
             self._run_bg(work, ok, lambda e: messagebox.showerror("Erro", str(e), parent=win), "Cadastrando lote…")
+
+        extra = tk.Frame(win, bg=COLORS["surface"])
+        extra.pack(fill="x", padx=16, pady=(0, 4))
+        self._btn(extra, "+ Adicionar linha", lambda: add_linha(), kind="ghost").pack(side="left")
 
         bar = tk.Frame(win, bg=COLORS["surface"])
         bar.pack(fill="x", padx=16, pady=(0, 16))
