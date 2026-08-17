@@ -1,9 +1,9 @@
-# Tutorial de implementação — Sinapesc REAP v1.5.0
+# Tutorial de implementação — Sinapesc REAP v1.5.1
 
 Guia completo para colocar no ar o **programa Windows** e o **site público gratuito** (consulta por CPF sem o notebook ligado).
 
-**Download do EXE:** [SinapescREAP-Windows-v1.5.0.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip)  
-(página: [v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0))
+**Download do EXE:** [SinapescREAP-Windows-v1.5.1.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip)  
+(página: [v1.5.1](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1))
 
 Site já publicado: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 

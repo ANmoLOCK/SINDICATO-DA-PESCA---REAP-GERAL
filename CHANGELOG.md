@@ -6,6 +6,25 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.5.1] — 2026-08-17 — Config.Atalhos
+
+**Tag:** [`v1.5.1`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip  
+**Consulta:** https://anmolock.github.io/sinapesc-casanova-reap/consulta.html  
+**Sugestões:** [`MELHORIAS.md`](./MELHORIAS.md)
+
+### O que entrou
+- Botão **Config.Atalhos** no admin (ao lado de Atualizar)
+- **Lote com REAP já marcado** (Mar→Out, um mês ou ano inteiro)
+- **Marcar meses em massa** nos sócios existentes (opção de só a busca; não apaga pagos, salvo “substituir”)
+- **Copiar REAP** de um ano para outro
+- Escritas na planilha em **batch** (`values.batchUpdate` + append), para não estourar cota da API
+
+### O que não mudou
+- Site público, QR permanente, lote visual Nome/CPF, tema azul
+
+---
+
 ## [v1.5.0] — 2026-08-17 — Lote visual + site no ar + EXE
 
 **Tag:** [`v1.5.0`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0)  

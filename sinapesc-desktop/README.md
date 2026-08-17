@@ -9,7 +9,7 @@ Site público: **[site-publico/](../site-publico/)**
 
 ## Versão atual
 
-**v1.5.0** — lote visual (Nome + CPF) + site público no GitHub Pages.
+**v1.5.1** — Config.Atalhos (lote pré-marcado, marcar em massa, copiar ano).
 
 ## Desenvolvimento
 

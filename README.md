@@ -7,23 +7,21 @@ Sistema de controle da contribuição **REAP**: programa Windows para a secretar
 | | |
 |--|--|
 | Repositório | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
-| Tag desta versão | [**v1.5.0**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0) |
+| Tag desta versão | [**v1.5.1**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1) |
 | Data | 17 de agosto de 2026 |
 
 ---
 
-## 1. Download do programa (EXE v1.5.0)
+## 1. Download do programa (EXE v1.5.1)
 
-**Clique neste link** (baixa o ZIP, não precisa entrar no Actions):
+**Clique neste link** (baixa o ZIP; não use o Actions):
 
-**https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip**
+**https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip**
 
-Ou só o executável:
+Página da versão (notas + arquivo):  
+https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1
 
-**https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP.exe**
-
-Página da versão (notas + arquivos):  
-https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0
+Versão anterior (sem Config.Atalhos): [v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0)
 
 O ZIP contém `SinapescREAP.exe`, `config.json` e os tutoriais. Extraia numa pasta (ex.: `C:\Sinapesc\`) e coloque o `google-credentials.json` junto.
 
@@ -101,11 +99,23 @@ Não mistura quantidade nem valor em R$ no lote: o REAP continua sendo **mês pa
 2. Digita o CPF  
 3. Vê só os próprios meses/anos  
 
+### 3.6 Config.Atalhos (v1.5.1)
+
+No admin, ao lado de **Atualizar**:
+
+1. **Lote com REAP já marcado** — cadastra sócios e já deixa meses pagos (atalho Mar→Out, um mês, ou ano inteiro)  
+2. **Marcar em massa** — liga o intervalo nos sócios que já existem (pode filtrar pela busca)  
+3. **Copiar ano** — leva os 12 meses de um ano para outro (ex.: 2025 → 2026)  
+
+Tudo grava na planilha em **lote** (poucas chamadas à API).
+
+Sugestões do que fazer depois: [`MELHORIAS.md`](./MELHORIAS.md)
+
 ---
 
 ## 4. Como instalar (resumo)
 
-1. Baixe o ZIP: [SinapescREAP-Windows-v1.5.0.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip)  
+1. Baixe o ZIP: [SinapescREAP-Windows-v1.5.1.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip)  
 2. Extraia, por exemplo em `C:\Sinapesc\`  
 3. Coloque `google-credentials.json` (JSON da Conta de Serviço) na mesma pasta  
 4. Em `config.json`, confira o ID da planilha e:
@@ -139,7 +149,8 @@ Não é necessário domínio `.com.br`. O endereço gratuito do GitHub Pages já
 
 | Versão | Tag | O que entrou | EXE |
 |--------|-----|----------------|-----|
-| **v1.5.0** | [v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0) | Lote visual · site `sinapesc-casanova-reap` · URL/QR sem travar | [ZIP direto](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip) |
+| **v1.5.1** | [v1.5.1](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1) | Config.Atalhos: lote pré-marcado · marcar em massa · copiar ano | [ZIP direto](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip) |
+| v1.5.0 | [v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0) | Lote visual · site `sinapesc-casanova-reap` · URL/QR sem travar | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip) |
 | v1.4.0 | — (código na main, tag desta linha é a 1.5.0) | Site estático · UI azul · logo/peixe · Pages | [Actions 31863086521](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31863086521) |
 | v1.3.0 | [v1.3.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.3.0) | QR estável · consulta CPF · cofre `qr-codes/` | [Actions 31860049095](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31860049095) |
 | v1.2.0 | [v1.2.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.2.0) | Nome Casa Nova · lote texto · link público | [Actions 31858767536](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31858767536) |
@@ -179,6 +190,7 @@ Histórico narrado: [`CHANGELOG.md`](./CHANGELOG.md)
 | `.github/workflows/deploy-site.yml` | Publica `site-publico/` na branch `gh-pages` |
 | `TUTORIAL_IMPLEMENTACAO.md` | Instalação completa (planilha → EXE → site → QR) |
 | `CHANGELOG.md` | Notas de cada versão |
+| `MELHORIAS.md` | Sugestões do que fazer nas próximas versões |
 
 ---
 
@@ -189,4 +201,13 @@ Histórico narrado: [`CHANGELOG.md`](./CHANGELOG.md)
 - **Planilha:** Conta de Serviço = Editor (EXE); “qualquer pessoa com o link” = Leitor (site)  
 - Não envie `google-credentials.json` nem a senha do admin para terceiros  
 
-O GitHub **não precisa ficar aberto** para o site funcionar.
+## 10. Próximas melhorias
+
+Lista completa e priorizada: **[`MELHORIAS.md`](./MELHORIAS.md)**
+
+Resumo do que mais vale:
+
+1. Painel de inadimplência (quem está atrasado no ano)  
+2. Recibo/comprovante em PDF  
+3. Backup automático da planilha na pasta do EXE  
+
