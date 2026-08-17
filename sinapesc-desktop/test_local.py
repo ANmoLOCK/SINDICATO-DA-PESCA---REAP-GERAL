@@ -9,7 +9,15 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 from sheets.service import _row_to_pessoa, _row_to_reap  # noqa: E402
-from ui.formatters import format_cpf, format_cpf_masked, get_initials, only_digits, parse_lote_lines  # noqa: E402
+from sheets.models import meses_no_intervalo, meses_para_flags  # noqa: E402
+from ui.formatters import format_cpf, format_cpf_masked, only_digits, parse_lote_lines  # noqa: E402
+
+
+def test_meses_intervalo() -> None:
+    assert meses_no_intervalo("mar", "out") == ["mar", "abr", "mai", "jun", "jul", "ago", "set", "out"]
+    flags = meses_para_flags(["mar", "out"])
+    assert flags[2] == "TRUE" and flags[9] == "TRUE" and flags[0] == "FALSE"
+
 
 
 def test_formatters() -> None:
@@ -40,4 +48,5 @@ if __name__ == "__main__":
     test_formatters()
     test_row_parsers()
     test_parse_lote()
+    test_meses_intervalo()
     print("OK — testes locais passaram.")

@@ -20,6 +20,7 @@ from config import (
     save_config,
 )
 from sheets import MESES, MESES_LABEL, MesKey, PessoaComReap, SheetsConfigError, SheetsService
+from sheets.models import meses_no_intervalo
 from ui.brand import load_fish, load_logo, load_school
 from ui.formatters import format_cpf, format_cpf_masked, get_initials, only_digits, parse_lote_lines
 from ui.public_link import ensure_site_qrs, resolve_base, urls_for
@@ -618,6 +619,7 @@ class SinapescApp(tk.Tk):
 
         self._btn(top, "+ Novo sócio", lambda: self._dialog_pessoa(), kind="accent").pack(side="right")
         self._btn(top, "Cadastro em lote", self._dialog_lote, kind="primary").pack(side="right", padx=8)
+        self._btn(top, "Config.Atalhos", self._dialog_atalhos, kind="primary").pack(side="right", padx=4)
         self._btn(top, "Atualizar", self._load_admin_data, kind="ghost").pack(side="right", padx=4)
 
         search_row = tk.Frame(wrap, bg=COLORS["bg"])
@@ -843,7 +845,244 @@ class SinapescApp(tk.Tk):
 
         self._btn(win, "Salvar", save).pack(pady=16)
 
-    def _dialog_lote(self) -> None:
+    def _atalhos_month_vars(self, parent) -> dict:
+        box = tk.Frame(parent, bg=COLORS["surface"])
+        box.pack(fill="x", pady=(4, 8))
+        vars_mes = {m: tk.BooleanVar(value=False) for m in MESES}
+
+        def aplicar(meses):
+            ligados = set(meses)
+            for m, var in vars_mes.items():
+                var.set(m in ligados)
+
+        presets = tk.Frame(box, bg=COLORS["surface"])
+        presets.pack(fill="x", pady=(0, 6))
+        self._btn(presets, "Mar → Out", lambda: aplicar(meses_no_intervalo("mar", "out")), kind="ghost", padx=8, pady=3, font_size=9).pack(side="left", padx=(0, 4))
+        self._btn(presets, "Ano inteiro", lambda: aplicar(list(MESES)), kind="ghost", padx=8, pady=3, font_size=9).pack(side="left", padx=4)
+        self._btn(presets, "Limpar", lambda: aplicar([]), kind="ghost", padx=8, pady=3, font_size=9).pack(side="left", padx=4)
+
+        grid = tk.Frame(box, bg=COLORS["surface"])
+        grid.pack(fill="x")
+        for i, mes in enumerate(MESES):
+            tk.Checkbutton(
+                grid,
+                text=MESES_LABEL[mes][:3],
+                variable=vars_mes[mes],
+                bg=COLORS["surface"],
+                fg=COLORS["primary"],
+                selectcolor=COLORS["surface_soft"],
+                activebackground=COLORS["surface"],
+                font=(FONT_FAMILY, 9),
+            ).grid(row=i // 6, column=i % 6, sticky="w", padx=4, pady=2)
+        return vars_mes
+
+    def _meses_escolhidos(self, vars_mes: dict) -> List[str]:
+        return [m for m, var in vars_mes.items() if var.get()]
+
+    def _dialog_atalhos(self) -> None:
+        win = tk.Toplevel(self)
+        win.title("Config.Atalhos")
+        win.configure(bg=COLORS["bg"])
+        win.geometry("760x640")
+        win.transient(self)
+        win.grab_set()
+
+        tk.Frame(win, bg=COLORS["gold"], height=3).pack(fill="x")
+        head = tk.Frame(win, bg=COLORS["primary"], padx=16, pady=12)
+        head.pack(fill="x")
+        tk.Label(head, text="Config.Atalhos", bg=COLORS["primary"], fg=COLORS["foam"], font=(FONT_DISPLAY, 16, "bold")).pack(anchor="w")
+        tk.Label(
+            head,
+            text="Automações estáveis: poucas chamadas à planilha, sem marcar mês a mês na API.",
+            bg=COLORS["primary"],
+            fg="#B7D3E8",
+            font=(FONT_FAMILY, 9),
+        ).pack(anchor="w", pady=(4, 0))
+
+        scroll = ScrollableFrame(win, bg=COLORS["bg"])
+        scroll.pack(fill="both", expand=True, padx=16, pady=12)
+        body = scroll.inner
+
+        def card(title, desc):
+            outer = tk.Frame(body, bg=COLORS["border"], padx=1, pady=1)
+            outer.pack(fill="x", pady=(0, 12))
+            inner = tk.Frame(outer, bg=COLORS["surface"], padx=14, pady=12)
+            inner.pack(fill="both", expand=True)
+            tk.Label(inner, text=title, bg=COLORS["surface"], fg=COLORS["primary"], font=(FONT_DISPLAY, 12, "bold")).pack(anchor="w")
+            tk.Label(inner, text=desc, bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 9), wraplength=680, justify="left").pack(anchor="w", pady=(2, 8))
+            return inner
+
+        from datetime import datetime as _dt
+
+        # ---- 1 lote com meses ----
+        c1 = card(
+            "1) Lote com REAP já marcado",
+            "Cadastra vários sócios de uma vez e já deixa os meses pagos no ano escolhido "
+            "(ex.: março a outubro, ou só um mês). Uma escrita na aba Pessoas e outra na Reap.",
+        )
+        r1 = tk.Frame(c1, bg=COLORS["surface"])
+        r1.pack(fill="x")
+        tk.Label(r1, text="Ano", bg=COLORS["surface"], fg=COLORS["muted"]).pack(side="left")
+        ano1 = ttk.Entry(r1, width=8)
+        ano1.insert(0, str(_dt.now().year))
+        ano1.pack(side="left", padx=8)
+        vars1 = self._atalhos_month_vars(c1)
+        self._btn(
+            c1,
+            "Abrir lote com meses marcados…",
+            lambda: self._abrir_lote_atalho(win, vars1, ano1.get()),
+            kind="accent",
+        ).pack(anchor="w")
+
+        # ---- 2 marcar existentes ----
+        c2 = card(
+            "2) Marcar meses nos sócios já cadastrados",
+            "Liga o intervalo (ex.: mar–out) no ano para todos os sócios, ou só os da busca atual. "
+            "Não apaga meses já pagos, a menos que você marque “substituir o ano”.",
+        )
+        r2 = tk.Frame(c2, bg=COLORS["surface"])
+        r2.pack(fill="x")
+        tk.Label(r2, text="Ano", bg=COLORS["surface"], fg=COLORS["muted"]).pack(side="left")
+        ano2 = ttk.Entry(r2, width=8)
+        ano2.insert(0, str(_dt.now().year))
+        ano2.pack(side="left", padx=8)
+        so_busca = tk.BooleanVar(value=False)
+        tk.Checkbutton(r2, text="Só quem aparece na busca da lista", variable=so_busca, bg=COLORS["surface"], fg=COLORS["primary"], selectcolor=COLORS["surface_soft"]).pack(side="left", padx=12)
+        substituir = tk.BooleanVar(value=False)
+        tk.Checkbutton(c2, text="Substituir o ano (desmarca os meses não escolhidos)", variable=substituir, bg=COLORS["surface"], fg=COLORS["muted"], selectcolor=COLORS["surface_soft"]).pack(anchor="w")
+        vars2 = self._atalhos_month_vars(c2)
+
+        def run_marcar() -> None:
+            meses = self._meses_escolhidos(vars2)
+            if not meses:
+                messagebox.showwarning("Atalhos", "Escolha pelo menos um mês (ex.: Mar → Out).", parent=win)
+                return
+            try:
+                ano = int(ano2.get().strip())
+            except ValueError:
+                messagebox.showerror("Atalhos", "Ano inválido.", parent=win)
+                return
+            alvo = self._filtered_pessoas() if so_busca.get() else list(self._pessoas)
+            if not alvo:
+                messagebox.showwarning("Atalhos", "Nenhum sócio para aplicar.", parent=win)
+                return
+            nomes = ", ".join(m.upper() for m in meses)
+            if not messagebox.askyesno(
+                "Confirmar",
+                f"Marcar {nomes} em {ano} para {len(alvo)} sócio(s)?\n\n"
+                "Isso grava na planilha em lote (não quebra a API).",
+                parent=win,
+            ):
+                return
+            try:
+                svc = self._ensure_service()
+            except Exception as extra:  # noqa: BLE001
+                messagebox.showerror("Sheets", str(extra), parent=win)
+                return
+
+            def work():
+                return svc.marcar_meses_em_massa(
+                    ano=ano,
+                    meses_on=meses,
+                    person_ids=[p.id for p in alvo],
+                    substituir=substituir.get(),
+                )
+
+            def ok(res: dict) -> None:
+                messagebox.showinfo(
+                    "Atalhos",
+                    f"Atualizados: {res.get('atualizados', 0)}\n"
+                    f"Anos criados: {res.get('criados', 0)}",
+                    parent=win,
+                )
+                self._load_admin_data()
+
+            self._run_bg(work, ok, lambda e: messagebox.showerror("Erro", str(e), parent=win), "Marcando meses em lote…")
+
+        self._btn(c2, "Aplicar marcação em massa", run_marcar).pack(anchor="w", pady=(4, 0))
+
+        # ---- 3 copiar ano ----
+        c3 = card(
+            "3) Copiar REAP de um ano para outro",
+            "Leva os 12 meses já marcados (ex.: 2025 → 2026). Cria o ano novo se ainda não existir. "
+            "Útil no virar do ano, sem clicar sócio por sócio.",
+        )
+        r3 = tk.Frame(c3, bg=COLORS["surface"])
+        r3.pack(fill="x")
+        tk.Label(r3, text="De", bg=COLORS["surface"], fg=COLORS["muted"]).pack(side="left")
+        ano_de = ttk.Entry(r3, width=8)
+        ano_de.insert(0, str(_dt.now().year - 1))
+        ano_de.pack(side="left", padx=6)
+        tk.Label(r3, text="para", bg=COLORS["surface"], fg=COLORS["muted"]).pack(side="left")
+        ano_para = ttk.Entry(r3, width=8)
+        ano_para.insert(0, str(_dt.now().year))
+        ano_para.pack(side="left", padx=6)
+        so_busca3 = tk.BooleanVar(value=False)
+        tk.Checkbutton(r3, text="Só a busca da lista", variable=so_busca3, bg=COLORS["surface"], fg=COLORS["primary"], selectcolor=COLORS["surface_soft"]).pack(side="left", padx=12)
+
+        def run_copiar() -> None:
+            try:
+                a = int(ano_de.get().strip())
+                b = int(ano_para.get().strip())
+            except ValueError:
+                messagebox.showerror("Atalhos", "Anos inválidos.", parent=win)
+                return
+            alvo = self._filtered_pessoas() if so_busca3.get() else list(self._pessoas)
+            if not alvo:
+                messagebox.showwarning("Atalhos", "Nenhum sócio para copiar.", parent=win)
+                return
+            if not messagebox.askyesno("Confirmar", f"Copiar meses de {a} para {b} em {len(alvo)} sócio(s)?", parent=win):
+                return
+            try:
+                svc = self._ensure_service()
+            except Exception as extra:  # noqa: BLE001
+                messagebox.showerror("Sheets", str(extra), parent=win)
+                return
+
+            def work():
+                return svc.copiar_reap_ano(a, b, person_ids=[p.id for p in alvo])
+
+            def ok(res: dict) -> None:
+                messagebox.showinfo(
+                    "Atalhos",
+                    f"Copiados: {res.get('ok', 0)}\n"
+                    f"Sem ano {a} (pulados): {res.get('pulados', 0)}",
+                    parent=win,
+                )
+                self._load_admin_data()
+
+            self._run_bg(work, ok, lambda e: messagebox.showerror("Erro", str(e), parent=win), "Copiando ano…")
+
+        self._btn(c3, "Copiar ano", run_copiar, kind="accent").pack(anchor="w", pady=(8, 0))
+
+        tk.Label(
+            body,
+            text="As três ações usam escrita em lote. Evite clicar várias vezes seguidas enquanto a barra de status disser “Marcando…” / “Copiando…”.",
+            bg=COLORS["bg"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 8),
+            wraplength=680,
+            justify="left",
+        ).pack(anchor="w", pady=(0, 16))
+
+        self._btn(win, "Fechar", win.destroy, kind="ghost").pack(pady=(0, 12))
+
+    def _abrir_lote_atalho(self, atalhos_win, vars_mes: dict, ano: str) -> None:
+        meses = self._meses_escolhidos(vars_mes)
+        if not meses:
+            messagebox.showwarning(
+                "Atalhos",
+                "Escolha os meses (ex.: Mar → Out) ou um mês específico antes de abrir o lote.",
+                parent=atalhos_win,
+            )
+            return
+        try:
+            atalhos_win.grab_release()
+        except tk.TclError:
+            pass
+        self._dialog_lote(meses_on=meses, ano=ano)
+
+    def _dialog_lote(self, meses_on: Optional[List[str]] = None, ano: Optional[str] = None) -> None:
         win = tk.Toplevel(self)
         win.title("Cadastro em lote")
         win.configure(bg=COLORS["surface"])
@@ -866,6 +1105,21 @@ class SinapescApp(tk.Tk):
             fg=COLORS["muted"],
             font=(FONT_FAMILY, 9),
         ).pack(anchor="w", padx=16)
+        meses_escolhidos = [str(m).lower()[:3] for m in (meses_on or []) if str(m).lower()[:3] in MESES]
+        ano_lote: Optional[int] = None
+        if ano and str(ano).strip().isdigit():
+            ano_lote = int(str(ano).strip())
+        if meses_escolhidos:
+            tk.Label(
+                win,
+                text=(
+                    f"Atalho: no ano {ano_lote or 'atual'} já entram marcados: "
+                    + ", ".join(m.upper() for m in meses_escolhidos)
+                ),
+                bg=COLORS["success_bg"],
+                fg=COLORS["success"],
+                font=(FONT_FAMILY, 9, "bold"),
+            ).pack(fill="x", padx=16, pady=(8, 0))
 
         header = tk.Frame(win, bg=COLORS["surface_soft"])
         header.pack(fill="x", padx=16, pady=(12, 0))
@@ -970,12 +1224,14 @@ class SinapescApp(tk.Tk):
                 return
 
             def work():
-                return svc.add_pessoas_lote(itens)
+                return svc.add_pessoas_lote(itens, ano=ano_lote, meses_on=meses_escolhidos or None)
 
             def ok(result: dict) -> None:
                 for pid in result.get("ids", []):
                     self._expanded_ids.add(pid)
                 msg = f"Cadastrados: {result.get('ok', 0)}"
+                if result.get("meses"):
+                    msg += f"\nAno {result.get('ano')}: {', '.join(str(m).upper() for m in result['meses'])} já marcados."
                 erros = result.get("erros") or []
                 if erros:
                     msg += "\n\nAvisos:\n" + "\n".join(erros[:12])

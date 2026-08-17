@@ -200,6 +200,15 @@ class GoogleSheetsClient:
             body={"values": list(values)},
         ).execute()
 
+    def batch_update_values(self, data: List[dict]) -> None:
+        """Várias faixas de células em UMA chamada (evita estourar cota da API)."""
+        if not data:
+            return
+        self._service.spreadsheets().values().batchUpdate(
+            spreadsheetId=self.spreadsheet_id,
+            body={"valueInputOption": "RAW", "data": data},
+        ).execute()
+
     def batch_update(self, requests: List[dict]) -> None:
         """Envia várias alterações estruturais de uma vez (ex.: apagar linhas)."""
         if not requests:

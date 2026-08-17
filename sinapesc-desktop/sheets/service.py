@@ -17,7 +17,7 @@ from .client import (
     GoogleSheetsClient,
     SheetsConfigError,
 )
-from .models import MESES, MesKey, Pessoa, PessoaComReap, ReapAno, meses_vazios
+from .models import MESES, MesKey, Pessoa, PessoaComReap, ReapAno, meses_para_flags, meses_vazios
 
 # Reexport para a UI
 __all__ = ["SheetsService", "SheetsConfigError"]
@@ -168,16 +168,23 @@ class SheetsService:
             ],
         )
 
-    def add_pessoas_lote(self, itens: List[tuple[str, str]]) -> dict:
+    def add_pessoas_lote(
+        self,
+        itens: List[tuple[str, str]],
+        *,
+        ano: Optional[int] = None,
+        meses_on: Optional[List[str]] = None,
+    ) -> dict:
         """
-        Cadastra vários sócios de uma vez.
+        Cadastra vários sócios de uma vez (2 escritas na API: Pessoas + Reap).
         itens = [(nome, cpf), ...]
-        Retorna {ok: int, erros: list[str], ids: list[str]}.
+        meses_on = meses já marcados no ano (ex.: ['mar','abr',...,'out']).
         """
         self.client.ensure_tabs()
         existentes = {p.cpf for p in self.get_all_pessoas()}
         now = _now_iso()
-        ano_atual = datetime.now().year
+        ano_alvo = int(ano or datetime.now().year)
+        flags = meses_para_flags(meses_on)
 
         pessoas_rows: List[list] = []
         reap_rows: List[list] = []
@@ -201,14 +208,150 @@ class SheetsService:
             person_id = str(uuid.uuid4())
             reap_id = str(uuid.uuid4())
             pessoas_rows.append([person_id, nome, cpf, now])
-            reap_rows.append([reap_id, person_id, ano_atual, *(["FALSE"] * len(MESES)), now])
+            reap_rows.append([reap_id, person_id, ano_alvo, *flags, now])
             ids.append(person_id)
 
         if pessoas_rows:
             self.client.append_values(f"{PESSOAS_TAB}!A2", pessoas_rows)
             self.client.append_values(f"{REAP_TAB}!A2", reap_rows)
 
-        return {"ok": len(ids), "erros": erros, "ids": ids}
+        return {"ok": len(ids), "erros": erros, "ids": ids, "ano": ano_alvo, "meses": meses_on or []}
+
+    def marcar_meses_em_massa(
+        self,
+        *,
+        ano: int,
+        meses_on: List[str],
+        person_ids: Optional[List[str]] = None,
+        substituir: bool = False,
+    ) -> dict:
+        """
+        Marca meses em vários sócios com poucas chamadas à API
+        (1 leitura + 1 batchUpdate + 1 append se faltar o ano).
+        Por padrão só liga os meses pedidos; não apaga os já pagos.
+        """
+        ligados = [m for m in (meses_on or []) if str(m).strip().lower()[:3] in MESES]
+        if not ligados:
+            raise ValueError("Escolha pelo menos um mês.")
+        ano = int(ano)
+        pessoas = self.get_all_pessoas()
+        if person_ids:
+            wanted = set(person_ids)
+            pessoas = [p for p in pessoas if p.id in wanted]
+        if not pessoas:
+            return {"ok": 0, "criados": 0, "atualizados": 0, "erros": ["Nenhum sócio selecionado."]}
+
+        rows, start = self._reap_rows()
+        now = _now_iso()
+        data: List[dict] = []
+        novos: List[list] = []
+        atualizados = 0
+        by_person_year = {}
+        for i, r in enumerate(rows):
+            if len(r) > 2 and r[1] and str(r[2]).strip().isdigit():
+                by_person_year[(r[1], int(str(r[2]).strip()))] = (i, r)
+
+        last_col = _col_letter(3 + len(MESES))
+        for p in pessoas:
+            key = (p.id, ano)
+            if key in by_person_year:
+                i, r = by_person_year[key]
+                flags = []
+                for idx, mes in enumerate(MESES):
+                    cell = r[3 + idx] if len(r) > 3 + idx else "FALSE"
+                    on = _cell_bool(cell)
+                    if mes in ligados:
+                        on = True
+                    elif substituir:
+                        on = False
+                    flags.append("TRUE" if on else "FALSE")
+                row_number = start + i
+                data.append(
+                    {
+                        "range": f"{REAP_TAB}!D{row_number}:{last_col}{row_number}",
+                        "values": [[*flags, now]],
+                    }
+                )
+                atualizados += 1
+            else:
+                novos.append([str(uuid.uuid4()), p.id, ano, *meses_para_flags(ligados), now])
+
+        if data:
+            self.client.batch_update_values(data)
+        if novos:
+            self.client.append_values(f"{REAP_TAB}!A2", novos)
+
+        return {
+            "ok": atualizados + len(novos),
+            "atualizados": atualizados,
+            "criados": len(novos),
+            "erros": [],
+        }
+
+    def copiar_reap_ano(
+        self,
+        ano_origem: int,
+        ano_destino: int,
+        person_ids: Optional[List[str]] = None,
+    ) -> dict:
+        """Copia os 12 meses de um ano para outro (cria o ano destino se não existir)."""
+        ano_origem = int(ano_origem)
+        ano_destino = int(ano_destino)
+        if ano_origem == ano_destino:
+            raise ValueError("Ano de origem e destino devem ser diferentes.")
+        pessoas = self.get_all_pessoas()
+        if person_ids:
+            wanted = set(person_ids)
+            pessoas = [p for p in pessoas if p.id in wanted]
+        rows, start = self._reap_rows()
+        now = _now_iso()
+        origem: dict[str, List[str]] = {}
+        destino_idx: dict[str, int] = {}
+        for i, r in enumerate(rows):
+            if len(r) < 3 or not r[1] or not str(r[2]).strip().isdigit():
+                continue
+            pid, ano = r[1], int(str(r[2]).strip())
+            if ano == ano_origem:
+                flags = []
+                for idx in range(len(MESES)):
+                    cell = r[3 + idx] if len(r) > 3 + idx else "FALSE"
+                    flags.append("TRUE" if _cell_bool(cell) else "FALSE")
+                origem[pid] = flags
+            if ano == ano_destino:
+                destino_idx[pid] = i
+
+        data: List[dict] = []
+        novos: List[list] = []
+        pulados = 0
+        last_col = _col_letter(3 + len(MESES))
+        for p in pessoas:
+            flags = origem.get(p.id)
+            if not flags:
+                pulados += 1
+                continue
+            if p.id in destino_idx:
+                row_number = start + destino_idx[p.id]
+                data.append(
+                    {
+                        "range": f"{REAP_TAB}!D{row_number}:{last_col}{row_number}",
+                        "values": [[*flags, now]],
+                    }
+                )
+            else:
+                novos.append([str(uuid.uuid4()), p.id, ano_destino, *flags, now])
+
+        if data:
+            self.client.batch_update_values(data)
+        if novos:
+            self.client.append_values(f"{REAP_TAB}!A2", novos)
+
+        return {
+            "ok": len(data) + len(novos),
+            "atualizados": len(data),
+            "criados": len(novos),
+            "pulados": pulados,
+            "erros": [],
+        }
 
     def update_pessoa(self, person_id: str, nome: str, cpf: str) -> None:
         rows, start = self._pessoas_rows()
