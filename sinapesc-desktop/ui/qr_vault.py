@@ -120,9 +120,9 @@ def ensure_stable_qrs(
     pessoas: Optional[Iterable] = None,
     force: bool = False,
 ) -> dict:
-    base = base_url.rstrip("/")
+    base = normalize_public_base(base_url)
     manifest = load_manifest()
-    same_base = manifest.get("base_url") == base
+    same_base = normalize_public_base(str(manifest.get("base_url") or "")) == base
 
     if same_base and not force and (qr_dir() / "consulta.png").exists():
         if pessoas:

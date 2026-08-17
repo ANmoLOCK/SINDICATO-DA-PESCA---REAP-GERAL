@@ -181,17 +181,22 @@ class SinapescApp(tk.Tk):
         self.status.set(message)
         self.configure(cursor="")
 
-    def _run_bg(self, work: Callable, on_ok: Callable, on_err: Callable, busy_msg: str) -> None:
+    def _run_bg(self, work: Callable, on_ok: Callable, on_err: Callable, busy_msg: str) -> bool:
+        if getattr(self, "_bg_busy", False):
+            messagebox.showwarning("Aguarde", "Outra operação na planilha ainda está em andamento.")
+            return False
+        self._bg_busy = True
         self._set_busy(busy_msg)
 
         def target() -> None:
             try:
                 result = work()
-                self.after(0, lambda: (self._set_idle(), on_ok(result)))
+                self.after(0, lambda: (self._set_idle(), setattr(self, "_bg_busy", False), on_ok(result)))
             except Exception as exc:  # noqa: BLE001
-                self.after(0, lambda: (self._set_idle("Erro."), on_err(exc)))
+                self.after(0, lambda: (self._set_idle("Erro."), setattr(self, "_bg_busy", False), on_err(exc)))
 
         threading.Thread(target=target, daemon=True).start()
+        return True
 
     def _ensure_service(self) -> SheetsService:
         self.cfg = load_config()
@@ -997,7 +1002,8 @@ class SinapescApp(tk.Tk):
                 )
                 self._load_admin_data()
 
-            self._run_bg(work, ok, lambda e: messagebox.showerror("Erro", str(e), parent=win), "Marcando meses em lote…")
+            if not self._run_bg(work, ok, lambda e: messagebox.showerror("Erro", str(e), parent=win), "Marcando meses em lote…"):
+                return
 
         self._btn(c2, "Aplicar marcação em massa", run_marcar).pack(anchor="w", pady=(4, 0))
 
@@ -1051,7 +1057,8 @@ class SinapescApp(tk.Tk):
                 )
                 self._load_admin_data()
 
-            self._run_bg(work, ok, lambda e: messagebox.showerror("Erro", str(e), parent=win), "Copiando ano…")
+            if not self._run_bg(work, ok, lambda e: messagebox.showerror("Erro", str(e), parent=win), "Copiando ano…"):
+                return
 
         self._btn(c3, "Copiar ano", run_copiar, kind="accent").pack(anchor="w", pady=(8, 0))
 
@@ -1076,19 +1083,48 @@ class SinapescApp(tk.Tk):
                 parent=atalhos_win,
             )
             return
+        ano_txt = (ano or "").strip()
+        if not ano_txt.isdigit():
+            messagebox.showerror("Atalhos", "Informe um ano válido (ex.: 2026).", parent=atalhos_win)
+            return
+        ano_int = int(ano_txt)
+        if ano_int < 2000 or ano_int > 2100:
+            messagebox.showerror("Atalhos", "Informe um ano entre 2000 e 2100.", parent=atalhos_win)
+            return
         try:
             atalhos_win.grab_release()
         except tk.TclError:
             pass
-        self._dialog_lote(meses_on=meses, ano=ano)
 
-    def _dialog_lote(self, meses_on: Optional[List[str]] = None, ano: Optional[str] = None) -> None:
+        def restore_modal() -> None:
+            if atalhos_win.winfo_exists():
+                try:
+                    atalhos_win.grab_set()
+                except tk.TclError:
+                    pass
+
+        self._dialog_lote(meses_on=meses, ano=ano_txt, on_close=restore_modal)
+
+    def _dialog_lote(
+        self,
+        meses_on: Optional[List[str]] = None,
+        ano: Optional[str] = None,
+        *,
+        on_close: Optional[Callable[[], None]] = None,
+    ) -> None:
         win = tk.Toplevel(self)
         win.title("Cadastro em lote")
         win.configure(bg=COLORS["surface"])
         win.geometry("720x560")
         win.transient(self)
         win.grab_set()
+
+        def close_lote() -> None:
+            if on_close:
+                on_close()
+            win.destroy()
+
+        win.protocol("WM_DELETE_WINDOW", close_lote)
 
         tk.Frame(win, bg=COLORS["gold"], height=3).pack(fill="x")
         tk.Label(
@@ -1238,10 +1274,11 @@ class SinapescApp(tk.Tk):
                     if len(erros) > 12:
                         msg += f"\n… e mais {len(erros) - 12}."
                 messagebox.showinfo("Lote", msg, parent=win)
-                win.destroy()
+                close_lote()
                 self._load_admin_data()
 
-            self._run_bg(work, ok, lambda e: messagebox.showerror("Erro", str(e), parent=win), "Cadastrando lote…")
+            if not self._run_bg(work, ok, lambda e: messagebox.showerror("Erro", str(e), parent=win), "Cadastrando lote…"):
+                return
 
         extra = tk.Frame(win, bg=COLORS["surface"])
         extra.pack(fill="x", padx=16, pady=(0, 4))
