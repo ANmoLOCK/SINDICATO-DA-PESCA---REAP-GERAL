@@ -10,14 +10,14 @@ Repositório: [ANmoLOCK/sinapesc-casanova-reap](https://github.com/ANmoLOCK/sina
 
 | Item | Link |
 |------|------|
-| **EXE Windows** | Após o build: Actions → artefato `SinapescREAP-Windows` |
+| **EXE Windows** | [Baixar `SinapescREAP-Windows` (v1.5.0)](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734) |
 | **Consulta pública (CPF)** | https://anmolock.github.io/sinapesc-casanova-reap/consulta.html |
 | **Lista pública** | https://anmolock.github.io/sinapesc-casanova-reap/lista.html |
 | Tutorial | [`TUTORIAL_IMPLEMENTACAO.md`](./TUTORIAL_IMPLEMENTACAO.md) |
 | API Google (planilha) | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
 | Histórico de versões | [`CHANGELOG.md`](./CHANGELOG.md) |
 
-> No GitHub: **Actions** → último workflow **Build Sinapesc Windows EXE** (verde) → **Artifacts** → `SinapescREAP-Windows`.
+> No GitHub: [Actions run 32050211734](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734) → **Artifacts** → `SinapescREAP-Windows`.
 
 **URL para colar no EXE** (Configurações → URL do site público), **sem** `/consulta.html`:
 

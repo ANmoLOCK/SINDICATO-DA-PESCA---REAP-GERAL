@@ -9,6 +9,7 @@ Formato: mais recente primeiro.
 ## [v1.5.0] — 2026-08-17 — Lote visual + site no ar
 
 **Tag:** `v1.5.0`  
+**EXE:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734  
 **Repo:** https://github.com/ANmoLOCK/sinapesc-casanova-reap  
 **Site:** https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 

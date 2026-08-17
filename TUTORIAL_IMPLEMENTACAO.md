@@ -2,8 +2,8 @@
 
 Guia completo para colocar no ar o **programa Windows** e o **site público gratuito** (consulta por CPF sem o notebook ligado).
 
-**Download do EXE:** GitHub → **Actions** → **Build Sinapesc Windows EXE** → artefato `SinapescREAP-Windows`  
-→ baixe o ZIP → extraia.
+**Download do EXE:** [SinapescREAP-Windows v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734)  
+→ Artifacts → **SinapescREAP-Windows** → baixe o ZIP → extraia.
 
 Site já publicado: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 
@@ -165,7 +165,7 @@ Os QRs ficam em `qr-codes/` ao lado do `.exe` e **não mudam** enquanto a URL do
 
 | Item | Link |
 |------|------|
-| **EXE v1.5.0** | Actions → artefato `SinapescREAP-Windows` |
+| **EXE v1.5.0** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/32050211734 |
 | Código | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
 | API detalhada | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
 | Site público | [`site-publico/README.md`](./site-publico/README.md) |
