@@ -13,7 +13,7 @@ A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mo
 
 ## Versão
 
-**v1.6.6** — Filtro (recente / A–Z), imprimir QR, logo selo SINAPESC.
+**v1.6.7** — Logo selo SINAPESC fiel ao original (círculo, peixe, faixa).
 
 ## Requisitos (Windows)
 

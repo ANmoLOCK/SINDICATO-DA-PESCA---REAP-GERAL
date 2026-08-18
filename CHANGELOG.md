@@ -6,6 +6,17 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.7] — 2026-08-18 — Logo selo SINAPESC fiel ao original
+
+**Tag:** [`v1.6.7`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.7)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.7/SinapescREAP-Windows-v1.6.7.zip
+
+### O que entrou
+- Logo redesenhada **fiel ao selo original**: círculo, peixe tucunaré saltando, faixa SINAPESC, texto curvo Casa Nova - BA
+- Aplicada no programa, ícone do EXE e relatórios HTML
+
+---
+
 ## [v1.6.6] — 2026-08-18 — Filtro de sócios, imprimir QR e logo SINAPESC
 
 **Tag:** [`v1.6.6`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.6)  
