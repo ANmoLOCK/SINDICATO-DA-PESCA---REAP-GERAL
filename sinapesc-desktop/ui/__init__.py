@@ -43,15 +43,26 @@ from ui.tela_pendencias import show_pendencias as open_pendencias
 from ui.tela_relatorio import show_relatorio as open_relatorio
 from ui.theme import COLORS, FONT_DISPLAY, FONT_FAMILY, ORG_FULL, ORG_SHORT, ORG_TITLE
 from ui.tunnel import stop_tunnel
+from ui.widgets import (
+    card_shell,
+    chevron_btn,
+    circular_avatar,
+    content_outline_btn,
+    content_primary_btn,
+    icon_btn,
+    month_pill,
+    search_field,
+    setup_widget_styles,
+)
 
 
 class SinapescApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title(ORG_TITLE)
-        self.geometry("1040x720")
-        self.minsize(900, 600)
-        self.configure(bg=COLORS["bg"])
+        self.geometry("1100x740")
+        self.minsize(960, 640)
+        self.configure(bg=COLORS["content"])
 
         self.cfg = load_config()
         self.service: Optional[SheetsService] = None
@@ -99,6 +110,7 @@ class SinapescApp(tk.Tk):
         style.configure("HeaderSub.TLabel", background=COLORS["primary"], foreground="#A9C0D4", font=(FONT_FAMILY, 9))
         style.configure("Title.TLabel", background=COLORS["content"], foreground=COLORS["primary"], font=(FONT_DISPLAY, 20, "bold"))
         style.configure("Muted.TLabel", background=COLORS["content"], foreground=COLORS["muted"], font=(FONT_FAMILY, 10))
+        setup_widget_styles(self)
 
     def _clear_body(self) -> None:
         clear_body(self)
@@ -111,15 +123,19 @@ class SinapescApp(tk.Tk):
             "accent": (COLORS["accent"], COLORS["accent_fg"], COLORS["accent_hover"]),
             "primary": (COLORS["primary"], COLORS["primary_fg"], COLORS["primary_mid"]),
             "ghost": (COLORS["surface"], COLORS["primary"], COLORS["border_soft"]),
-            "outline": (COLORS["content"], COLORS["primary"], COLORS["border_soft"]),
+            "outline": (COLORS["content"], COLORS["primary"], COLORS["surface_soft"]),
             "danger": (COLORS["danger_bg"], COLORS["danger"], "#EFD0CC"),
             "nav": (COLORS["accent"], COLORS["accent_fg"], COLORS["accent_hover"]),
         }
         bg, fg, hover = styles.get(kind, styles["accent"])
         btn = tk.Button(
             parent, text=text, command=command, bg=bg, fg=fg, activebackground=hover,
-            activeforeground=fg, relief="flat", padx=padx, pady=pady,
-            font=(FONT_FAMILY, font_size, "bold" if bold else "normal"), cursor="hand2", bd=0,
+            activeforeground=fg, relief="solid" if kind == "outline" else "flat",
+            highlightbackground=COLORS["primary"] if kind == "outline" else bg,
+            highlightthickness=1 if kind == "outline" else 0,
+            bd=1 if kind == "outline" else 0,
+            padx=padx, pady=pady,
+            font=(FONT_FAMILY, font_size, "bold" if bold else "normal"), cursor="hand2",
         )
         return btn
 
@@ -568,34 +584,35 @@ class SinapescApp(tk.Tk):
         self._lista_mode = False
         wrap = page_wrap(self)
 
-        head = tk.Frame(wrap, bg=COLORS["content"])
-        head.pack(fill="x", pady=(0, 10))
-        left = tk.Frame(head, bg=COLORS["content"])
-        left.pack(side="left", fill="x", expand=True)
-        title_line = tk.Frame(left, bg=COLORS["content"])
+        title_block = tk.Frame(wrap, bg=COLORS["content"])
+        title_block.pack(fill="x", pady=(0, 12))
+        title_line = tk.Frame(title_block, bg=COLORS["content"])
         title_line.pack(anchor="w")
         tk.Label(
             title_line, text="Sócios", bg=COLORS["content"], fg=COLORS["primary"],
-            font=(FONT_DISPLAY, 20, "bold"),
+            font=(FONT_DISPLAY, 22, "bold"),
         ).pack(side="left")
         self.admin_count = tk.StringVar(value="")
         tk.Label(
             title_line, textvariable=self.admin_count, bg=COLORS["content"], fg=COLORS["muted"],
             font=(FONT_FAMILY, 10),
-        ).pack(side="left", padx=(10, 0))
+        ).pack(side="left", padx=(12, 0))
         tk.Label(
-            left, text="Clique no nome para abrir o REAP", bg=COLORS["content"], fg=COLORS["muted"],
+            title_block, text="Clique no nome para abrir o REAP", bg=COLORS["content"], fg=COLORS["muted"],
             font=(FONT_FAMILY, 9),
-        ).pack(anchor="w", pady=(2, 0))
+        ).pack(anchor="w", pady=(4, 0))
 
-        actions = tk.Frame(head, bg=COLORS["content"])
-        actions.pack(side="right")
+        toolbar = tk.Frame(wrap, bg=COLORS["content"])
+        toolbar.pack(fill="x", pady=(0, 14))
         self.search_var = tk.StringVar()
-        ttk.Entry(actions, textvariable=self.search_var, width=32).pack(side="left", padx=(0, 8))
+        search_field(toolbar, self.search_var, width=36).pack(side="left", fill="x", expand=True, padx=(0, 12))
         self.search_var.trace_add("write", lambda *_: self._render_admin_list())
-        self._btn(actions, "Atualizar", self._load_admin_data, kind="outline", padx=10, pady=6, font_size=9).pack(side="left", padx=3)
-        self._btn(actions, "Cadastro em lote", self._dialog_lote, kind="outline", padx=10, pady=6, font_size=9).pack(side="left", padx=3)
-        self._btn(actions, "+ Novo sócio", lambda: self._dialog_pessoa(), kind="primary", padx=12, pady=6).pack(side="left", padx=3)
+
+        btn_row = tk.Frame(toolbar, bg=COLORS["content"])
+        btn_row.pack(side="right")
+        content_outline_btn(btn_row, "↻ Atualizar", self._load_admin_data).pack(side="left", padx=(0, 6))
+        content_outline_btn(btn_row, "⇪ Cadastro em lote", self._dialog_lote).pack(side="left", padx=(0, 6))
+        content_primary_btn(btn_row, "+ Novo sócio", lambda: self._dialog_pessoa()).pack(side="left")
 
         self._scroll = ScrollableFrame(wrap, bg=COLORS["content"])
         self._scroll.pack(fill="both", expand=True)
@@ -703,30 +720,29 @@ class SinapescApp(tk.Tk):
 
     def _pessoa_row(self, parent, pessoa: PessoaComReap, *, editable: bool, mask_cpf: bool = False) -> None:
         expanded = pessoa.id in self._expanded_ids
-        card = tk.Frame(parent, bg=COLORS["surface"], padx=14, pady=10, highlightbackground=COLORS["border"], highlightthickness=1)
-        card.pack(fill="x", pady=5, padx=2)
+        card = card_shell(parent)
+        card.pack(fill="x", pady=6, padx=1)
 
         head = tk.Frame(card, bg=COLORS["surface"])
         head.pack(fill="x")
 
-        avatar = tk.Label(
-            head, text=get_initials(pessoa.nome), bg=COLORS["primary"], fg=COLORS["primary_fg"],
-            width=3, font=(FONT_FAMILY, 11, "bold"), padx=8, pady=8,
-        )
-        avatar.pack(side="left", padx=(0, 12))
+        avatar = circular_avatar(head, get_initials(pessoa.nome))
+        avatar.pack(side="left", padx=(0, 14))
 
         info = tk.Frame(head, bg=COLORS["surface"], cursor="hand2")
         info.pack(side="left", fill="x", expand=True)
 
-        chevron = "▾" if expanded else "▸"
         name_lbl = tk.Label(
-            info, text=f"{chevron}  {pessoa.nome}", bg=COLORS["surface"], fg=COLORS["primary"],
+            info, text=pessoa.nome, bg=COLORS["surface"], fg=COLORS["primary"],
             font=(FONT_DISPLAY, 11, "bold"), anchor="w", cursor="hand2",
         )
         name_lbl.pack(anchor="w")
         cpf_txt = format_cpf_masked(pessoa.cpf) if mask_cpf else format_cpf(pessoa.cpf)
-        sub = tk.Label(info, text=f"CPF: {cpf_txt}", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 9), anchor="w", cursor="hand2")
-        sub.pack(anchor="w")
+        sub = tk.Label(
+            info, text=f"CPF: {cpf_txt}", bg=COLORS["surface"], fg=COLORS["muted"],
+            font=(FONT_FAMILY, 9), anchor="w", cursor="hand2",
+        )
+        sub.pack(anchor="w", pady=(2, 0))
 
         def toggle(_e=None, pid=pessoa.id):
             self._toggle_expand(pid)
@@ -737,50 +753,51 @@ class SinapescApp(tk.Tk):
         if editable:
             actions = tk.Frame(head, bg=COLORS["surface"])
             actions.pack(side="right")
-            self._btn(actions, "QR", lambda p=pessoa: self._show_qr_pessoa(p), kind="ghost", padx=8, pady=4, font_size=9, bold=False).pack(side="left", padx=2)
-            self._btn(actions, "Editar", lambda p=pessoa: self._dialog_pessoa(p), kind="ghost", padx=8, pady=4, font_size=9, bold=False).pack(side="left", padx=2)
-            self._btn(actions, "Excluir", lambda p=pessoa: self._delete_pessoa(p), kind="danger", padx=8, pady=4, font_size=9, bold=False).pack(side="left", padx=2)
+            icon_btn(actions, "▦ QR", lambda p=pessoa: self._show_qr_pessoa(p)).pack(side="left", padx=(0, 2))
+            icon_btn(actions, "✎ Editar", lambda p=pessoa: self._dialog_pessoa(p)).pack(side="left", padx=2)
+            icon_btn(actions, "🗑 Excluir", lambda p=pessoa: self._delete_pessoa(p), danger=True).pack(side="left", padx=2)
+            chevron_btn(actions, expanded, lambda pid=pessoa.id: self._toggle_expand(pid)).pack(side="left", padx=(6, 0))
+        else:
+            chevron_btn(head, expanded, lambda pid=pessoa.id: self._toggle_expand(pid)).pack(side="right")
 
         if not expanded:
             return
 
         detail = tk.Frame(card, bg=COLORS["surface"])
-        detail.pack(fill="x", pady=(12, 0))
-        tk.Frame(detail, bg=COLORS["border_soft"], height=1).pack(fill="x", pady=(0, 10))
+        detail.pack(fill="x", pady=(14, 0))
+        tk.Frame(detail, bg=COLORS["border_soft"], height=1).pack(fill="x", pady=(0, 12))
 
         if not pessoa.anos:
             tk.Label(detail, text="Nenhum ano registrado.", bg=COLORS["surface"], fg=COLORS["muted"]).pack(anchor="w")
         for ano in pessoa.anos:
             ano_frame = tk.Frame(detail, bg=COLORS["surface"])
-            ano_frame.pack(fill="x", pady=(6, 0))
-            tk.Label(ano_frame, text=f"Ano {ano.ano}", bg=COLORS["surface"], fg=COLORS["primary"], font=(FONT_DISPLAY, 10, "bold")).pack(anchor="w")
+            ano_frame.pack(fill="x", pady=(4, 0))
+            tk.Label(
+                ano_frame, text=f"Ano {ano.ano}", bg=COLORS["surface"], fg=COLORS["primary"],
+                font=(FONT_DISPLAY, 10, "bold"),
+            ).pack(anchor="w", pady=(0, 6))
             self._month_grid(ano_frame, pessoa.id, ano.ano, ano.meses, editable=editable)
 
         if editable:
             add_row = tk.Frame(detail, bg=COLORS["surface"])
-            add_row.pack(fill="x", pady=(12, 0))
+            add_row.pack(fill="x", pady=(14, 0))
             year_var = tk.StringVar(value=str(__import__("datetime").datetime.now().year + 1))
             ttk.Entry(add_row, textvariable=year_var, width=8).pack(side="left")
-            self._btn(add_row, "Adicionar ano", lambda p=pessoa, y=year_var: self._add_ano(p, y.get()), kind="ghost", padx=10, pady=4, font_size=9).pack(side="left", padx=8)
+            content_outline_btn(
+                add_row, "Adicionar ano", lambda p=pessoa, y=year_var: self._add_ano(p, y.get()), padx=10, pady=4,
+            ).pack(side="left", padx=8)
 
     def _month_grid(self, parent, person_id: str, ano: int, meses: dict, *, editable: bool) -> None:
-        grid = tk.Frame(parent, bg=COLORS["surface"])
-        grid.pack(fill="x", pady=4)
-        for i, mes in enumerate(MESES):
+        row = tk.Frame(parent, bg=COLORS["surface"])
+        row.pack(fill="x", pady=2)
+        for mes in MESES:
             pago = bool(meses.get(mes))
-            bg = COLORS["month_on"] if pago else COLORS["month_off"]
-            fg = COLORS["success"] if pago else COLORS["muted"]
-            mark = "✓" if pago else "·"
+            cmd = None
             if editable:
-                btn = tk.Button(
-                    grid, text=f"{mes.upper()}\n{mark}", width=5, height=2, bg=bg, fg=fg, relief="flat",
-                    font=(FONT_FAMILY, 8, "bold"), cursor="hand2",
-                    command=lambda m=mes, p=pago: self._toggle_mes(person_id, ano, m, not p),
-                )
-            else:
-                btn = tk.Label(grid, text=f"{mes.upper()}\n{mark}", width=5, height=2, bg=bg, fg=fg, font=(FONT_FAMILY, 8, "bold"))
-            btn.grid(row=i // 6, column=i % 6, padx=3, pady=3, sticky="nsew")
-            btn.bind("<Enter>", lambda _e, t=MESES_LABEL[mes]: self.status.set(t))
+                cmd = lambda m=mes, p=pago: self._toggle_mes(person_id, ano, m, not p)
+            pill = month_pill(row, mes, pago=pago, editable=editable, command=cmd)
+            pill.pack(side="left", padx=3)
+            pill.bind("<Enter>", lambda _e, t=MESES_LABEL[mes]: self.status.set(t))
 
     def _toggle_mes(self, person_id: str, ano: int, mes: MesKey, novo: bool) -> None:
         try:
