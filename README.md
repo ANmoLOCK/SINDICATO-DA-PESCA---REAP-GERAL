@@ -13,22 +13,18 @@ Sistema de **controle de REAP** (não é programa de pagamento): o EXE da secret
 
 ---
 
-## 1. Download
+## 1. Download do programa (EXE v1.6.0)
 
-### Código desta versão (tag v1.6.0)
+**Clique neste link** (baixa o ZIP; não precisa entrar no Actions):
 
-Página da tag (notas + fonte):  
+**https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.0/SinapescREAP-Windows-v1.6.0.zip**
+
+Página da versão (notas + arquivo):  
 https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0
 
-O GitHub Actions gera o EXE quando a tag `v*` é enviada: **Actions → Build Sinapesc Windows EXE → artifact `SinapescREAP-Windows`**.
+Versão anterior (Config.Atalhos, sem pendências/relatório): [v1.5.1](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1)
 
-### Último ZIP público (v1.5.1 — Config.Atalhos)
-
-Enquanto o artefato da v1.6.0 não estiver na release, use o ZIP que já baixa sem login:
-
-**https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip**
-
-Extraia numa pasta (ex.: `C:\Sinapesc\`) e coloque o `google-credentials.json` junto.
+O ZIP contém `SinapescREAP.exe`, `config.json` e os tutoriais. Extraia numa pasta (ex.: `C:\Sinapesc\`) e coloque o `google-credentials.json` junto.
 
 ---
 
@@ -129,7 +125,7 @@ Não é necessário domínio `.com.br`. O GitHub Pages já é o endereço oficia
 
 | Versão | Tag | O que entrou | EXE |
 |--------|-----|----------------|-----|
-| **v1.6.0** | [v1.6.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0) | Pendências · relatório HTML (CPF admin) · backup CSV · auditoria na planilha | Actions (tag) |
+| **v1.6.0** | [v1.6.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0) | Pendências · relatório HTML (CPF admin) · backup CSV · auditoria na planilha | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.0/SinapescREAP-Windows-v1.6.0.zip) |
 | **v1.5.1** | [v1.5.1](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1) | Config.Atalhos: lote pré-marcado · massa · copiar ano | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip) |
 | v1.5.0 | [v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0) | Lote visual · site Pages · URL/QR | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip) |
 | v1.4.0 | — | Site estático · UI azul · logo/peixe | [Actions 31863086521](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31863086521) |

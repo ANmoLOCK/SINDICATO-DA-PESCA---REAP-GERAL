@@ -9,6 +9,7 @@ Formato: mais recente primeiro.
 ## [v1.6.0] — 2026-08-18 — Pendências, relatório, backup e auditoria na planilha
 
 **Tag:** [`v1.6.0`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0)  
+**Download direto:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.0/SinapescREAP-Windows-v1.6.0.zip  
 **Repo:** https://github.com/ANmoLOCK/sinapesc-casanova-reap  
 **Consulta:** https://anmolock.github.io/sinapesc-casanova-reap/consulta.html  
 **Plano:** [`PLANO_FUNCOES_v16.md`](./PLANO_FUNCOES_v16.md)
