@@ -162,24 +162,51 @@ body { overflow: hidden; }
 
 .tab-cell.active .tab-underline { background: var(--primary-fg); }
 
-/* ---- Content ---- */
-.content {
+/* ---- Workspace + marca d'água (camada irmã, não some ao trocar de tela) ---- */
+.workspace {
   flex: 1;
+  min-height: 0;
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-watermark {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.app-watermark img {
+  width: min(780px, 86%);
+  height: auto;
+  max-height: 72%;
+  object-fit: contain;
+  user-select: none;
+  mix-blend-mode: multiply;
+  opacity: 0.88;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
   overflow: auto;
-  background-color: var(--bg);
-  background-image: url("../assets/watermark.png");
-  background-repeat: no-repeat;
-  background-position: center 42%;
-  background-size: min(580px, 54vmin);
-  background-attachment: scroll;
+  background: transparent;
   padding: 12px 16px 14px;
 }
 
 @media print {
-  .content {
-    background-image: none;
-    background-color: #fff;
-  }
+  .app-watermark { display: none; }
+  .workspace, .content { background: #fff; }
 }
 
 .page { max-width: 1080px; }

@@ -158,6 +158,18 @@ def test_brand_assets() -> None:
     assert Image.open(mark).mode == "RGBA"
 
 
+def test_watermark_html_layer() -> None:
+    html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+    css = (ROOT / "web" / "css" / "app.css").read_text(encoding="utf-8")
+    assert 'class="app-watermark"' in html
+    assert 'src="../assets/watermark.png"' in html
+    assert 'id="content"' in html
+    assert "background-image: url(" not in css
+    assert ".app-watermark" in css
+    from_html = (ROOT / "web" / "index.html").resolve().parent.parent / "assets" / "watermark.png"
+    assert from_html.exists() and from_html.stat().st_size > 10_000
+
+
 def test_qr_selo_usa_logo() -> None:
     from ui.qrutil import make_qr_image
 
@@ -177,5 +189,6 @@ if __name__ == "__main__":
     test_backup_rotacao()
     test_chrome_routes()
     test_brand_assets()
+    test_watermark_html_layer()
     test_qr_selo_usa_logo()
     print("OK — testes locais passaram.")
