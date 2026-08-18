@@ -23,7 +23,7 @@ from sheets import MESES, MESES_LABEL, MesKey, PessoaComReap, SheetsConfigError,
 from sheets.models import meses_no_intervalo
 from ui.brand import load_logo
 from ui.chrome import build_shell, clear_body, go_back, navigate, page_wrap, sync_chrome
-from ui.formatters import display_nome, format_cpf, format_cpf_masked, get_initials, only_digits, parse_lote_lines
+from ui.formatters import display_nome, format_cpf, format_cpf_masked, format_nome, get_initials, only_digits, parse_lote_lines
 from ui.public_link import ensure_site_qrs, resolve_base, urls_for
 from ui.public_web import start_public_server
 from ui.qr_vault import (
@@ -831,7 +831,7 @@ class SinapescApp(tk.Tk):
         nome = ttk.Entry(win, width=44)
         nome.pack(padx=16)
         if pessoa:
-            nome.insert(0, pessoa.nome)
+            nome.insert(0, format_nome(pessoa.nome))
 
         tk.Label(win, text="CPF (11 dígitos)", bg=COLORS["surface"], fg=COLORS["muted"]).pack(anchor="w", padx=16, pady=(10, 2))
         cpf = ttk.Entry(win, width=44)
@@ -840,7 +840,7 @@ class SinapescApp(tk.Tk):
             cpf.insert(0, format_cpf(pessoa.cpf))
 
         def save() -> None:
-            n = nome.get().strip()
+            n = format_nome(nome.get())
             c = only_digits(cpf.get())
             if not n:
                 messagebox.showerror("Validação", "Informe o nome completo.", parent=win)

@@ -20,7 +20,7 @@ from controle.calendario import meses_para_texto
 from controle.pendencias import classificar
 from controle.relatorio import itens_para_relatorio, montar_html, nome_arquivo_relatorio, salvar_html
 from sheets import MESES, MESES_LABEL, MesKey, SheetsConfigError, SheetsService
-from ui.formatters import display_nome, format_cpf, only_digits, parse_lote_lines
+from ui.formatters import display_nome, format_cpf, format_nome, only_digits, parse_lote_lines
 from ui.public_link import ensure_site_qrs, urls_for
 from ui.qr_vault import normalize_public_base, preferred_public_base, qr_dir
 from ui.qrutil import make_qr_image
@@ -260,7 +260,7 @@ class SinapescApi:
         return self._run_async("pessoas", work, "Carregando sócios…")
 
     def save_pessoa(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        nome = str(payload.get("nome") or "").strip()
+        nome = format_nome(str(payload.get("nome") or ""))
         cpf = only_digits(str(payload.get("cpf") or ""))
         person_id = str(payload.get("id") or "").strip()
         if not nome:

@@ -36,15 +36,30 @@ def get_initials(name: str) -> str:
     return (parts[0][0] + parts[-1][0]).upper()
 
 
+def _cap_word(word: str) -> str:
+    if "-" in word:
+        return "-".join(_cap_word(p) for p in word.split("-"))
+    if not word:
+        return word
+    return word[:1].upper() + word[1:].lower()
+
+
+def format_nome(name: str) -> str:
+    """Primeira letra de cada palavra maiúscula. Caps Lock não altera o gravado.
+
+    Gabriel Lourran Da Silva  — certo
+    gabriel lourran da silva  — vira o certo
+    GABRIEL LOURRAN DA SILVA  — vira o certo
+    """
+    parts = [p for p in (name or "").split() if p]
+    if not parts:
+        return ""
+    return " ".join(_cap_word(p) for p in parts)
+
+
 def display_nome(name: str) -> str:
-    """Nome para a tela: se veio TODO EM CAPS da planilha, vira título."""
-    txt = (name or "").strip()
-    if not txt:
-        return txt
-    letters = [c for c in txt if c.isalpha()]
-    if letters and all(c.isupper() for c in letters):
-        return txt.title()
-    return txt
+    """Nome para a tela: sempre no formato título."""
+    return format_nome(name)
 
 
 def parse_lote_lines(raw: str) -> list[tuple[str, str]]:

@@ -36,6 +36,19 @@ def _format_cpf(digits: str) -> str:
     return f"{clean[:3]}.{clean[3:6]}.{clean[6:9]}-{clean[9:]}"
 
 
+def _format_nome(name: str) -> str:
+    parts = [p for p in (name or "").split() if p]
+    if not parts:
+        return ""
+    out = []
+    for word in parts:
+        if "-" in word:
+            out.append("-".join(p[:1].upper() + p[1:].lower() if p else "" for p in word.split("-")))
+        else:
+            out.append(word[:1].upper() + word[1:].lower())
+    return " ".join(out)
+
+
 def _row_to_pessoa(row: List[str]) -> Pessoa:
     return Pessoa(
         id=row[0] if len(row) > 0 else "",
@@ -160,6 +173,7 @@ class SheetsService:
         dup = self.pessoa_por_cpf(cpf)
         if dup:
             raise ValueError(f"CPF já cadastrado: {dup.nome}")
+        nome = _format_nome(nome)
         cpf = _format_cpf(cpf)
         person_id = str(uuid.uuid4())
         now = _now_iso()
@@ -232,7 +246,7 @@ class SheetsService:
         vistos: set[str] = set()
 
         for i, (nome, cpf) in enumerate(itens, start=1):
-            nome = (nome or "").strip()
+            nome = _format_nome(nome)
             cpf = "".join(ch for ch in (cpf or "") if ch.isdigit())[:11]
             if not nome:
                 erros.append(f"Linha {i}: nome vazio.")
@@ -428,6 +442,7 @@ class SheetsService:
         dup = self.pessoa_por_cpf(cpf, except_id=person_id)
         if dup:
             raise ValueError(f"CPF já cadastrado: {dup.nome}")
+        nome = _format_nome(nome)
         cpf = _format_cpf(cpf)
         rows, start = self._pessoas_rows()
         idx = next((i for i, r in enumerate(rows) if r and r[0] == person_id), -1)

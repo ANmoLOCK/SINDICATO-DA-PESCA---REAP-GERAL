@@ -46,10 +46,10 @@ jobs:
             Copy-Item ..\TUTORIAL_IMPLEMENTACAO.md release\
           }
           @"
-          SINAPESC REAP — COMO USAR (v1.6.11)
+          SINAPESC REAP — COMO USAR (v1.6.12)
           ==================================
           Interface web (HTML/CSS) dentro da janela — selo oficial no icone,
-          marca d'agua no fundo, CPF formatado (105.205.585-45),
+          nome sempre com primeira letra maiuscula ao salvar,
           lote grande sem perder o preenchimento se der erro.
           Requer Windows 10/11 com WebView2 (Edge); na maioria dos PCs ja vem instalado.
 

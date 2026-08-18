@@ -6,6 +6,18 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.12] — 2026-08-18 — Nome sempre com a primeira letra maiúscula
+
+**Tag:** [`v1.6.12`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.12)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.12/SinapescREAP-Windows-v1.6.12.zip
+
+### O que entrou
+- Ao salvar, o nome vira **Gabriel Lourran Da Silva** mesmo com Caps Lock
+- `gabriel lourran da silva` e `GABRIEL LOURRAN DA SILVA` não ficam gravados assim
+- Vale para cadastro único, edição, lote e lista na tela
+
+---
+
 ## [v1.6.11] — 2026-08-18 — Lote de 50 sócios sem perder o preenchimento
 
 **Tag:** [`v1.6.11`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.11)  

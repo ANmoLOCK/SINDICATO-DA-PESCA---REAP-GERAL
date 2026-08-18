@@ -10,7 +10,7 @@ from typing import Iterable, List, Sequence
 
 from sheets.models import MESES
 from ui.brand import asset_path
-from ui.formatters import format_cpf
+from ui.formatters import format_cpf, format_nome
 
 from .calendario import meses_para_texto
 from .pendencias import SituacaoReap, meses_marcados
@@ -71,7 +71,7 @@ def montar_html(
         rows_html.append(
             f"""
             <section class="card">
-              <h2>{html.escape(s.pessoa.nome)}</h2>
+              <h2>{html.escape(format_nome(s.pessoa.nome))}</h2>
               <p>CPF: {html.escape(format_cpf(s.pessoa.cpf))}</p>
               <p>Ano {int(ano)} · Situação REAP: <strong class="{sit_cls}">{sit}</strong></p>
               {extra}
@@ -91,7 +91,7 @@ def montar_html(
             )
             body_rows.append(
                 "<tr>"
-                f"<td>{html.escape(s.pessoa.nome)}</td>"
+                f"<td>{html.escape(format_nome(s.pessoa.nome))}</td>"
                 f"<td>{html.escape(format_cpf(s.pessoa.cpf))}</td>"
                 f'<td class="{sit_cls}">{html.escape(sit)}</td>'
                 f"{tds}"

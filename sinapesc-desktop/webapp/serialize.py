@@ -5,14 +5,14 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from sheets.models import MESES, PessoaComReap
-from ui.formatters import display_nome, format_cpf, format_cpf_masked, only_digits
+from ui.formatters import display_nome, format_cpf, format_cpf_masked, format_nome, only_digits
 
 
 def pessoa_to_dict(p: PessoaComReap, *, mask_cpf: bool = False) -> Dict[str, Any]:
     cpf_fmt = format_cpf_masked(p.cpf) if mask_cpf else format_cpf(p.cpf)
     return {
         "id": p.id,
-        "nome": p.nome,
+        "nome": format_nome(p.nome),
         "nome_display": display_nome(p.nome),
         "cpf": cpf_fmt,
         "cpf_raw": only_digits(p.cpf),

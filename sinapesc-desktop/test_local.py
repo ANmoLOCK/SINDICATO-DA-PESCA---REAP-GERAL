@@ -29,10 +29,14 @@ def test_formatters() -> None:
 
 
 def test_display_nome() -> None:
-    from ui.formatters import display_nome
+    from ui.formatters import display_nome, format_nome
 
+    assert format_nome("gabriel lourran da silva") == "Gabriel Lourran Da Silva"
+    assert format_nome("GABRIEL LOURRAN DA SILVA") == "Gabriel Lourran Da Silva"
+    assert format_nome("Gabriel Lourran Da Silva") == "Gabriel Lourran Da Silva"
+    assert format_nome("  GABRIEL   lourran DA   silva ") == "Gabriel Lourran Da Silva"
     assert display_nome("JOAO SILVA") == "Joao Silva"
-    assert display_nome("Maria Pereira") == "Maria Pereira"
+    assert display_nome("maria pereira") == "Maria Pereira"
 
 
 def test_parse_lote() -> None:
@@ -202,6 +206,7 @@ def test_js_tem_mes_instantaneo_e_cpf_formatado() -> None:
     js = (ROOT / "web" / "js" / "app.js").read_text(encoding="utf-8")
     assert "function paintPill(" in js
     assert "function formatCpf(" in js
+    assert "function formatNome(" in js
     assert "function bindCpfMask(" in js
     assert "000.000.000-00" in js
     api_py = (ROOT / "webapp" / "api.py").read_text(encoding="utf-8")
@@ -260,6 +265,14 @@ def test_lote_50_socios_e_ponte_json() -> None:
     dup = svc.add_pessoas_lote([("Pessoa 01", "00000000001")], ano=2026)
     assert dup["ok"] == 0
     assert any("já cadastrado" in e for e in dup["erros"])
+
+    caps = svc.add_pessoas_lote(
+        [("GABRIEL LOURRAN DA SILVA", "11111111111"), ("gabriel lourran dos santos", "22222222222")],
+        ano=2026,
+    )
+    assert caps["ok"] == 2
+    gravados = [r[1] for r in svc.client.pessoas[-2:]]
+    assert gravados == ["Gabriel Lourran Da Silva", "Gabriel Lourran Dos Santos"]
 
     js = (ROOT / "web" / "js" / "app.js").read_text(encoding="utf-8")
     assert "JSON.stringify(rows)" in js

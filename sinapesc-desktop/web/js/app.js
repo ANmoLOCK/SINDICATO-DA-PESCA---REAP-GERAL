@@ -102,6 +102,25 @@
     return out;
   }
 
+  function formatNome(value) {
+    return String(value || "")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((word) => word.split("-").map((part) => {
+        if (!part) return part;
+        return part.charAt(0).toLocaleUpperCase("pt-BR") + part.slice(1).toLocaleLowerCase("pt-BR");
+      }).join("-"))
+      .join(" ");
+  }
+
+  function bindNomeMask(input) {
+    if (!input) return;
+    const paint = () => { input.value = formatNome(input.value); };
+    input.addEventListener("blur", paint);
+    input.addEventListener("change", paint);
+  }
+
   function bindCpfMask(input) {
     if (!input) return;
     const paint = () => { input.value = formatCpf(input.value); };
@@ -644,7 +663,7 @@
       <div class="modal-head">${isEdit ? "Editar sócio" : "Novo sócio"}</div>
       <div class="modal-body">
         <label>Nome completo</label>
-        <input id="m-nome" value="${esc(pessoa?.nome || "")}" />
+        <input id="m-nome" value="${esc(formatNome(pessoa?.nome || ""))}" />
         <label>CPF</label>
         <input id="m-cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" value="${esc(formatCpf(pessoa?.cpf_raw || pessoa?.cpf || ""))}" />
       </div>
@@ -653,11 +672,12 @@
         <button type="button" class="btn btn-primary" id="m-save">Salvar</button>
       </div>
     `);
+    bindNomeMask(backdrop.querySelector("#m-nome"));
     bindCpfMask(backdrop.querySelector("#m-cpf"));
     backdrop.querySelector("#m-save").addEventListener("click", async () => {
       const r = await api("save_pessoa", {
         id: pessoa?.id || "",
-        nome: backdrop.querySelector("#m-nome").value,
+        nome: formatNome(backdrop.querySelector("#m-nome").value),
         cpf: backdrop.querySelector("#m-cpf").value,
       });
       if (!r.pending && !r.ok) toast(r.error);
@@ -731,7 +751,7 @@
 
     function collectRows() {
       return [...host.querySelectorAll(".lote-row")].map((r) => ({
-        nome: r.querySelector(".l-nome").value,
+        nome: formatNome(r.querySelector(".l-nome").value),
         cpf: r.querySelector(".l-cpf").value,
       })).filter((r) => r.nome.trim() || r.cpf.trim());
     }
@@ -749,7 +769,7 @@
       const row = document.createElement("div");
       row.className = "lote-row";
       row.innerHTML = `
-        <input class="l-nome" value="${esc(nome)}" placeholder="Nome completo" />
+        <input class="l-nome" value="${esc(formatNome(nome))}" placeholder="Nome completo" />
         <input class="l-cpf" value="${esc(formatCpf(cpf))}" placeholder="000.000.000-00" maxlength="14" />
         <button type="button" class="icon-btn danger l-del">🗑</button>
       `;
@@ -766,6 +786,7 @@
       row.querySelector(".l-nome").addEventListener("input", persistDraft);
       row.querySelector(".l-cpf").addEventListener("input", persistDraft);
       host.appendChild(row);
+      bindNomeMask(row.querySelector(".l-nome"));
       bindCpfMask(row.querySelector(".l-cpf"));
     }
 
