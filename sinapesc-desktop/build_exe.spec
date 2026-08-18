@@ -36,6 +36,11 @@ datas += tmp_ret[0]
 binaries += tmp_ret[1]
 hiddenimports += tmp_ret[2]
 
+tmp_webview = collect_all("webview")
+datas += tmp_webview[0]
+binaries += tmp_webview[1]
+hiddenimports += tmp_webview[2]
+
 a = Analysis(
     ["main.py"],
     pathex=[],

@@ -13,12 +13,19 @@ echo [2/3] Gerando executavel com PyInstaller...
 python -m PyInstaller --noconfirm build_exe.spec
 if errorlevel 1 goto :error
 
-echo [3/3] Pronto!
+echo [3/3] Montando pasta release...
+if not exist release mkdir release
+copy /Y dist\SinapescREAP.exe release\
+copy /Y config.example.json release\config.json
+copy /Y COMO_INTEGRAR_API.md release\
+copy /Y README.md release\
+echo Pronto!
 echo.
 echo Arquivo gerado:
 echo   dist\SinapescREAP.exe
+echo   release\  (pasta pronta para zipar e distribuir)
 echo.
-echo Copie esse .exe para o notebook e execute. Na primeira vez,
+echo Copie a pasta release ou o .exe para o notebook. Na primeira vez,
 echo abra Configuracoes e importe o JSON da Conta de Servico Google.
 echo.
 pause

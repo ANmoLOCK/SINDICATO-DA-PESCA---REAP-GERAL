@@ -1,6 +1,8 @@
 # Sinapesc Desktop
 
-Programa Windows (Tkinter + Google Sheets) para controle REAP da secretaria.
+Programa Windows (**pywebview** + Google Sheets) para controle REAP da secretaria.
+
+A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mockup aprovado. Tkinter legado: `python main.py --tk`.
 
 | Documento | Link |
 |-----------|------|
@@ -11,13 +13,20 @@ Programa Windows (Tkinter + Google Sheets) para controle REAP da secretaria.
 
 ## Versão
 
-**v1.6.2** — UI fiel ao mockup (header, abas, cartões, meses horizontais).
+**v1.6.4** — UI web pywebview (HTML/CSS no EXE, fiel ao mockup).
+
+## Requisitos (Windows)
+
+- Windows 10 ou 11
+- **WebView2 Runtime** (Microsoft Edge) — na maioria dos PCs já está instalado
+- Conta de serviço Google + planilha compartilhada
 
 ## Desenvolvimento
 
 ```bash
 pip install -r requirements.txt
-python main.py
+python main.py          # UI web (padrão)
+python main.py --tk     # Tkinter legado
 ```
 
 ## Build EXE (Windows)
@@ -26,14 +35,19 @@ python main.py
 build_exe.bat
 ```
 
+Gera `dist\SinapescREAP.exe` e pasta `release\` pronta para zipar.
+
 Ou dispare o workflow [build-windows-exe.yml](../.github/workflows/build-windows-exe.yml) (branch `main` ou tag `v*`).
+
+**Download pronto:** [SinapescREAP-Windows-v1.6.4.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.4/SinapescREAP-Windows-v1.6.4.zip)
 
 ## Estrutura
 
 | Pasta / arquivo | Função |
 |-----------------|--------|
+| `web/` | Frontend HTML/CSS/JS (interface principal) |
+| `webapp/` | API Python ↔ JavaScript (pywebview) |
+| `ui/` | Tkinter legado (`--tk`) |
 | `controle/` | Regras: calendário, pendências, relatório, backup, auditoria |
-| `ui/chrome.py` | Header, abas da secretaria, rodapé, navegação Voltar |
-| `ui/tela_*.py` | Telas Pendências, Relatório, Backup, Auditoria |
 | `sheets/` | Cliente e serviço Google Sheets |
-| `build_exe.spec` | PyInstaller |
+| `build_exe.spec` | PyInstaller (empacota `web/` + `assets/`) |

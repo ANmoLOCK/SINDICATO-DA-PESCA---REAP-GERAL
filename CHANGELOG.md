@@ -6,7 +6,21 @@ Formato: mais recente primeiro.
 
 ---
 
-## [v1.6.2] — 2026-08-18 — UI fiel ao mockup aprovado
+## [v1.6.4] — 2026-08-18 — UI web pywebview (idêntica ao mockup)
+
+**Tag:** [`v1.6.4`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.4)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.4/SinapescREAP-Windows-v1.6.4.zip
+
+### O que entrou
+- Interface **HTML + CSS** dentro da janela via **pywebview** (WebView2 no Windows)
+- Mockup aprovado com fidelidade real: header navy, abas sublinhadas, cartões, pílulas de mês, rodapé limpo
+- Ponte `webapp/api.py` reutiliza `sheets/` e `controle/` (login, sócios, REAP, pendências, relatório, backup, auditoria, QRs)
+- Tkinter mantido como fallback: `SinapescREAP.exe --tk`
+- Correções: nomes CAPS, relatório individual, lista/QR sem login admin, navegação Voltar
+
+---
+
+## [v1.6.2] — 2026-08-18 — UI fiel ao mockup aprovado (Tkinter)
 
 **Tag:** [`v1.6.2`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.2)  
 **Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.2/SinapescREAP-Windows-v1.6.2.zip

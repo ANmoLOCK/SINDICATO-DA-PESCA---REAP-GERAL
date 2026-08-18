@@ -43,8 +43,11 @@ jobs:
             Copy-Item ..\TUTORIAL_IMPLEMENTACAO.md release\
           }
           @"
-          SINAPESC REAP — COMO USAR (v1.6.1)
+          SINAPESC REAP — COMO USAR (v1.6.4)
           ==================================
+          Interface web (HTML/CSS) dentro da janela — igual ao mockup aprovado.
+          Requer Windows 10/11 com WebView2 (Edge); na maioria dos PCs ja vem instalado.
+
           1. Leia TUTORIAL_IMPLEMENTACAO.md ou COMO_INTEGRAR_API.md
           2. Renomeie o JSON do Google Cloud para google-credentials.json
              e coloque na mesma pasta deste exe.
@@ -52,14 +55,35 @@ jobs:
              https://anmolock.github.io/sinapesc-casanova-reap
           4. Compartilhe a planilha com o client_email (Editor)
              e como "qualquer pessoa com o link" (Leitor) para o site.
-          5. Execute SinapescREAP.exe → Configurações → Testar conexão
-          6. Cole a URL do site → Salvar → QR Consulta CPF → imprima
-          7. Login admin: abas Pendências, Relatório, Backup, Auditoria, Sócios
-          A primeira conexão cria as abas Auditoria e Config na planilha.
+          5. Execute SinapescREAP.exe -> Configuracoes -> Testar conexao
+          6. Cole a URL do site -> Salvar -> QR Consulta CPF -> imprima
+          7. Login admin: abas Sócios, Pendencias, Relatorio, Backup, Auditoria
+          A primeira conexao cria as abas Auditoria e Config na planilha.
+
+          Fallback Tkinter (legado): SinapescREAP.exe --tk
           "@ | Set-Content -Encoding UTF8 release\LEIA-ME.txt
+
+      - name: Create ZIP
+        shell: pwsh
+        run: |
+          if ("${{ github.ref }}" -match '^refs/tags/(v.+)$') {
+            $ver = $Matches[1]
+          } else {
+            $ver = "dev"
+          }
+          Compress-Archive -Path release\* -DestinationPath "SinapescREAP-Windows-$ver.zip" -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: SinapescREAP-Windows
-          path: sinapesc-desktop/release/*
+          path: |
+            sinapesc-desktop/release/*
+            sinapesc-desktop/SinapescREAP-Windows-*.zip
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: sinapesc-desktop/SinapescREAP-Windows-*.zip
+          generate_release_notes: true
