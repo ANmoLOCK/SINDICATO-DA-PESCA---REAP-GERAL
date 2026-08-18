@@ -3,7 +3,7 @@
 
 from PyInstaller.utils.hooks import collect_all
 
-datas = [("assets", "assets")]
+datas = [("assets", "assets"), ("web", "web")]
 binaries = []
 hiddenimports = [
     "google.oauth2.service_account",
@@ -23,6 +23,12 @@ hiddenimports = [
     "controle.calendario",
     "controle.pendencias",
     "controle.relatorio",
+    "webview",
+    "webapp",
+    "webapp.api",
+    "webapp.launcher",
+    "webapp.paths",
+    "webapp.serialize",
 ]
 
 tmp_ret = collect_all("googleapiclient")

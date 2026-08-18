@@ -19,10 +19,16 @@ if str(ROOT) not in sys.path:
 
 
 def main() -> None:
-    from ui import SinapescApp
+    if "--tk" in sys.argv:
+        from ui import SinapescApp
 
-    app = SinapescApp()
-    app.mainloop()
+        app = SinapescApp()
+        app.mainloop()
+        return
+
+    from webapp.launcher import run_web_app
+
+    run_web_app()
 
 
 if __name__ == "__main__":
