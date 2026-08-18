@@ -13,7 +13,7 @@ A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mo
 
 ## Versão
 
-**v1.6.5** — Escala compacta + Config.Atalhos completo (lote, massa, copiar ano).
+**v1.6.6** — Filtro (recente / A–Z), imprimir QR, logo selo SINAPESC.
 
 ## Requisitos (Windows)
 

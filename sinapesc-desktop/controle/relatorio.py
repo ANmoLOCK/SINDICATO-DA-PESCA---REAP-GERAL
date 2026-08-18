@@ -119,7 +119,8 @@ def montar_html(
   <title>{html.escape(titulo)}</title>
   <style>
     body {{ font-family: Segoe UI, Arial, sans-serif; color: #0A2F52; margin: 24px; }}
-    .logo {{ height: 64px; }}
+    .brand {{ display: flex; align-items: center; gap: 12px; }}
+    .logo {{ height: 72px; width: 72px; object-fit: contain; }}
     h1 {{ margin: 8px 0 0; font-size: 20px; }}
     .sub {{ color: #5A7388; font-size: 13px; }}
     .gold {{ height: 3px; background: #C4A35A; border: 0; margin: 12px 0 18px; }}
@@ -142,11 +143,13 @@ def montar_html(
   </style>
 </head>
 <body>
-  {logo_tag}
+  <div class="brand">{logo_tag}
+  <div>
   <h1>{html.escape(org_short)} — {html.escape(org_full)}</h1>
   <p class="sub">{html.escape(titulo)} · Ano {int(ano)}<br>
   Calendário considerado: {html.escape(cal)}<br>
   Gerado em {html.escape(gerado_em.strftime("%d/%m/%Y %H:%M"))} · CPF completo · uso interno</p>
+  </div></div>
   <hr class="gold">
   {''.join(rows_html)}
   <p class="foot">Sócios neste relatório: {n} · Regulares: {n_reg} · Pendentes: {n_pen}</p>

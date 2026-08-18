@@ -27,6 +27,7 @@
     pendencias: null,
     auditoria: [],
     connLabel: "",
+    sortMode: (typeof localStorage !== "undefined" && localStorage.getItem("sinapesc_sort")) || "recent",
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -423,6 +424,12 @@
           <input type="search" id="admin-search" placeholder="Buscar por nome ou CPF" value="${esc(state.search)}" />
         </div>
         <div class="btn-row">
+          <label class="filter-wrap">Filtro
+            <select id="admin-sort">
+              <option value="recent">Mais recente</option>
+              <option value="az">A–Z</option>
+            </select>
+          </label>
           <button type="button" class="btn btn-outline-dark btn-sm" id="admin-refresh">↻ Atualizar</button>
           <button type="button" class="btn btn-outline-dark btn-sm" id="admin-lote">⇪ Cadastro em lote</button>
           <button type="button" class="btn btn-primary btn-sm" id="admin-new">+ Novo sócio</button>
@@ -434,6 +441,15 @@
       state.search = e.target.value;
       renderAdminList();
     });
+    const sortSel = $("#admin-sort");
+    if (sortSel) {
+      sortSel.value = state.sortMode;
+      sortSel.addEventListener("change", () => {
+        state.sortMode = sortSel.value;
+        try { localStorage.setItem("sinapesc_sort", state.sortMode); } catch (_e) {}
+        renderAdminList();
+      });
+    }
     $("#admin-refresh").addEventListener("click", loadPessoas);
     $("#admin-new").addEventListener("click", () => openPessoaModal());
     $("#admin-lote").addEventListener("click", () => openLoteModal());
@@ -444,10 +460,34 @@
   function filteredPessoas() {
     const q = state.search.trim().toLowerCase();
     const digits = q.replace(/\D/g, "");
-    if (!q) return state.pessoas;
-    return state.pessoas.filter((p) =>
-      p.nome.toLowerCase().includes(q) || (digits && p.cpf_raw.includes(digits))
-    );
+    let list = state.pessoas;
+    if (q) {
+      list = list.filter((p) =>
+        p.nome.toLowerCase().includes(q) || (digits && p.cpf_raw.includes(digits))
+      );
+    }
+    return sortedPessoas(list);
+  }
+
+  function sortedPessoas(list) {
+    const copy = list.map((p, i) => ({ p, i: p._idx ?? i }));
+    if (state.sortMode === "az") {
+      copy.sort((a, b) =>
+        String(a.p.nome_display || a.p.nome || "").localeCompare(
+          String(b.p.nome_display || b.p.nome || ""),
+          "pt-BR",
+          { sensitivity: "base" }
+        )
+      );
+    } else {
+      copy.sort((a, b) => {
+        const ca = a.p.criado_em || "";
+        const cb = b.p.criado_em || "";
+        if (ca && cb && ca !== cb) return cb.localeCompare(ca);
+        return b.i - a.i;
+      });
+    }
+    return copy.map((x) => x.p);
   }
 
   function renderAdminList() {
@@ -979,16 +1019,47 @@
   async function showQr(kind, personId) {
     const r = await api("qr_preview", kind, personId || "");
     if (!r.ok) { toast(r.error); return; }
-    createModal(`
+    const backdrop = createModal(`
       <div class="modal-head">QR Code</div>
       <div class="modal-body qr-preview">
-        <img src="${r.data.image}" alt="QR" />
+        <img id="qr-img" src="${r.data.image}" alt="QR" />
         <div class="qr-url">${esc(r.data.url)}</div>
       </div>
       <div class="modal-foot">
+        <button type="button" class="btn btn-outline-dark" id="qr-print">Imprimir</button>
         <button type="button" class="btn btn-primary" data-modal-close="ok">Fechar</button>
       </div>
     `);
+    backdrop.querySelector("#qr-print").addEventListener("click", () => {
+      printQr(r.data.image, r.data.url);
+    });
+  }
+
+  function printQr(image, url) {
+    const logoSrc = document.querySelector(".logo-img")?.src || "";
+    const w = window.open("", "_blank", "width=520,height=720");
+    if (!w) {
+      toast("Permita pop-ups para imprimir o QR.");
+      return;
+    }
+    const logoTag = logoSrc ? `<img class="logo" src="${logoSrc}" alt="SINAPESC" />` : "";
+    w.document.write(`<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>QR Sinapesc</title>
+<style>
+  body { font-family: Segoe UI, Arial, sans-serif; text-align: center; color: #0A2F52; margin: 20px; }
+  img.logo { width: 72px; height: 72px; }
+  img.qr { max-width: 380px; margin: 12px 0; }
+  .url { font-size: 12px; word-break: break-all; color: #5A7388; }
+  h1 { font-size: 18px; margin: 8px 0 4px; }
+</style></head><body>
+  ${logoTag}
+  <h1>SINAPESC</h1>
+  <p>Sindicato Dos Aquicultores E Pescadores De Casa Nova</p>
+  <img class="qr" src="${image}" alt="QR" />
+  <p class="url">${esc(url)}</p>
+</body></html>`);
+    w.document.close();
+    setTimeout(() => { try { w.focus(); w.print(); } catch (_e) {} }, 250);
   }
 
   async function refreshBootstrap() {
@@ -1004,7 +1075,7 @@
     AppEvents.on("status", (p) => setStatus(p.msg));
     AppEvents.on("pessoas", (r) => {
       if (r.ok) {
-        state.pessoas = r.data || [];
+        state.pessoas = (r.data || []).map((p, i) => ({ ...p, _idx: i }));
         state.connLabel = "Conectado";
         setFooter();
         if (state.screen === "admin") renderAdminList();

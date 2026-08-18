@@ -676,13 +676,18 @@ class SinapescApp(tk.Tk):
         self._run_bg(work, ok, lambda e: messagebox.showerror("Erro", str(e)), "Carregando sócios…")
 
     def _filtered_pessoas(self) -> List[PessoaComReap]:
-        if not hasattr(self, "search_var"):
-            return self._pessoas
-        q = self.search_var.get().strip().lower()
-        digits = only_digits(q)
-        if not q:
-            return self._pessoas
-        return [p for p in self._pessoas if q in p.nome.lower() or (digits and digits in p.cpf)]
+        pessoas = list(self._pessoas)
+        if hasattr(self, "search_var"):
+            q = self.search_var.get().strip().lower()
+            digits = only_digits(q)
+            if q:
+                pessoas = [p for p in pessoas if q in p.nome.lower() or (digits and digits in p.cpf)]
+        mode = getattr(self, "_sort_mode", "recent")
+        if mode == "az":
+            pessoas.sort(key=lambda p: (p.nome or "").lower())
+        else:
+            pessoas.sort(key=lambda p: p.criado_em or "", reverse=True)
+        return pessoas
 
     def _render_admin_list(self) -> None:
         if not hasattr(self, "admin_list") or not self.admin_list.winfo_exists():

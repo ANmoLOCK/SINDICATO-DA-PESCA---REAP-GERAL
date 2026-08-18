@@ -6,6 +6,19 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.6] — 2026-08-18 — Filtro de sócios, imprimir QR e logo SINAPESC
+
+**Tag:** [`v1.6.6`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.6)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.6/SinapescREAP-Windows-v1.6.6.zip
+
+### O que entrou
+- Sócios novos aparecem **no topo** (mais recente → mais antigo)
+- **Filtro** na toolbar: Mais recente | A–Z (ao lado de Atualizar · Lote · + Novo sócio)
+- QR: botão **Imprimir**
+- Logo oficial do selo SINAPESC no programa e nos relatórios HTML
+
+---
+
 ## [v1.6.5] — 2026-08-18 — Escala compacta + funções restauradas
 
 **Tag:** [`v1.6.5`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.5)  

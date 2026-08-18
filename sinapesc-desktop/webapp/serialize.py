@@ -17,6 +17,7 @@ def pessoa_to_dict(p: PessoaComReap, *, mask_cpf: bool = False) -> Dict[str, Any
         "cpf": cpf_fmt,
         "cpf_raw": p.cpf,
         "iniciais": _iniciais(p.nome),
+        "criado_em": p.criado_em or "",
         "anos": [
             {
                 "ano": a.ano,
