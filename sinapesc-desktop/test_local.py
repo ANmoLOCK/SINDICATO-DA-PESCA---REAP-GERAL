@@ -79,7 +79,7 @@ def test_auditoria_parse() -> None:
     assert not combina_busca(evt, "inexistente")
 
 
-def test_relatorio_mascara_cpf() -> None:
+def test_relatorio_mostra_cpf_completo() -> None:
     from sheets.models import PessoaComReap, ReapAno, meses_vazios
     from controle.calendario import CALENDARIO_PADRAO
     from controle.pendencias import situacao_de
@@ -102,9 +102,10 @@ def test_relatorio_mascara_cpf() -> None:
         titulo="Teste",
         individual=True,
     )
-    assert "12345678901" not in html_txt
-    assert "***" in html_txt
-    assert "não é comprovante de pagamento" in html_txt.lower() or "nao e comprovante" in html_txt.lower() or "não é comprovante" in html_txt
+    assert "123.456.789-01" in html_txt
+    assert "***" not in html_txt
+    assert "uso interno" in html_txt.lower()
+    assert "não é comprovante de pagamento" in html_txt
 
 
 def test_backup_rotacao() -> None:
@@ -131,6 +132,6 @@ if __name__ == "__main__":
     test_meses_intervalo()
     test_controle_pendencias()
     test_auditoria_parse()
-    test_relatorio_mascara_cpf()
+    test_relatorio_mostra_cpf_completo()
     test_backup_rotacao()
     print("OK — testes locais passaram.")

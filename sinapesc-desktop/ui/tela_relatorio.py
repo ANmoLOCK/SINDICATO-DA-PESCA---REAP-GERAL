@@ -43,7 +43,7 @@ def show_relatorio(app: "SinapescApp") -> None:
     ).pack(anchor="w")
     tk.Label(
         wrap,
-        text="Gera HTML com logo Sinapesc. Abra no navegador e use Imprimir → Salvar como PDF. Sem valor em R$.",
+        text="Somente administrador. Mostra o CPF completo. Abra no navegador e use Imprimir → Salvar como PDF. Sem valor em R$. A consulta pública no celular continua com CPF mascarado.",
         bg=COLORS["bg"],
         fg=COLORS["muted"],
         font=(FONT_FAMILY, 9),

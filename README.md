@@ -57,7 +57,7 @@ No Admin, abaixo da lista de sócios:
 | Botão | Função |
 |-------|--------|
 | **Pendências** | Quem ainda não tem os meses obrigatórios do ano (padrão mar–out). Marca só o que falta. |
-| **Relatório** | HTML da diretoria ou comprovante de um sócio (CPF mascarado). Sem R$. |
+| **Relatório** | HTML da diretoria ou comprovante de um sócio (**CPF completo**, só o admin gera). Sem R$. |
 | **Backup** | Cópia CSV das abas Pessoas + Reap neste computador (lembrete semanal). |
 | **Auditoria** | Histórico **na planilha Google** — todos os admins veem as alterações uns dos outros. |
 

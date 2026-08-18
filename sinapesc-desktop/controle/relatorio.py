@@ -10,7 +10,7 @@ from typing import Iterable, List, Sequence
 
 from sheets.models import MESES
 from ui.brand import asset_path
-from ui.formatters import format_cpf_masked
+from ui.formatters import format_cpf
 
 from .calendario import meses_para_texto
 from .pendencias import SituacaoReap, meses_marcados
@@ -72,7 +72,7 @@ def montar_html(
             f"""
             <section class="card">
               <h2>{html.escape(s.pessoa.nome)}</h2>
-              <p>CPF: {html.escape(format_cpf_masked(s.pessoa.cpf))}</p>
+              <p>CPF: {html.escape(format_cpf(s.pessoa.cpf))}</p>
               <p>Ano {int(ano)} · Situação REAP: <strong class="{sit_cls}">{sit}</strong></p>
               {extra}
               {_grid(meses_marcados(s.pessoa, ano))}
@@ -92,7 +92,7 @@ def montar_html(
             body_rows.append(
                 "<tr>"
                 f"<td>{html.escape(s.pessoa.nome)}</td>"
-                f"<td>{html.escape(format_cpf_masked(s.pessoa.cpf))}</td>"
+                f"<td>{html.escape(format_cpf(s.pessoa.cpf))}</td>"
                 f'<td class="{sit_cls}">{html.escape(sit)}</td>'
                 f"{tds}"
                 "</tr>"
@@ -107,6 +107,7 @@ def montar_html(
         )
 
     aviso = (
+        "Uso interno da secretaria (somente administrador). "
         "Este documento não é comprovante de pagamento. "
         "É o registro de REAP constante na base do sindicato na data da emissão."
     )
@@ -145,7 +146,7 @@ def montar_html(
   <h1>{html.escape(org_short)} — {html.escape(org_full)}</h1>
   <p class="sub">{html.escape(titulo)} · Ano {int(ano)}<br>
   Calendário considerado: {html.escape(cal)}<br>
-  Gerado em {html.escape(gerado_em.strftime("%d/%m/%Y %H:%M"))}</p>
+  Gerado em {html.escape(gerado_em.strftime("%d/%m/%Y %H:%M"))} · CPF completo · uso interno</p>
   <hr class="gold">
   {''.join(rows_html)}
   <p class="foot">Sócios neste relatório: {n} · Regulares: {n_reg} · Pendentes: {n_pen}</p>

@@ -213,7 +213,8 @@ Na tela Relatório:
 
 - R$, taxa, “pago”, boleto, recibo financeiro
 - Senha, e-mail do admin, chave Google
-- CPF completo (sempre mascarado, igual à lista pública)
+- CPF completo no **site público** (consulta no celular continua mascarada)
+- CPF completo no relatório admin: **sim**, só quem está logado como administrador gera esse HTML
 
 ## Fluxo
 
