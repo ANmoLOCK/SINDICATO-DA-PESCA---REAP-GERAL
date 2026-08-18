@@ -23,7 +23,7 @@ from sheets import MESES, MESES_LABEL, MesKey, PessoaComReap, SheetsConfigError,
 from sheets.models import meses_no_intervalo
 from ui.brand import load_logo
 from ui.chrome import build_shell, clear_body, go_back, navigate, page_wrap, sync_chrome
-from ui.formatters import format_cpf, format_cpf_masked, get_initials, only_digits, parse_lote_lines
+from ui.formatters import display_nome, format_cpf, format_cpf_masked, get_initials, only_digits, parse_lote_lines
 from ui.public_link import ensure_site_qrs, resolve_base, urls_for
 from ui.public_web import start_public_server
 from ui.qr_vault import (
@@ -733,7 +733,7 @@ class SinapescApp(tk.Tk):
         info.pack(side="left", fill="x", expand=True)
 
         name_lbl = tk.Label(
-            info, text=pessoa.nome, bg=COLORS["surface"], fg=COLORS["primary"],
+            info, text=display_nome(pessoa.nome), bg=COLORS["surface"], fg=COLORS["primary"],
             font=(FONT_DISPLAY, 11, "bold"), anchor="w", cursor="hand2",
         )
         name_lbl.pack(anchor="w")
@@ -798,6 +798,7 @@ class SinapescApp(tk.Tk):
             pill = month_pill(row, mes, pago=pago, editable=editable, command=cmd)
             pill.pack(side="left", padx=3)
             pill.bind("<Enter>", lambda _e, t=MESES_LABEL[mes]: self.status.set(t))
+            pill.bind("<Leave>", lambda _e: self.status.set("Pronto."))
 
     def _toggle_mes(self, person_id: str, ano: int, mes: MesKey, novo: bool) -> None:
         try:

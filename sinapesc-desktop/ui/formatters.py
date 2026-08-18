@@ -1,4 +1,4 @@
-"""Utilitários de formatação (CPF, iniciais)."""
+"""Utilitários de formatação (CPF, iniciais, nome na tela)."""
 
 from __future__ import annotations
 
@@ -34,6 +34,17 @@ def get_initials(name: str) -> str:
     if len(parts) == 1:
         return parts[0][:2].upper()
     return (parts[0][0] + parts[-1][0]).upper()
+
+
+def display_nome(name: str) -> str:
+    """Nome para a tela: se veio TODO EM CAPS da planilha, vira título."""
+    txt = (name or "").strip()
+    if not txt:
+        return txt
+    letters = [c for c in txt if c.isalpha()]
+    if letters and all(c.isupper() for c in letters):
+        return txt.title()
+    return txt
 
 
 def parse_lote_lines(raw: str) -> list[tuple[str, str]]:

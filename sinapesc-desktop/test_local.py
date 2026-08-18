@@ -26,6 +26,13 @@ def test_formatters() -> None:
     assert format_cpf_masked("12345678901") == "***.***.789-**"
 
 
+def test_display_nome() -> None:
+    from ui.formatters import display_nome
+
+    assert display_nome("JOAO SILVA") == "Joao Silva"
+    assert display_nome("Maria Pereira") == "Maria Pereira"
+
+
 def test_parse_lote() -> None:
     itens = parse_lote_lines("Maria Silva;12345678901\nJoao,98765432100\n")
     assert itens[0] == ("Maria Silva", "12345678901")
@@ -135,6 +142,7 @@ def test_chrome_routes() -> None:
 
 if __name__ == "__main__":
     test_formatters()
+    test_display_nome()
     test_row_parsers()
     test_parse_lote()
     test_meses_intervalo()
