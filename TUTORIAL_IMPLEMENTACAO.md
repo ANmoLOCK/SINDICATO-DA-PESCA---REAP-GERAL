@@ -1,9 +1,11 @@
-# Tutorial de implementação — Sinapesc REAP v1.6.0
+# Tutorial de implementação — Sinapesc REAP v1.6.4
 
 Guia para o **programa Windows** e o **site público** (consulta por CPF sem o notebook ligado).
 
-**Download do EXE:** [SinapescREAP-Windows-v1.6.0.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.0/SinapescREAP-Windows-v1.6.0.zip)  
-**Página da release:** [v1.6.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0)
+**Download do EXE:** [SinapescREAP-Windows-v1.6.4.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.4/SinapescREAP-Windows-v1.6.4.zip)  
+**Página da release:** [v1.6.4](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.4)
+
+> v1.6.4: interface **web** (HTML/CSS) na janela — requer WebView2 (Edge) no Windows 10/11.
 
 Site: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 

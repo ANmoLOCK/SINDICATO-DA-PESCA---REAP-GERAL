@@ -13,7 +13,7 @@ A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mo
 
 ## Versão
 
-**v1.6.4** — UI web pywebview (HTML/CSS no EXE, fiel ao mockup).
+**v1.6.5** — Escala compacta + Config.Atalhos completo (lote, massa, copiar ano).
 
 ## Requisitos (Windows)
 

@@ -24,9 +24,9 @@ def run_web_app() -> None:
         title,
         url=web_index_url(),
         js_api=api,
-        width=1280,
-        height=820,
-        min_size=(960, 640),
+        width=1180,
+        height=760,
+        min_size=(900, 600),
         background_color="#0A2F52",
     )
     api.bind_window(window)

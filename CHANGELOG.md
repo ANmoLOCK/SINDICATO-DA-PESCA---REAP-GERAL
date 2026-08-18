@@ -6,6 +6,22 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.5] — 2026-08-18 — Escala compacta + funções restauradas
+
+**Tag:** [`v1.6.5`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.5)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.5/SinapescREAP-Windows-v1.6.5.zip
+
+### O que entrou
+- Escala da UI: fontes legíveis, padding reduzido, conteúdo com largura máxima (não “estica” a 1280px)
+- Config.Atalhos como **aba completa**: (1) lote pré-marcado, (2) marcar em massa com busca/substituir, (3) copiar ano
+- Presets **Mar → Out / Ano inteiro / Limpar**
+- Cadastro em lote visual (linhas Nome + CPF + lixeira)
+- Configurações: Gerar QRs, QR Consulta CPF, pasta dos QRs
+- Auditoria: exportar CSV
+- Modal JS corrigido (botões Salvar/Importar voltaram a funcionar)
+
+---
+
 ## [v1.6.4] — 2026-08-18 — UI web pywebview (idêntica ao mockup)
 
 **Tag:** [`v1.6.4`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.4)  

@@ -301,6 +301,50 @@ class SinapescApi:
 
         return self._run_async("lote_saved", work, "Importando lote…")
 
+    def save_lote_rows(self, rows: List[Dict[str, Any]], ano: int, meses_on: List[str]) -> Dict[str, Any]:
+        itens: List[tuple[str, str]] = []
+        for row in rows or []:
+            nome = str(row.get("nome") or "").strip()
+            cpf = only_digits(str(row.get("cpf") or ""))
+            if nome or cpf:
+                itens.append((nome, cpf))
+        if not itens:
+            return err("Nenhuma linha válida (Nome + CPF).")
+
+        def work():
+            return self._ensure_service().add_pessoas_lote(
+                itens,
+                ano=int(ano),
+                meses_on=meses_on or [],
+            )
+
+        return self._run_async("lote_saved", work, "Importando lote…")
+
+    def copiar_ano(
+        self,
+        ano_origem: int,
+        ano_destino: int,
+        person_ids: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        def work():
+            return self._ensure_service().copiar_reap_ano(
+                int(ano_origem),
+                int(ano_destino),
+                person_ids=person_ids,
+            )
+
+        return self._run_async("copia_ok", work, "Copiando ano…")
+
+    def marcar_meses_em_massa(
+        self,
+        ano: int,
+        meses_on: List[str],
+        person_ids: Optional[List[str]] = None,
+        substituir: bool = False,
+    ) -> Dict[str, Any]:
+        """Alias JS (nome igual ao SheetsService)."""
+        return self.marcar_meses_massa(ano, meses_on, person_ids, substituir)
+
     def marcar_meses_massa(
         self,
         ano: int,
@@ -438,6 +482,21 @@ class SinapescApi:
             ]
 
         return self._run_async("auditoria", work, "Carregando auditoria…")
+
+    def export_auditoria(self) -> Dict[str, Any]:
+        import csv
+
+        def work():
+            eventos = self._ensure_service().listar_auditoria(400)
+            path = backup_root() / "auditoria-reap.csv"
+            with path.open("w", encoding="utf-8-sig", newline="") as fh:
+                writer = csv.writer(fh)
+                writer.writerow(["em", "usuario", "acao", "detalhe", "nome", "ano", "meses"])
+                for e in eventos:
+                    writer.writerow([e.em, e.usuario, e.acao, e.detalhe, e.nome, e.ano, e.meses])
+            return {"path": str(path), "count": len(eventos)}
+
+        return self._run_async("auditoria_export", work, "Exportando auditoria…")
 
     def filter_auditoria_local(self, eventos: List[Dict[str, Any]], busca: str) -> Dict[str, Any]:
         from controle.auditoria import EventoAuditoria
