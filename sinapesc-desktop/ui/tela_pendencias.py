@@ -19,48 +19,39 @@ if TYPE_CHECKING:
 
 
 def show_pendencias(app: "SinapescApp") -> None:
-    if not app._logged_in:
-        app.show_login()
-        return
+    from ui.chrome import page_wrap
 
-    app._lista_mode = False
-    app._clear_body()
-    app._nav_button("Início", app.show_home)
-    app._nav_button("Sócios", app.show_admin)
-    app._nav_button("Sair", app._logout)
+    wrap = page_wrap(app)
 
-    wrap = tk.Frame(app.body, bg=COLORS["bg"])
-    wrap.pack(fill="both", expand=True, padx=22, pady=14)
-
-    top = tk.Frame(wrap, bg=COLORS["bg"])
+    top = tk.Frame(wrap, bg=COLORS["content"])
     top.pack(fill="x", pady=(0, 8))
     tk.Label(
-        top, text="Pendências REAP", bg=COLORS["bg"], fg=COLORS["primary"],
+        top, text="Pendências REAP", bg=COLORS["content"], fg=COLORS["primary"],
         font=(FONT_DISPLAY, 20, "bold"),
     ).pack(side="left")
 
     stats = tk.StringVar(value="Carregando…")
     cal_var = tk.StringVar(value="")
-    tk.Label(top, textvariable=stats, bg=COLORS["bg"], fg=COLORS["muted"], font=(FONT_FAMILY, 10)).pack(
+    tk.Label(top, textvariable=stats, bg=COLORS["content"], fg=COLORS["muted"], font=(FONT_FAMILY, 10)).pack(
         side="left", padx=12
     )
 
-    tools = tk.Frame(wrap, bg=COLORS["bg"])
+    tools = tk.Frame(wrap, bg=COLORS["content"])
     tools.pack(fill="x", pady=(0, 8))
-    tk.Label(tools, text="Ano", bg=COLORS["bg"], fg=COLORS["muted"]).pack(side="left")
+    tk.Label(tools, text="Ano", bg=COLORS["content"], fg=COLORS["muted"]).pack(side="left")
     ano_ent = ttk.Entry(tools, width=8)
     ano_ent.insert(0, str(datetime.now().year))
     ano_ent.pack(side="left", padx=8)
 
-    tk.Label(tools, textvariable=cal_var, bg=COLORS["bg"], fg=COLORS["accent"], font=(FONT_FAMILY, 9, "bold")).pack(
+    tk.Label(tools, textvariable=cal_var, bg=COLORS["content"], fg=COLORS["accent"], font=(FONT_FAMILY, 9, "bold")).pack(
         side="left", padx=8
     )
 
     search_var = tk.StringVar()
-    tk.Label(tools, text="Buscar", bg=COLORS["bg"], fg=COLORS["muted"]).pack(side="left", padx=(16, 4))
+    tk.Label(tools, text="Buscar", bg=COLORS["content"], fg=COLORS["muted"]).pack(side="left", padx=(16, 4))
     ttk.Entry(tools, textvariable=search_var, width=28).pack(side="left")
 
-    scroll = ScrollableFrame(wrap, bg=COLORS["bg"])
+    scroll = ScrollableFrame(wrap, bg=COLORS["content"])
     scroll.pack(fill="both", expand=True)
     lista = scroll.inner
     app._scroll = scroll
@@ -99,7 +90,7 @@ def show_pendencias(app: "SinapescApp") -> None:
             msg = "Nenhum pendente neste ano." if not search_var.get().strip() else "Nenhum pendente na busca."
             if n_all == 0:
                 msg = "Nenhum sócio cadastrado."
-            tk.Label(lista, text=msg, bg=COLORS["bg"], fg=COLORS["muted"]).pack(anchor="w", pady=20)
+            tk.Label(lista, text=msg, bg=COLORS["content"], fg=COLORS["muted"]).pack(anchor="w", pady=20)
             return
         for s in visiveis:
             _card_pendente(app, lista, s, on_marcar=lambda item=s: marcar_um(item))

@@ -1,7 +1,11 @@
 """Tema premium azul oceano — Sinapesc Casa Nova."""
 
+APP_VERSION = "1.6.0"
+
 COLORS = {
     "bg": "#E7F1F7",
+    "content": "#FFFFFF",
+    "nav_mid": "#14507E",
     "bg_deep": "#C9DDEA",
     "surface": "#FFFFFF",
     "surface_soft": "#F3F8FC",

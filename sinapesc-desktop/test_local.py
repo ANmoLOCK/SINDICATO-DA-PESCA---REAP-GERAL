@@ -125,6 +125,14 @@ def test_backup_rotacao() -> None:
         assert len(listar_backups(root)) == 12
 
 
+def test_chrome_routes() -> None:
+    from ui.chrome import SCREEN_MODES, TAB_FOR_SCREEN
+
+    assert SCREEN_MODES["admin"] == "secretaria"
+    assert SCREEN_MODES["settings"] == "public"
+    assert TAB_FOR_SCREEN["pendencias"] == "pendencias"
+
+
 if __name__ == "__main__":
     test_formatters()
     test_row_parsers()
@@ -134,4 +142,5 @@ if __name__ == "__main__":
     test_auditoria_parse()
     test_relatorio_mostra_cpf_completo()
     test_backup_rotacao()
+    test_chrome_routes()
     print("OK — testes locais passaram.")

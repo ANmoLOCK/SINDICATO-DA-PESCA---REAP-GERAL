@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import tkinter as tk
 from datetime import datetime
 from tkinter import messagebox
 from typing import TYPE_CHECKING
@@ -11,8 +12,48 @@ from typing import TYPE_CHECKING
 from config import load_config, save_config
 from controle.backup import backup_root, dias_desde, gravar_backup, listar_backups
 
+from ui.theme import COLORS, FONT_DISPLAY, FONT_FAMILY
+
 if TYPE_CHECKING:
     from ui import SinapescApp
+
+
+def render_backup(app: "SinapescApp") -> None:
+    from ui.chrome import page_wrap
+
+    wrap = page_wrap(app)
+    tk.Label(
+        wrap, text="Backup local", bg=COLORS["content"], fg=COLORS["primary"],
+        font=(FONT_DISPLAY, 20, "bold"),
+    ).pack(anchor="w")
+    tk.Label(
+        wrap,
+        text="Cópia CSV das abas Pessoas e Reap neste computador. Não substitui a planilha na nuvem.",
+        bg=COLORS["content"],
+        fg=COLORS["muted"],
+        font=(FONT_FAMILY, 10),
+        wraplength=720,
+        justify="left",
+    ).pack(anchor="w", pady=(4, 16))
+
+    cfg = load_config()
+    ultimo = str(cfg.get("ultimo_backup_em") or "Nunca")
+    info = tk.Frame(wrap, bg=COLORS["surface"], padx=16, pady=14, highlightbackground=COLORS["border"], highlightthickness=1)
+    info.pack(fill="x", pady=(0, 12))
+    tk.Label(info, text=f"Último backup: {ultimo}", bg=COLORS["surface"], fg=COLORS["primary"], font=(FONT_FAMILY, 10)).pack(anchor="w")
+    pasta = str(backup_root())
+    tk.Label(info, text=f"Pasta: {pasta}", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 9)).pack(anchor="w", pady=(4, 0))
+
+    btns = tk.Frame(wrap, bg=COLORS["content"])
+    btns.pack(anchor="w")
+    app._btn(btns, "Gerar backup agora", lambda: pedir_backup_agora(app), kind="primary").pack(side="left", padx=(0, 8))
+    app._btn(btns, "Abrir pasta de backups", lambda: abrir_pasta_backups(), kind="outline").pack(side="left")
+
+    recentes = listar_backups()
+    if recentes:
+        tk.Label(wrap, text="Backups recentes", bg=COLORS["content"], fg=COLORS["muted"], font=(FONT_FAMILY, 9)).pack(anchor="w", pady=(16, 6))
+        for path in recentes[:8]:
+            tk.Label(wrap, text=path.name, bg=COLORS["content"], fg=COLORS["primary"], font=(FONT_FAMILY, 9)).pack(anchor="w")
 
 
 DIAS_SEMANA = 7.0
@@ -42,6 +83,10 @@ def executar_backup(app: "SinapescApp", *, silencioso: bool = False) -> None:
         cfg["backup_adiado_em"] = ""
         save_config(cfg)
         app.cfg = cfg
+        if getattr(app, "_current_screen", None) == "backup":
+            from ui.chrome import navigate
+
+            app.after(50, lambda: navigate(app, "backup", push=False))
         if silencioso:
             app.status.set(f"Backup ok: {pasta}")
             return

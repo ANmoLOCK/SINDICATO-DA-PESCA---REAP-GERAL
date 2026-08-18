@@ -16,37 +16,28 @@ if TYPE_CHECKING:
 
 
 def show_auditoria(app: "SinapescApp") -> None:
-    if not app._logged_in:
-        app.show_login()
-        return
+    from ui.chrome import page_wrap
 
-    app._lista_mode = False
-    app._clear_body()
-    app._nav_button("Início", app.show_home)
-    app._nav_button("Sócios", app.show_admin)
-    app._nav_button("Sair", app._logout)
+    wrap = page_wrap(app)
 
-    wrap = tk.Frame(app.body, bg=COLORS["bg"])
-    wrap.pack(fill="both", expand=True, padx=22, pady=14)
-
-    top = tk.Frame(wrap, bg=COLORS["bg"])
+    top = tk.Frame(wrap, bg=COLORS["content"])
     top.pack(fill="x", pady=(0, 8))
     tk.Label(
-        top, text="Auditoria", bg=COLORS["bg"], fg=COLORS["primary"],
+        top, text="Auditoria", bg=COLORS["content"], fg=COLORS["primary"],
         font=(FONT_DISPLAY, 20, "bold"),
     ).pack(side="left")
     hint = tk.StringVar(value="Registro compartilhado na aba Auditoria da planilha.")
-    tk.Label(top, textvariable=hint, bg=COLORS["bg"], fg=COLORS["muted"], font=(FONT_FAMILY, 9)).pack(
+    tk.Label(top, textvariable=hint, bg=COLORS["content"], fg=COLORS["muted"], font=(FONT_FAMILY, 9)).pack(
         side="left", padx=12
     )
 
-    tools = tk.Frame(wrap, bg=COLORS["bg"])
+    tools = tk.Frame(wrap, bg=COLORS["content"])
     tools.pack(fill="x", pady=(0, 8))
-    tk.Label(tools, text="Buscar", bg=COLORS["bg"], fg=COLORS["muted"]).pack(side="left")
+    tk.Label(tools, text="Buscar", bg=COLORS["content"], fg=COLORS["muted"]).pack(side="left")
     search_var = tk.StringVar()
     ttk.Entry(tools, textvariable=search_var, width=36).pack(side="left", padx=8)
 
-    scroll = ScrollableFrame(wrap, bg=COLORS["bg"])
+    scroll = ScrollableFrame(wrap, bg=COLORS["content"])
     scroll.pack(fill="both", expand=True)
     lista = scroll.inner
     app._scroll = scroll
@@ -62,7 +53,7 @@ def show_auditoria(app: "SinapescApp") -> None:
         itens = visiveis()
         hint.set(f"{len(itens)} registro(s) · aba Auditoria da planilha (todos os admins veem)")
         if not itens:
-            tk.Label(lista, text="Nenhum registro ainda.", bg=COLORS["bg"], fg=COLORS["muted"]).pack(
+            tk.Label(lista, text="Nenhum registro ainda.", bg=COLORS["content"], fg=COLORS["muted"]).pack(
                 anchor="w", pady=20
             )
             return

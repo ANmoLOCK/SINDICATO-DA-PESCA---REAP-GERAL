@@ -24,27 +24,18 @@ if TYPE_CHECKING:
 
 
 def show_relatorio(app: "SinapescApp") -> None:
-    if not app._logged_in:
-        app.show_login()
-        return
+    from ui.chrome import page_wrap
 
-    app._lista_mode = False
-    app._clear_body()
-    app._nav_button("Início", app.show_home)
-    app._nav_button("Sócios", app.show_admin)
-    app._nav_button("Sair", app._logout)
-
-    wrap = tk.Frame(app.body, bg=COLORS["bg"])
-    wrap.pack(fill="both", expand=True, padx=22, pady=14)
+    wrap = page_wrap(app)
 
     tk.Label(
-        wrap, text="Relatório de conformidade REAP", bg=COLORS["bg"], fg=COLORS["primary"],
+        wrap, text="Relatório de conformidade REAP", bg=COLORS["content"], fg=COLORS["primary"],
         font=(FONT_DISPLAY, 20, "bold"),
     ).pack(anchor="w")
     tk.Label(
         wrap,
         text="Somente administrador. Mostra o CPF completo. Abra no navegador e use Imprimir → Salvar como PDF. Sem valor em R$. A consulta pública no celular continua com CPF mascarado.",
-        bg=COLORS["bg"],
+        bg=COLORS["content"],
         fg=COLORS["muted"],
         font=(FONT_FAMILY, 9),
         wraplength=880,

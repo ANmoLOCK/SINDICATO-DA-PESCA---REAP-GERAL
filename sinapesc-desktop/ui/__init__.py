@@ -21,7 +21,8 @@ from config import (
 )
 from sheets import MESES, MESES_LABEL, MesKey, PessoaComReap, SheetsConfigError, SheetsService
 from sheets.models import meses_no_intervalo
-from ui.brand import load_fish, load_logo, load_school
+from ui.brand import load_logo
+from ui.chrome import build_shell, clear_body, go_back, navigate, page_wrap, sync_chrome
 from ui.formatters import format_cpf, format_cpf_masked, get_initials, only_digits, parse_lote_lines
 from ui.public_link import ensure_site_qrs, resolve_base, urls_for
 from ui.public_web import start_public_server
@@ -40,15 +41,7 @@ from ui.tela_auditoria import show_auditoria as open_auditoria
 from ui.tela_backup import pedir_backup_agora, talvez_lembrar_backup
 from ui.tela_pendencias import show_pendencias as open_pendencias
 from ui.tela_relatorio import show_relatorio as open_relatorio
-from ui.theme import (
-    APP_TAGLINE,
-    COLORS,
-    FONT_DISPLAY,
-    FONT_FAMILY,
-    ORG_FULL,
-    ORG_SHORT,
-    ORG_TITLE,
-)
+from ui.theme import COLORS, FONT_DISPLAY, FONT_FAMILY, ORG_FULL, ORG_SHORT, ORG_TITLE
 from ui.tunnel import stop_tunnel
 
 
@@ -73,8 +66,8 @@ class SinapescApp(tk.Tk):
         self._public_url_var = tk.StringVar(value=str(self.cfg.get("public_base_url") or ""))
 
         self._setup_style()
-        self._build_shell()
-        self.show_home()
+        build_shell(self)
+        navigate(self, "home", push=False)
         self.protocol("WM_DELETE_WINDOW", self._on_close)
 
         try:
@@ -99,71 +92,26 @@ class SinapescApp(tk.Tk):
             style.theme_use("clam")
         except tk.TclError:
             pass
-        style.configure(".", font=(FONT_FAMILY, 10), background=COLORS["bg"])
-        style.configure("TFrame", background=COLORS["bg"])
+        style.configure(".", font=(FONT_FAMILY, 10), background=COLORS["content"])
+        style.configure("TFrame", background=COLORS["content"])
         style.configure("Header.TFrame", background=COLORS["primary"])
         style.configure("Header.TLabel", background=COLORS["primary"], foreground=COLORS["primary_fg"], font=(FONT_DISPLAY, 15, "bold"))
         style.configure("HeaderSub.TLabel", background=COLORS["primary"], foreground="#A9C0D4", font=(FONT_FAMILY, 9))
-        style.configure("Title.TLabel", background=COLORS["bg"], foreground=COLORS["primary"], font=(FONT_DISPLAY, 20, "bold"))
-        style.configure("Muted.TLabel", background=COLORS["bg"], foreground=COLORS["muted"], font=(FONT_FAMILY, 10))
-
-    def _build_shell(self) -> None:
-        self.header = tk.Frame(self, bg=COLORS["primary"])
-        self.header.pack(fill="x")
-        tk.Frame(self.header, bg=COLORS["gold"], height=3).pack(fill="x")
-
-        inner = tk.Frame(self.header, bg=COLORS["primary"])
-        inner.pack(fill="x", padx=18, pady=12)
-
-        left = tk.Frame(inner, bg=COLORS["primary"])
-        left.pack(side="left", fill="x", expand=True)
-
-        brand = tk.Frame(left, bg=COLORS["primary"])
-        brand.pack(anchor="w")
-        self._logo_img = load_logo(self, size=52)
-        if self._logo_img is not None:
-            tk.Label(brand, image=self._logo_img, bg=COLORS["primary"]).pack(side="left", padx=(0, 12))
-        titles = tk.Frame(brand, bg=COLORS["primary"])
-        titles.pack(side="left")
-        tk.Label(titles, text=ORG_SHORT, bg=COLORS["primary"], fg=COLORS["primary_fg"], font=(FONT_DISPLAY, 17, "bold")).pack(anchor="w")
-        tk.Label(titles, text=ORG_FULL, bg=COLORS["primary"], fg="#9CB8D0", font=(FONT_FAMILY, 9)).pack(anchor="w")
-        tk.Label(titles, text=APP_TAGLINE, bg=COLORS["primary"], fg="#7E9BB3", font=(FONT_FAMILY, 8)).pack(anchor="w", pady=(2, 0))
-
-        self.nav = tk.Frame(inner, bg=COLORS["primary"])
-        self.nav.pack(side="right")
-
-        self._school_img = load_school(self, width=220)
-        if self._school_img is not None:
-            tk.Label(inner, image=self._school_img, bg=COLORS["primary"]).pack(side="right", padx=(8, 10))
-
-        tk.Frame(self.header, bg=COLORS["accent"], height=4).pack(fill="x")
-
-        self.body = tk.Frame(self, bg=COLORS["bg"])
-        self.body.pack(fill="both", expand=True)
-
-        self.status = tk.StringVar(value="Pronto.")
-        tk.Label(
-            self, textvariable=self.status, anchor="w", bg=COLORS["surface"], fg=COLORS["muted"],
-            font=(FONT_FAMILY, 9), padx=14, pady=7,
-        ).pack(fill="x", side="bottom")
+        style.configure("Title.TLabel", background=COLORS["content"], foreground=COLORS["primary"], font=(FONT_DISPLAY, 20, "bold"))
+        style.configure("Muted.TLabel", background=COLORS["content"], foreground=COLORS["muted"], font=(FONT_FAMILY, 10))
 
     def _clear_body(self) -> None:
-        if self._scroll is not None:
-            try:
-                self._scroll.destroy()
-            except tk.TclError:
-                pass
-            self._scroll = None
-        for child in self.body.winfo_children():
-            child.destroy()
-        for child in self.nav.winfo_children():
-            child.destroy()
+        clear_body(self)
+
+    def go_back(self) -> None:
+        go_back(self)
 
     def _btn(self, parent, text, command, *, kind="accent", padx=12, pady=7, font_size=10, bold=True):
         styles = {
             "accent": (COLORS["accent"], COLORS["accent_fg"], COLORS["accent_hover"]),
             "primary": (COLORS["primary"], COLORS["primary_fg"], COLORS["primary_mid"]),
-            "ghost": (COLORS["surface_soft"], COLORS["primary"], COLORS["border_soft"]),
+            "ghost": (COLORS["surface"], COLORS["primary"], COLORS["border_soft"]),
+            "outline": (COLORS["content"], COLORS["primary"], COLORS["border_soft"]),
             "danger": (COLORS["danger_bg"], COLORS["danger"], "#EFD0CC"),
             "nav": (COLORS["accent"], COLORS["accent_fg"], COLORS["accent_hover"]),
         }
@@ -174,9 +122,6 @@ class SinapescApp(tk.Tk):
             font=(FONT_FAMILY, font_size, "bold" if bold else "normal"), cursor="hand2", bd=0,
         )
         return btn
-
-    def _nav_button(self, text: str, command: Callable) -> None:
-        self._btn(self.nav, text, command, kind="nav", padx=10, pady=5, font_size=9).pack(side="left", padx=3)
 
     def _set_busy(self, message: str) -> None:
         self.status.set(message)
@@ -251,7 +196,7 @@ class SinapescApp(tk.Tk):
                 "Configure a URL do site público em Configurações "
                 "(GitHub Pages / Cloudflare / Netlify).",
             )
-            self.show_settings()
+            navigate(self, "settings")
             return
 
         def work():
@@ -317,34 +262,29 @@ class SinapescApp(tk.Tk):
     # Home / Login
     # ------------------------------------------------------------------
     def show_home(self) -> None:
+        navigate(self, "home")
+
+    def _render_home(self) -> None:
         self._lista_mode = False
-        self._clear_body()
-        self._nav_button("Configurações", self.show_settings)
+        wrap = page_wrap(self, padx=40, pady=28)
 
-        wrap = tk.Frame(self.body, bg=COLORS["bg"])
-        wrap.pack(fill="both", expand=True, padx=40, pady=28)
-
-        hero = tk.Frame(wrap, bg=COLORS["primary"], padx=22, pady=20)
+        hero = tk.Frame(wrap, bg=COLORS["primary"], padx=22, pady=18)
         hero.pack(fill="x", pady=(0, 18))
-        tk.Frame(hero, bg=COLORS["gold"], height=3).pack(fill="x", pady=(0, 12))
         row = tk.Frame(hero, bg=COLORS["primary"])
         row.pack(fill="x")
         if getattr(self, "_logo_img", None) is not None:
             tk.Label(row, image=self._logo_img, bg=COLORS["primary"]).pack(side="left", padx=(0, 14))
         col = tk.Frame(row, bg=COLORS["primary"])
         col.pack(side="left", fill="x", expand=True)
-        tk.Label(col, text=ORG_SHORT, bg=COLORS["primary"], fg=COLORS["foam"], font=(FONT_DISPLAY, 26, "bold")).pack(anchor="w")
-        tk.Label(col, text=ORG_FULL, bg=COLORS["primary"], fg="#B7D3E8", font=(FONT_FAMILY, 11)).pack(anchor="w", pady=(2, 6))
+        tk.Label(col, text=ORG_SHORT, bg=COLORS["primary"], fg=COLORS["foam"], font=(FONT_DISPLAY, 22, "bold")).pack(anchor="w")
+        tk.Label(col, text=ORG_FULL, bg=COLORS["primary"], fg="#B7D3E8", font=(FONT_FAMILY, 10)).pack(anchor="w", pady=(2, 6))
         tk.Label(
             col,
-            text="Sistema profissional de REAP · consulta online gratuita · QR permanente",
+            text="Controle REAP · consulta online · QR permanente",
             bg=COLORS["primary"], fg="#8EB0C9", font=(FONT_FAMILY, 9),
         ).pack(anchor="w")
-        self._fish_hero = load_fish(self, size=96)
-        if self._fish_hero is not None:
-            tk.Label(row, image=self._fish_hero, bg=COLORS["primary"]).pack(side="right", padx=(8, 0))
 
-        cards = tk.Frame(wrap, bg=COLORS["bg"])
+        cards = tk.Frame(wrap, bg=COLORS["content"])
         cards.pack(fill="x")
         self._home_card(
             cards,
@@ -366,7 +306,8 @@ class SinapescApp(tk.Tk):
         tip.configure(highlightbackground=COLORS["border"], highlightthickness=1)
         tk.Label(
             tip,
-            text="Opção A — site gratuito: compartilhe a planilha como Leitor, publique site-publico/, cole a URL em Configurações e gere o QR Consulta.",
+            text="Site gratuito: compartilhe a planilha como Leitor, publique site-publico/, "
+            "cole a URL em Configurações e gere o QR Consulta.",
             bg=COLORS["surface_soft"],
             fg=COLORS["muted"],
             font=(FONT_FAMILY, 9),
@@ -378,22 +319,18 @@ class SinapescApp(tk.Tk):
         outer = tk.Frame(parent, bg=COLORS["border"], padx=1, pady=1)
         inner = tk.Frame(outer, bg=COLORS["surface"], padx=22, pady=22)
         inner.pack(fill="both", expand=True)
-        tk.Frame(inner, bg=COLORS["gold"], height=2).pack(fill="x", pady=(0, 14))
         tk.Label(inner, text=title, bg=COLORS["surface"], fg=COLORS["primary"], font=(FONT_DISPLAY, 14, "bold"), anchor="w").pack(fill="x")
         tk.Label(inner, text=desc, bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 10), wraplength=340, justify="left", anchor="w").pack(fill="x", pady=(8, 18))
         self._btn(inner, btn_text, command, kind="primary").pack(anchor="w")
         return outer
 
     def show_login(self) -> None:
-        self._clear_body()
-        self._nav_button("Início", self.show_home)
-        self._nav_button("Configurações", self.show_settings)
+        navigate(self, "login")
 
-        wrap = tk.Frame(self.body, bg=COLORS["bg"])
-        wrap.pack(expand=True)
+    def _render_login(self) -> None:
+        wrap = page_wrap(self)
         box = tk.Frame(wrap, bg=COLORS["surface"], padx=32, pady=28, highlightbackground=COLORS["border"], highlightthickness=1)
-        box.pack()
-        tk.Frame(box, bg=COLORS["gold"], height=2).pack(fill="x", pady=(0, 14))
+        box.pack(anchor="n", pady=40)
         tk.Label(box, text="Acesso administrativo", bg=COLORS["surface"], fg=COLORS["primary"], font=(FONT_DISPLAY, 15, "bold")).pack(anchor="w")
         tk.Label(box, text=ORG_FULL, bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 9)).pack(anchor="w", pady=(2, 16))
 
@@ -413,11 +350,12 @@ class SinapescApp(tk.Tk):
                 return
             if not is_sheets_configured(cfg):
                 messagebox.showwarning("Configuração", "Configure primeiro o Google Sheets.")
-                self.show_settings()
+                navigate(self, "settings")
                 return
             self._logged_in = True
             self._admin_user = email.get().strip()
-            self.show_admin()
+            sync_chrome(self, "secretaria", active_tab="socies")
+            navigate(self, "admin")
 
         self._btn(box, "Entrar", do_login).pack(anchor="e")
         password.bind("<Return>", lambda _e: do_login())
@@ -426,14 +364,13 @@ class SinapescApp(tk.Tk):
     # Configurações + site público
     # ------------------------------------------------------------------
     def show_settings(self) -> None:
-        self._clear_body()
-        self._nav_button("Início", self.show_home)
+        navigate(self, "settings")
 
-        outer = tk.Frame(self.body, bg=COLORS["bg"])
-        outer.pack(fill="both", expand=True, padx=24, pady=16)
-        tk.Label(outer, text="Configurações", bg=COLORS["bg"], fg=COLORS["primary"], font=(FONT_DISPLAY, 20, "bold")).pack(anchor="w")
+    def _render_settings(self) -> None:
+        outer = page_wrap(self)
+        tk.Label(outer, text="Configurações", bg=COLORS["content"], fg=COLORS["primary"], font=(FONT_DISPLAY, 20, "bold")).pack(anchor="w")
 
-        scroll = ScrollableFrame(outer, bg=COLORS["bg"])
+        scroll = ScrollableFrame(outer, bg=COLORS["content"])
         scroll.pack(fill="both", expand=True, pady=(8, 0))
         self._scroll = scroll
         wrap = scroll.inner
@@ -625,77 +562,89 @@ class SinapescApp(tk.Tk):
     # Admin
     # ------------------------------------------------------------------
     def show_admin(self) -> None:
+        navigate(self, "admin")
+
+    def _render_admin(self) -> None:
         self._lista_mode = False
-        if not self._logged_in:
-            self.show_login()
-            return
+        wrap = page_wrap(self)
 
-        self._clear_body()
-        self._nav_button("Início", self.show_home)
-        self._nav_button("Lista pública", self.show_lista)
-        self._nav_button("QR Consulta", self._show_qr_consulta)
-        self._nav_button("Configurações", self.show_settings)
-        self._nav_button("Sair", self._logout)
-
-        wrap = tk.Frame(self.body, bg=COLORS["bg"])
-        wrap.pack(fill="both", expand=True, padx=22, pady=14)
-
-        top = tk.Frame(wrap, bg=COLORS["bg"])
-        top.pack(fill="x", pady=(0, 8))
-        tk.Label(top, text="Sócios", bg=COLORS["bg"], fg=COLORS["primary"], font=(FONT_DISPLAY, 20, "bold")).pack(side="left")
+        head = tk.Frame(wrap, bg=COLORS["content"])
+        head.pack(fill="x", pady=(0, 10))
+        left = tk.Frame(head, bg=COLORS["content"])
+        left.pack(side="left", fill="x", expand=True)
+        title_line = tk.Frame(left, bg=COLORS["content"])
+        title_line.pack(anchor="w")
+        tk.Label(
+            title_line, text="Sócios", bg=COLORS["content"], fg=COLORS["primary"],
+            font=(FONT_DISPLAY, 20, "bold"),
+        ).pack(side="left")
         self.admin_count = tk.StringVar(value="")
-        tk.Label(top, textvariable=self.admin_count, bg=COLORS["bg"], fg=COLORS["muted"], font=(FONT_FAMILY, 10)).pack(side="left", padx=12)
-        tk.Label(top, text="Clique no nome para abrir o REAP", bg=COLORS["bg"], fg=COLORS["muted"], font=(FONT_FAMILY, 9)).pack(side="left")
+        tk.Label(
+            title_line, textvariable=self.admin_count, bg=COLORS["content"], fg=COLORS["muted"],
+            font=(FONT_FAMILY, 10),
+        ).pack(side="left", padx=(10, 0))
+        tk.Label(
+            left, text="Clique no nome para abrir o REAP", bg=COLORS["content"], fg=COLORS["muted"],
+            font=(FONT_FAMILY, 9),
+        ).pack(anchor="w", pady=(2, 0))
 
-        self._btn(top, "+ Novo sócio", lambda: self._dialog_pessoa(), kind="accent").pack(side="right")
-        self._btn(top, "Cadastro em lote", self._dialog_lote, kind="primary").pack(side="right", padx=8)
-        self._btn(top, "Config.Atalhos", self._dialog_atalhos, kind="primary").pack(side="right", padx=4)
-        self._btn(top, "Atualizar", self._load_admin_data, kind="ghost").pack(side="right", padx=4)
-
-        tools = tk.Frame(wrap, bg=COLORS["bg"])
-        tools.pack(fill="x", pady=(0, 8))
-        self._btn(tools, "Pendências", self.show_pendencias, kind="accent").pack(side="left", padx=(0, 4))
-        self._btn(tools, "Relatório", self.show_relatorio, kind="primary").pack(side="left", padx=4)
-        self._btn(tools, "Backup", self._backup_agora, kind="ghost").pack(side="left", padx=4)
-        self._btn(tools, "Auditoria", self.show_auditoria, kind="ghost").pack(side="left", padx=4)
-
-        search_row = tk.Frame(wrap, bg=COLORS["bg"])
-        search_row.pack(fill="x", pady=(0, 8))
-        tk.Label(search_row, text="Buscar", bg=COLORS["bg"], fg=COLORS["muted"]).pack(side="left")
+        actions = tk.Frame(head, bg=COLORS["content"])
+        actions.pack(side="right")
         self.search_var = tk.StringVar()
-        ttk.Entry(search_row, textvariable=self.search_var, width=42).pack(side="left", padx=8)
+        ttk.Entry(actions, textvariable=self.search_var, width=32).pack(side="left", padx=(0, 8))
         self.search_var.trace_add("write", lambda *_: self._render_admin_list())
+        self._btn(actions, "Atualizar", self._load_admin_data, kind="outline", padx=10, pady=6, font_size=9).pack(side="left", padx=3)
+        self._btn(actions, "Cadastro em lote", self._dialog_lote, kind="outline", padx=10, pady=6, font_size=9).pack(side="left", padx=3)
+        self._btn(actions, "+ Novo sócio", lambda: self._dialog_pessoa(), kind="primary", padx=12, pady=6).pack(side="left", padx=3)
 
-        self._scroll = ScrollableFrame(wrap, bg=COLORS["bg"])
+        self._scroll = ScrollableFrame(wrap, bg=COLORS["content"])
         self._scroll.pack(fill="both", expand=True)
         self.admin_list = self._scroll.inner
         self._load_admin_data()
         self.after(1400, lambda: talvez_lembrar_backup(self))
 
     def show_pendencias(self) -> None:
+        navigate(self, "pendencias")
+
+    def _render_pendencias(self) -> None:
         open_pendencias(self)
 
     def show_relatorio(self) -> None:
+        navigate(self, "relatorio")
+
+    def _render_relatorio(self) -> None:
         open_relatorio(self)
 
+    def show_backup(self) -> None:
+        navigate(self, "backup")
+
+    def _render_backup(self) -> None:
+        from ui.tela_backup import render_backup
+
+        render_backup(self)
+
     def show_auditoria(self) -> None:
+        navigate(self, "auditoria")
+
+    def _render_auditoria(self) -> None:
         open_auditoria(self)
 
-    def _backup_agora(self) -> None:
-        pedir_backup_agora(self)
+    def _open_atalhos_tab(self) -> None:
+        self._dialog_atalhos()
 
     def _logout(self) -> None:
         self._logged_in = False
         self._admin_user = ""
         self._expanded_ids.clear()
-        self.show_home()
+        self._nav_history.clear()
+        navigate(self, "home", push=False)
 
     def _load_admin_data(self) -> None:
         try:
             svc = self._ensure_service()
         except Exception as exc:  # noqa: BLE001
             messagebox.showerror("Sheets", str(exc))
-            self.show_settings()
+            navigate(self, "settings")
             return
 
         def work():
@@ -704,7 +653,7 @@ class SinapescApp(tk.Tk):
         def ok(pessoas: List[PessoaComReap]) -> None:
             self._pessoas = pessoas
             if hasattr(self, "admin_count"):
-                self.admin_count.set(f"{len(pessoas)} cadastrado(s)")
+                self.admin_count.set(f"{len(pessoas)} cadastrados")
             self._render_admin_list()
 
         self._run_bg(work, ok, lambda e: messagebox.showerror("Erro", str(e)), "Carregando sócios…")
@@ -728,7 +677,7 @@ class SinapescApp(tk.Tk):
             tk.Label(
                 self.admin_list,
                 text="Nenhum sócio encontrado." if self._pessoas else "Nenhum sócio cadastrado.",
-                bg=COLORS["bg"], fg=COLORS["muted"],
+                bg=COLORS["content"], fg=COLORS["muted"],
             ).pack(anchor="w", pady=20)
             return
         for pessoa in pessoas:
@@ -1381,31 +1330,28 @@ class SinapescApp(tk.Tk):
     # Lista + QR
     # ------------------------------------------------------------------
     def show_lista(self) -> None:
-        self._clear_body()
+        navigate(self, "lista")
+
+    def _render_lista(self) -> None:
         self._lista_mode = True
-        self._nav_button("Início", self.show_home)
-        if self._logged_in:
-            self._nav_button("Admin", self.show_admin)
-        self._nav_button("QR Consulta CPF", self._show_qr_consulta)
-        self._nav_button("QR Lista", self._show_qr_lista)
-        self._nav_button("Configurações", self.show_settings)
+        wrap = page_wrap(self)
 
-        wrap = tk.Frame(self.body, bg=COLORS["bg"])
-        wrap.pack(fill="both", expand=True, padx=22, pady=14)
-
-        top = tk.Frame(wrap, bg=COLORS["bg"])
-        top.pack(fill="x")
-        tk.Label(top, text="Lista pública de REAP", bg=COLORS["bg"], fg=COLORS["primary"], font=(FONT_DISPLAY, 20, "bold")).pack(side="left")
-        self._btn(top, "QR Consulta CPF", self._show_qr_consulta).pack(side="right", padx=(6, 0))
-        self._btn(top, "QR Lista", self._show_qr_lista, kind="primary").pack(side="right")
+        top = tk.Frame(wrap, bg=COLORS["content"])
+        top.pack(fill="x", pady=(0, 8))
+        tk.Label(
+            top, text="Lista pública de REAP", bg=COLORS["content"], fg=COLORS["primary"],
+            font=(FONT_DISPLAY, 20, "bold"),
+        ).pack(side="left")
+        self._btn(top, "QR Consulta CPF", self._show_qr_consulta, kind="outline", padx=10, pady=6, font_size=9).pack(side="right", padx=(6, 0))
+        self._btn(top, "QR Lista", self._show_qr_lista, kind="primary", padx=10, pady=6, font_size=9).pack(side="right")
 
         tk.Label(
             wrap,
             text="Clique no nome para ver os meses. O QR de Consulta por CPF é o ideal para imprimir na sede.",
-            bg=COLORS["bg"], fg=COLORS["muted"], font=(FONT_FAMILY, 10),
+            bg=COLORS["content"], fg=COLORS["muted"], font=(FONT_FAMILY, 10),
         ).pack(anchor="w", pady=(4, 10))
 
-        self._scroll = ScrollableFrame(wrap, bg=COLORS["bg"])
+        self._scroll = ScrollableFrame(wrap, bg=COLORS["content"])
         self._scroll.pack(fill="both", expand=True)
         self.lista_frame = self._scroll.inner
 
@@ -1417,7 +1363,7 @@ class SinapescApp(tk.Tk):
         try:
             svc = self._ensure_service()
         except Exception as exc:  # noqa: BLE001
-            tk.Label(self.lista_frame, text=str(exc), bg=COLORS["bg"], fg=COLORS["muted"]).pack(anchor="w")
+            tk.Label(self.lista_frame, text=str(exc), bg=COLORS["content"], fg=COLORS["muted"]).pack(anchor="w")
             return
 
         def work():
@@ -1435,7 +1381,7 @@ class SinapescApp(tk.Tk):
         for child in self.lista_frame.winfo_children():
             child.destroy()
         if not self._pessoas:
-            tk.Label(self.lista_frame, text="Nenhum sócio cadastrado.", bg=COLORS["bg"], fg=COLORS["muted"]).pack(anchor="w")
+            tk.Label(self.lista_frame, text="Nenhum sócio cadastrado.", bg=COLORS["content"], fg=COLORS["muted"]).pack(anchor="w")
             return
         for p in self._pessoas:
             self._pessoa_row(self.lista_frame, p, editable=False, mask_cpf=True)
@@ -1449,7 +1395,7 @@ class SinapescApp(tk.Tk):
                 "https://anmolock.github.io/sinapesc-casanova-reap\n\n"
                 "(sem /consulta.html no final)",
             )
-            self.show_settings()
+            navigate(self, "settings")
             return
         ensure_stable_qrs(base, force=False)
         self._qr_dialog(
@@ -1466,7 +1412,7 @@ class SinapescApp(tk.Tk):
                 "Site público",
                 "Configure a URL do site público em Configurações antes de gerar o QR.",
             )
-            self.show_settings()
+            navigate(self, "settings")
             return
         ensure_stable_qrs(base, force=False)
         self._qr_dialog(
@@ -1483,7 +1429,7 @@ class SinapescApp(tk.Tk):
                 "Site público",
                 "Configure a URL do site público em Configurações antes de gerar o QR.",
             )
-            self.show_settings()
+            navigate(self, "settings")
             return
         ensure_stable_qrs(base, pessoas=[pessoa], force=False)
         self._qr_dialog(
