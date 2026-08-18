@@ -6,6 +6,19 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.11] — 2026-08-18 — Lote de 50 sócios sem perder o preenchimento
+
+**Tag:** [`v1.6.11`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.11)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.11/SinapescREAP-Windows-v1.6.11.zip
+
+### O que entrou
+- Cadastro em lote **não fecha a janela** se der erro — nomes e CPFs continuam na tela
+- Rascunho guardado automaticamente; dá para colar lista `Nome;CPF`
+- Envio em JSON (50+ sócios) e nova tentativa se o Google travar (429/timeout)
+- Teste automático com 50 sócios
+
+---
+
 ## [v1.6.10] — 2026-08-18 — Mês instantâneo, CPF formatado e fila da planilha
 
 **Tag:** [`v1.6.10`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.10)  

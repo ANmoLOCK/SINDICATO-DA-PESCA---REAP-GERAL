@@ -209,6 +209,65 @@ def test_js_tem_mes_instantaneo_e_cpf_formatado() -> None:
     assert "queued" in api_py
 
 
+def test_lote_50_socios_e_ponte_json() -> None:
+    import json
+    from sheets.service import SheetsService
+    from webapp.api import _lote_itens_from_rows
+
+    class FakeClient:
+        def __init__(self) -> None:
+            self.pessoas: list = []
+            self.reap: list = []
+            self.auditoria: list = []
+            self._tabs_ready = True
+
+        def ensure_tabs(self) -> None:
+            return None
+
+        def get_values(self, range_a1: str):
+            if range_a1.startswith("Pessoas"):
+                return list(self.pessoas)
+            if range_a1.startswith("Reap"):
+                return list(self.reap)
+            return []
+
+        def append_values(self, range_a1: str, values) -> None:
+            rows = [list(v) for v in values]
+            if range_a1.startswith("Pessoas"):
+                self.pessoas.extend(rows)
+            elif range_a1.startswith("Reap"):
+                self.reap.extend(rows)
+            else:
+                self.auditoria.extend(rows)
+
+    itens = [(f"Pessoa {i:02d}", f"{i:011d}") for i in range(1, 51)]
+    payload = json.dumps([{"nome": n, "cpf": c} for n, c in itens], ensure_ascii=False)
+    assert len(payload) > 722
+    parsed = _lote_itens_from_rows(payload)
+    assert len(parsed) == 50
+    assert parsed[0] == ("Pessoa 01", "00000000001")
+    assert parsed[49][0] == "Pessoa 50"
+
+    svc = SheetsService(FakeClient())  # type: ignore[arg-type]
+    svc._audit_silent = True
+    result = svc.add_pessoas_lote(parsed, ano=2026, meses_on=["mar", "abr"])
+    assert result["ok"] == 50
+    assert result["erros"] == []
+    assert len(svc.client.pessoas) == 50
+    assert len(svc.client.reap) == 50
+    assert svc.client.pessoas[0][2] == "000.000.000-01"
+
+    dup = svc.add_pessoas_lote([("Pessoa 01", "00000000001")], ano=2026)
+    assert dup["ok"] == 0
+    assert any("já cadastrado" in e for e in dup["erros"])
+
+    js = (ROOT / "web" / "js" / "app.js").read_text(encoding="utf-8")
+    assert "JSON.stringify(rows)" in js
+    assert "sinapesc_lote_draft" in js
+    assert "a janela só fecha se der certo" in js
+    assert "backdrop._close(true);\n      const mesesOn" not in js
+
+
 def test_qr_selo_usa_logo() -> None:
     from ui.qrutil import make_qr_image
 
@@ -232,5 +291,6 @@ if __name__ == "__main__":
     test_layout_centered_default_scale()
     test_run_async_enfileira_em_vez_de_rejeitar()
     test_js_tem_mes_instantaneo_e_cpf_formatado()
+    test_lote_50_socios_e_ponte_json()
     test_qr_selo_usa_logo()
     print("OK — testes locais passaram.")

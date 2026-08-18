@@ -324,24 +324,26 @@ class SinapescApi:
 
         return self._run_async("lote_saved", work, "Importando lote…")
 
-    def save_lote_rows(self, rows: List[Dict[str, Any]], ano: int, meses_on: List[str]) -> Dict[str, Any]:
-        itens: List[tuple[str, str]] = []
-        for row in rows or []:
-            nome = str(row.get("nome") or "").strip()
-            cpf = only_digits(str(row.get("cpf") or ""))
-            if nome or cpf:
-                itens.append((nome, cpf))
+    def save_lote_rows(self, rows: Any, ano: int, meses_on: List[str]) -> Dict[str, Any]:
+        try:
+            itens = _lote_itens_from_rows(rows)
+        except ValueError as exc:
+            return err(str(exc))
         if not itens:
             return err("Nenhuma linha válida (Nome + CPF).")
+        try:
+            ano_i = int(ano)
+        except (TypeError, ValueError):
+            ano_i = datetime.now().year
 
         def work():
             return self._ensure_service().add_pessoas_lote(
                 itens,
-                ano=int(ano),
+                ano=ano_i,
                 meses_on=meses_on or [],
             )
 
-        return self._run_async("lote_saved", work, "Importando lote…")
+        return self._run_async("lote_saved", work, f"Importando lote ({len(itens)} sócios)…")
 
     def copiar_ano(
         self,
@@ -610,6 +612,31 @@ class SinapescApi:
         if webview:
             webview.destroy_window()
         return ok()
+
+
+def _lote_itens_from_rows(rows: Any) -> List[tuple[str, str]]:
+    """Aceita lista de dicts OU JSON string (ponte JS do pywebview)."""
+    if isinstance(rows, str):
+        text = rows.strip()
+        if not text:
+            return []
+        try:
+            rows = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise ValueError("Lista do lote inválida.") from exc
+    itens: List[tuple[str, str]] = []
+    for row in rows or []:
+        if isinstance(row, (list, tuple)) and len(row) >= 2:
+            nome = str(row[0] or "").strip()
+            cpf = only_digits(str(row[1] or ""))
+        elif isinstance(row, dict):
+            nome = str(row.get("nome") or "").strip()
+            cpf = only_digits(str(row.get("cpf") or ""))
+        else:
+            continue
+        if nome or cpf:
+            itens.append((nome, cpf))
+    return itens
 
 
 def _situacao_dict(item) -> Dict[str, Any]:

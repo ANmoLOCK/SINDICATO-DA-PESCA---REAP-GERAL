@@ -701,7 +701,7 @@ body { overflow: hidden; }
 
 .lote-row { margin-bottom: 4px; }
 
-.lote-rows { max-height: 280px; overflow: auto; }
+.lote-rows { max-height: 360px; overflow: auto; }
 
 /* ---- Atalhos page ---- */
 .atalho-card {

@@ -28,6 +28,7 @@
     auditoria: [],
     connLabel: "",
     sortMode: (typeof localStorage !== "undefined" && localStorage.getItem("sinapesc_sort")) || "recent",
+    loteBackdrop: null,
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -664,6 +665,28 @@
     });
   }
 
+  function parseLoteText(raw) {
+    const itens = [];
+    String(raw || "").split(/\r?\n/).forEach((line) => {
+      const t = line.trim();
+      if (!t || /^nome/i.test(t)) return;
+      let parts;
+      if (t.includes(";")) parts = t.split(";", 2);
+      else if (t.includes("\t")) parts = t.split("\t", 2);
+      else if (t.includes(",")) {
+        const i = t.lastIndexOf(",");
+        parts = [t.slice(0, i), t.slice(i + 1)];
+      } else {
+        parts = t.split(/\s{2,}/, 2);
+      }
+      if (!parts || parts.length < 2) return;
+      const nome = String(parts[0] || "").replace(/^"|"$/g, "").trim();
+      const cpf = String(parts[1] || "").replace(/^"|"$/g, "").trim();
+      if (nome || cpf) itens.push({ nome, cpf });
+    });
+    return itens;
+  }
+
   function openLoteModal(opts = {}) {
     const ano = opts.ano || new Date().getFullYear();
     const meses = opts.meses || [];
@@ -673,7 +696,7 @@
     const backdrop = createModal(`
       <div class="modal-head">Cadastro em lote</div>
       <div class="modal-body">
-        <p class="page-sub">Uma linha = um sócio. Nome e CPF lado a lado. A lixeira remove a linha.</p>
+        <p class="page-sub">Uma linha = um sócio. Os dados ficam guardados se der erro — a janela só fecha depois de importar.</p>
         ${banner}
         <div class="inline-row">
           <label>Ano REAP</label>
@@ -683,9 +706,16 @@
           ${presetButtons("lote-m")}
           <div class="month-grid">${monthChecksHtml("lote-m", [])}</div>
         `}
+        <label>Colar lista (Nome;CPF — uma pessoa por linha)</label>
+        <textarea id="l-paste" placeholder="Maria Silva;105.205.585-45"></textarea>
+        <div class="btn-row" style="margin:6px 0 8px">
+          <button type="button" class="btn btn-ghost btn-sm" id="l-paste-btn">Colar nas linhas</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="l-add">+ Linha</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="l-add-10">+ 10 linhas</button>
+        </div>
         <div class="lote-head"><span>Nome completo</span><span>CPF</span><span></span></div>
         <div class="lote-rows" id="l-rows"></div>
-        <button type="button" class="btn btn-ghost btn-sm" id="l-add">+ Linha</button>
+        <p class="page-sub" id="l-status"></p>
       </div>
       <div class="modal-foot">
         <button type="button" class="btn btn-outline-dark" data-modal-close="">Cancelar</button>
@@ -695,6 +725,25 @@
 
     bindPresets(backdrop, "lote-m");
     const host = backdrop.querySelector("#l-rows");
+    const saveBtn = backdrop.querySelector("#l-save");
+    const statusEl = backdrop.querySelector("#l-status");
+    state.loteBackdrop = backdrop;
+
+    function collectRows() {
+      return [...host.querySelectorAll(".lote-row")].map((r) => ({
+        nome: r.querySelector(".l-nome").value,
+        cpf: r.querySelector(".l-cpf").value,
+      })).filter((r) => r.nome.trim() || r.cpf.trim());
+    }
+
+    function persistDraft() {
+      try {
+        localStorage.setItem("sinapesc_lote_draft", JSON.stringify({
+          ano: backdrop.querySelector("#l-ano").value,
+          rows: collectRows(),
+        }));
+      } catch (_e) {}
+    }
 
     function addRow(nome = "", cpf = "") {
       const row = document.createElement("div");
@@ -708,24 +757,69 @@
         if (host.children.length <= 1) {
           row.querySelector(".l-nome").value = "";
           row.querySelector(".l-cpf").value = "";
+          persistDraft();
           return;
         }
         row.remove();
+        persistDraft();
       });
+      row.querySelector(".l-nome").addEventListener("input", persistDraft);
+      row.querySelector(".l-cpf").addEventListener("input", persistDraft);
       host.appendChild(row);
       bindCpfMask(row.querySelector(".l-cpf"));
     }
 
-    for (let i = 0; i < 6; i++) addRow();
+    let restored = [];
+    try {
+      const raw = localStorage.getItem("sinapesc_lote_draft");
+      if (raw) restored = JSON.parse(raw).rows || [];
+    } catch (_e) { restored = []; }
+
+    if (restored.length) {
+      restored.forEach((r) => addRow(r.nome || "", r.cpf || ""));
+      statusEl.textContent = `Rascunho restaurado: ${restored.length} linha(s).`;
+    } else {
+      for (let i = 0; i < 8; i++) addRow();
+    }
+
     backdrop.querySelector("#l-add").addEventListener("click", () => addRow());
-    backdrop.querySelector("#l-save").addEventListener("click", () => {
-      const rows = [...host.querySelectorAll(".lote-row")].map((r) => ({
-        nome: r.querySelector(".l-nome").value,
-        cpf: r.querySelector(".l-cpf").value,
-      })).filter((r) => r.nome.trim() || r.cpf.trim());
+    backdrop.querySelector("#l-add-10").addEventListener("click", () => {
+      for (let i = 0; i < 10; i++) addRow();
+    });
+    backdrop.querySelector("#l-paste-btn").addEventListener("click", () => {
+      const itens = parseLoteText(backdrop.querySelector("#l-paste").value);
+      if (!itens.length) {
+        toast("Cole linhas no formato Nome;CPF.");
+        return;
+      }
+      host.innerHTML = "";
+      itens.forEach((r) => addRow(r.nome, r.cpf));
+      persistDraft();
+      statusEl.textContent = `${itens.length} linha(s) coladas.`;
+    });
+    saveBtn.addEventListener("click", async () => {
+      const rows = collectRows();
+      if (!rows.length) {
+        toast("Preencha pelo menos um Nome e CPF.");
+        return;
+      }
+      persistDraft();
+      const anoVal = parseInt(backdrop.querySelector("#l-ano").value, 10) || new Date().getFullYear();
       const mesesOn = meses.length ? meses : selectedMonths(backdrop, "lote-m");
-      api("save_lote_rows", rows, parseInt(backdrop.querySelector("#l-ano").value, 10), mesesOn);
-      backdrop._close(true);
+      saveBtn.disabled = true;
+      statusEl.textContent = `Enviando ${rows.length} sócio(s)… a janela só fecha se der certo.`;
+      try {
+        const r = await api("save_lote_rows", JSON.stringify(rows), anoVal, mesesOn);
+        if (r && r.ok === false && !r.pending) {
+          toast(r.error || "Não foi possível importar o lote.");
+          statusEl.textContent = r.error || "Erro ao importar. Seus dados continuam aqui.";
+          saveBtn.disabled = false;
+        }
+      } catch (_e) {
+        toast("Erro ao enviar o lote. Seus nomes e CPFs foram guardados.");
+        statusEl.textContent = "Erro de envio. Rascunho guardado — pode tentar de novo.";
+        saveBtn.disabled = false;
+      }
     });
   }
 
@@ -1155,13 +1249,29 @@
       else toast(r.error);
     });
     AppEvents.on("lote_saved", (r) => {
+      const box = state.loteBackdrop;
+      const saveBtn = box && box.querySelector("#l-save");
+      const statusEl = box && box.querySelector("#l-status");
       if (r.ok) {
         const d = r.data || {};
-        const nErr = (d.erros || []).length;
-        toast(`Lote: ${d.ok ?? d.criados ?? "ok"} cadastrado(s)${nErr ? ` · ${nErr} recusado(s)` : ""}.`);
-        if (nErr) toast((d.erros || []).slice(0, 3).join(" "));
-        loadPessoas();
-      } else toast(r.error);
+        const nOk = d.ok ?? d.criados ?? 0;
+        const erros = d.erros || [];
+        toast(`Lote: ${nOk} cadastrado(s)${erros.length ? ` · ${erros.length} recusado(s)` : ""}.`);
+        if (erros.length) toast(erros.slice(0, 4).join(" "));
+        if (nOk > 0) {
+          try { localStorage.removeItem("sinapesc_lote_draft"); } catch (_e) {}
+          if (box) box._close(true);
+          state.loteBackdrop = null;
+          loadPessoas();
+        } else {
+          if (statusEl) statusEl.textContent = erros.slice(0, 6).join(" ") || "Ninguém foi cadastrado. Confira CPF e nomes.";
+          if (saveBtn) saveBtn.disabled = false;
+        }
+      } else {
+        toast(r.error || "Erro no lote.");
+        if (statusEl) statusEl.textContent = r.error || "Erro. Seus dados continuam nesta janela.";
+        if (saveBtn) saveBtn.disabled = false;
+      }
     });
     AppEvents.on("pendencias", (r) => {
       if (r.ok) renderPendenciasList(r.data);

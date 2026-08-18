@@ -219,7 +219,10 @@ class SheetsService:
             for p in self.get_all_pessoas()
         }
         now = _now_iso()
-        ano_alvo = int(ano or datetime.now().year)
+        try:
+            ano_alvo = int(ano or datetime.now().year)
+        except (TypeError, ValueError):
+            ano_alvo = datetime.now().year
         flags = meses_para_flags(meses_on)
 
         pessoas_rows: List[list] = []
@@ -249,7 +252,14 @@ class SheetsService:
 
         if pessoas_rows:
             self.client.append_values(f"{PESSOAS_TAB}!A2", pessoas_rows)
-            self.client.append_values(f"{REAP_TAB}!A2", reap_rows)
+            try:
+                self.client.append_values(f"{REAP_TAB}!A2", reap_rows)
+            except Exception as exc:  # noqa: BLE001
+                raise RuntimeError(
+                    "Os nomes foram gravados, mas o REAP falhou. "
+                    "Não importe o mesmo lote de novo — abra Atualizar e complete o ano. "
+                    f"Detalhe: {exc}"
+                ) from exc
             meses_txt = ",".join(meses_on or []) or "(nenhum mês pré-marcado)"
             self._registrar_auditoria(
                 "lote",

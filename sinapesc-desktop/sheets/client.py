@@ -41,6 +41,7 @@ Config:     chave | valor   (calendário REAP compartilhado entre admins)
 
 from __future__ import annotations
 
+import time
 from typing import Any, List, Optional, Sequence
 
 from google.oauth2 import service_account
@@ -210,14 +211,32 @@ class GoogleSheetsClient:
         Acrescenta linhas no final da tabela (abaixo dos dados existentes).
 
         `insertDataOption=INSERT_ROWS` empurra linhas em vez de sobrescrever.
+        Repete até 4 vezes se o Google devolver 429/500/503/timeout (lote grande).
         """
-        self._service.spreadsheets().values().append(
-            spreadsheetId=self.spreadsheet_id,
-            range=range_a1,
-            valueInputOption="RAW",
-            insertDataOption="INSERT_ROWS",
-            body={"values": list(values)},
-        ).execute()
+        last_exc: Exception | None = None
+        for attempt in range(4):
+            try:
+                self._service.spreadsheets().values().append(
+                    spreadsheetId=self.spreadsheet_id,
+                    range=range_a1,
+                    valueInputOption="RAW",
+                    insertDataOption="INSERT_ROWS",
+                    body={"values": list(values)},
+                ).execute()
+                return
+            except Exception as exc:  # noqa: BLE001
+                last_exc = exc
+                msg = str(exc).lower()
+                retryable = any(
+                    token in msg
+                    for token in ("429", "500", "503", "timeout", "timed out", "backend error", "rate")
+                )
+                if attempt < 3 and retryable:
+                    time.sleep(1.2 * (attempt + 1))
+                    continue
+                raise
+        if last_exc:
+            raise last_exc
 
     def batch_update_values(self, data: List[dict], *, chunk_size: int = 500) -> None:
         """Várias faixas de células em poucas chamadas (limite Google: ~1000 faixas/request)."""
