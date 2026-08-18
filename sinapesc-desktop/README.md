@@ -13,7 +13,7 @@ A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mo
 
 ## Versão
 
-**v1.6.9** — Marca d'água visível no fundo (selo grande, atrás dos cards).
+**v1.6.9** — Marca d'água no fundo, layout centralizado e escala padrão (100%).
 
 ## Requisitos (Windows)
 

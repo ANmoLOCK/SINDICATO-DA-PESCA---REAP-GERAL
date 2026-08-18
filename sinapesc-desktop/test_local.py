@@ -170,6 +170,18 @@ def test_watermark_html_layer() -> None:
     assert from_html.exists() and from_html.stat().st_size > 10_000
 
 
+def test_layout_centered_default_scale() -> None:
+    css = (ROOT / "web" / "css" / "app.css").read_text(encoding="utf-8")
+    html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+    assert "--page-width:" in css
+    assert "margin: 0 auto" in css
+    assert "zoom: 1" in css
+    assert "font-size: 14px" in css
+    assert 'class="footer-inner"' in html
+    launcher = (ROOT / "webapp" / "launcher.py").read_text(encoding="utf-8")
+    assert "width=1280" in launcher
+
+
 def test_qr_selo_usa_logo() -> None:
     from ui.qrutil import make_qr_image
 
@@ -190,5 +202,6 @@ if __name__ == "__main__":
     test_chrome_routes()
     test_brand_assets()
     test_watermark_html_layer()
+    test_layout_centered_default_scale()
     test_qr_selo_usa_logo()
     print("OK — testes locais passaram.")

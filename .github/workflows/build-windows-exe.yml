@@ -49,7 +49,7 @@ jobs:
           SINAPESC REAP — COMO USAR (v1.6.9)
           ==================================
           Interface web (HTML/CSS) dentro da janela — selo oficial no icone,
-          relatorios e marca d'agua grande no fundo da lista.
+          marca d'agua no fundo, lista centralizada, escala padrao 100%.
           Requer Windows 10/11 com WebView2 (Edge); na maioria dos PCs ja vem instalado.
 
           1. Leia TUTORIAL_IMPLEMENTACAO.md ou COMO_INTEGRAR_API.md

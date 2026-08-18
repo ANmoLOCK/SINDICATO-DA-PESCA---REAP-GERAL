@@ -6,7 +6,7 @@ Formato: mais recente primeiro.
 
 ---
 
-## [v1.6.9] — 2026-08-18 — Marca d'água visível no fundo (selo grande)
+## [v1.6.9] — 2026-08-18 — Marca d'água, layout centralizado e escala padrão
 
 **Tag:** [`v1.6.9`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.9)  
 **Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.9/SinapescREAP-Windows-v1.6.9.zip
@@ -15,6 +15,8 @@ Formato: mais recente primeiro.
 - Marca d'água do selo **SINAPESC** no fundo da área de conteúdo (atrás dos cards), grande e centralizada — como na prévia
 - Correção: o CSS apontava para um arquivo que não existia (`web/assets/`), então o selo **não aparecia**
 - Camada irmã de `#content` (não some ao trocar de tela)
+- **Layout centralizado:** lista, abas, botões e rodapé no meio da janela (não mais colados à esquerda)
+- **Escala padrão (100%):** fonte 14px, zoom 1, janela 1280×800
 
 ---
 

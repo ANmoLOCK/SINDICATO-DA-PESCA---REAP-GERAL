@@ -5,7 +5,7 @@ Guia para o **programa Windows** e o **site público** (consulta por CPF sem o n
 **Download do EXE:** [SinapescREAP-Windows-v1.6.9.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.9/SinapescREAP-Windows-v1.6.9.zip)  
 **Página da release:** [v1.6.9](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.9)
 
-> v1.6.9: marca d'água do selo visível no fundo. Interface **web** (HTML/CSS) na janela — requer WebView2 (Edge) no Windows 10/11.
+> v1.6.9: marca d'água do selo, layout centralizado e escala padrão. Interface **web** (HTML/CSS) na janela — requer WebView2 (Edge) no Windows 10/11.
 
 Site: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 

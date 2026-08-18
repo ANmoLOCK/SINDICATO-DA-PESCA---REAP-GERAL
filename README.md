@@ -46,8 +46,10 @@ O site lê só as abas **Pessoas** e **Reap**. CPF no celular fica **mascarado**
 
 ## O que há na v1.6.9
 
-- **Marca d'água do selo** grande e centralizada no fundo da lista (atrás dos cards brancos), como na prévia
-- Inclui a v1.6.8: selo no ícone, relatórios, QR e escala `contain`
+- **Marca d'água do selo** grande e centralizada no fundo da lista (atrás dos cards brancos)
+- **Opções no centro** da janela (Sócios, busca, Filtro, Atualizar, Lote, + Novo sócio) — não coladas à esquerda
+- **Escala padrão (100%)** — fonte 14px, zoom 1, janela 1280×800
+- Inclui a v1.6.8: selo no ícone, relatórios, QR e logo `contain`
 
 ### Interface web (pywebview)
 - **HTML + CSS real** dentro da janela (WebView2 no Windows) — avatares circulares, pílulas, abas sublinhadas
@@ -116,7 +118,7 @@ Mesma planilha: EXE grava (Editor); site só lê (Leitor).
 
 | Versão | O que entrou | EXE |
 |--------|----------------|-----|
-| **v1.6.9** | Marca d'água visível no fundo (selo grande) | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.9/SinapescREAP-Windows-v1.6.9.zip) |
+| **v1.6.9** | Marca d'água, layout centralizado, escala padrão | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.9/SinapescREAP-Windows-v1.6.9.zip) |
 | v1.6.8 | Selo no ícone, relatório e marca d'água | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.8/SinapescREAP-Windows-v1.6.8.zip) |
 | v1.6.7 | Logo selo fiel ao original | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.7/SinapescREAP-Windows-v1.6.7.zip) |
 | v1.6.6 | Filtro sócios, imprimir QR, logo selo SINAPESC | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.6/SinapescREAP-Windows-v1.6.6.zip) |
