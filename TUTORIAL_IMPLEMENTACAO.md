@@ -169,8 +169,8 @@ Os QRs ficam em `qr-codes/` ao lado do `.exe` e **não mudam** enquanto a URL do
 
 | Item | Link |
 |------|------|
-| **EXE v1.6.0 (ZIP)** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.0/SinapescREAP-Windows-v1.6.0.zip |
-| **Release v1.6.0** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0 |
+| **EXE v1.6.4 (ZIP)** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.4/SinapescREAP-Windows-v1.6.4.zip |
+| **Release v1.6.4** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.4 |
 | Código | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
 | API detalhada | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
 | Site público | [`site-publico/README.md`](./site-publico/README.md) |
