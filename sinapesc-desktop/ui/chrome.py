@@ -62,7 +62,7 @@ def build_shell(app: "SinapescApp") -> None:
 
     brand = tk.Frame(top, bg=COLORS["primary"])
     brand.pack(side="left", fill="x", expand=True)
-    app._logo_img = load_logo(app, size=46)
+    app._logo_img = load_logo(app, size=56)
     if app._logo_img is not None:
         logo_wrap = tk.Frame(brand, bg=COLORS["primary"], highlightbackground="#C8D8E8", highlightthickness=1)
         logo_wrap.pack(side="left", padx=(0, 12))

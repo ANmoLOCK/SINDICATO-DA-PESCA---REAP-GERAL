@@ -120,7 +120,7 @@ def montar_html(
   <style>
     body {{ font-family: Segoe UI, Arial, sans-serif; color: #0A2F52; margin: 24px; }}
     .brand {{ display: flex; align-items: center; gap: 12px; }}
-    .logo {{ height: 72px; width: 72px; object-fit: contain; }}
+    .logo {{ height: 96px; width: auto; max-width: 120px; object-fit: contain; }}
     h1 {{ margin: 8px 0 0; font-size: 20px; }}
     .sub {{ color: #5A7388; font-size: 13px; }}
     .gold {{ height: 3px; background: #C4A35A; border: 0; margin: 12px 0 18px; }}

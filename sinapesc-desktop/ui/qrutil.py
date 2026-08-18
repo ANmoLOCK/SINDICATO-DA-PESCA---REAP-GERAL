@@ -35,24 +35,37 @@ def make_qr_image(
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color="#0A2F52", back_color="white").convert("RGB")
 
-    # Selo central (padrão único azul Sinapesc)
+    # Selo central (logo SINAPESC — correção H aguenta o recorte)
     seal_size = max(48, qr_img.width // 5)
-    seal = Image.new("RGB", (seal_size, seal_size), "#1B6CA8")
-    draw_seal = ImageDraw.Draw(seal)
-    margin = 4
-    draw_seal.rectangle(
-        [margin, margin, seal_size - margin - 1, seal_size - margin - 1],
-        outline="#C4A35A",
-        width=3,
-    )
+    seal = Image.new("RGB", (seal_size, seal_size), "white")
     try:
-        font_seal = ImageFont.truetype("arial.ttf", max(9, seal_size // 6))
-    except OSError:
-        font_seal = ImageFont.load_default()
-    text = "S"
-    bbox = draw_seal.textbbox((0, 0), text, font=font_seal)
-    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    draw_seal.text(((seal_size - tw) / 2, (seal_size - th) / 2 - 2), text, fill="white", font=font_seal)
+        from ui.brand import asset_path
+
+        logo_path = asset_path("logo.png")
+        if logo_path.exists():
+            logo = Image.open(logo_path).convert("RGBA")
+            inner = max(24, seal_size - 6)
+            logo.thumbnail((inner, inner), Image.Resampling.LANCZOS)
+            x = (seal_size - logo.width) // 2
+            y = (seal_size - logo.height) // 2
+            seal.paste(logo, (x, y), logo)
+        else:
+            raise FileNotFoundError(logo_path)
+    except Exception:
+        draw_seal = ImageDraw.Draw(seal)
+        margin = 4
+        draw_seal.rectangle(
+            [margin, margin, seal_size - margin - 1, seal_size - margin - 1],
+            outline="#C4A35A",
+            width=3,
+        )
+        try:
+            font_seal = ImageFont.truetype("arial.ttf", max(9, seal_size // 6))
+        except OSError:
+            font_seal = ImageFont.load_default()
+        bbox = draw_seal.textbbox((0, 0), "S", font=font_seal)
+        tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        draw_seal.text(((seal_size - tw) / 2, (seal_size - th) / 2 - 2), "S", fill="#0A2F52", font=font_seal)
 
     pos = ((qr_img.width - seal_size) // 2, (qr_img.height - seal_size) // 2)
     qr_img.paste(seal, pos)
