@@ -31,10 +31,12 @@ cria o objeto que chama endpoints REST:
   - spreadsheets().values().get / update / append
   - spreadsheets().batchUpdate(...)
 
-PASSO 3 — Abas (tabs) Pessoas e Reap
+PASSO 3 — Abas (tabs)
 ------------------------------------
-Pessoas: id | nome | cpf | criadoEm
-Reap:    id | personId | ano | jan..dez | atualizadoEm
+Pessoas:    id | nome | cpf | criadoEm
+Reap:       id | personId | ano | jan..dez | atualizadoEm
+Auditoria:  id | em | usuario | acao | detalhe | personId | nome | ano | meses
+Config:     chave | valor   (calendário REAP compartilhado entre admins)
 """
 
 from __future__ import annotations
@@ -51,9 +53,23 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 PESSOAS_TAB = "Pessoas"
 REAP_TAB = "Reap"
+AUDITORIA_TAB = "Auditoria"
+CONFIG_TAB = "Config"
 
 PESSOAS_HEADER = ["id", "nome", "cpf", "criadoEm"]
 REAP_HEADER = ["id", "personId", "ano", *MESES, "atualizadoEm"]
+AUDITORIA_HEADER = [
+    "id",
+    "em",
+    "usuario",
+    "acao",
+    "detalhe",
+    "personId",
+    "nome",
+    "ano",
+    "meses",
+]
+CONFIG_HEADER = ["chave", "valor"]
 
 
 class SheetsConfigError(Exception):
@@ -124,7 +140,7 @@ class GoogleSheetsClient:
     # PASSO 3: garantir que as abas existem com cabeçalho correto
     # ------------------------------------------------------------------
     def ensure_tabs(self) -> None:
-        """Cria as abas Pessoas e Reap se ainda não existirem."""
+        """Cria as abas Pessoas, Reap, Auditoria e Config se ainda não existirem."""
         if self._tabs_ready:
             return
 
@@ -139,11 +155,16 @@ class GoogleSheetsClient:
             if sheet.get("properties", {}).get("title")
         }
 
+        wanted = (
+            (PESSOAS_TAB, PESSOAS_HEADER),
+            (REAP_TAB, REAP_HEADER),
+            (AUDITORIA_TAB, AUDITORIA_HEADER),
+            (CONFIG_TAB, CONFIG_HEADER),
+        )
         requests: List[dict] = []
-        if PESSOAS_TAB not in existing:
-            requests.append({"addSheet": {"properties": {"title": PESSOAS_TAB}}})
-        if REAP_TAB not in existing:
-            requests.append({"addSheet": {"properties": {"title": REAP_TAB}}})
+        for title, _header in wanted:
+            if title not in existing:
+                requests.append({"addSheet": {"properties": {"title": title}}})
 
         if requests:
             self._service.spreadsheets().batchUpdate(
@@ -151,11 +172,9 @@ class GoogleSheetsClient:
                 body={"requests": requests},
             ).execute()
 
-        # Cabeçalhos (linha 1) — só quando a aba acabou de ser criada
-        if PESSOAS_TAB not in existing:
-            self.update_values(f"{PESSOAS_TAB}!A1", [PESSOAS_HEADER])
-        if REAP_TAB not in existing:
-            self.update_values(f"{REAP_TAB}!A1", [REAP_HEADER])
+        for title, header in wanted:
+            if title not in existing:
+                self.update_values(f"{title}!A1", [header])
 
         self._tabs_ready = True
 

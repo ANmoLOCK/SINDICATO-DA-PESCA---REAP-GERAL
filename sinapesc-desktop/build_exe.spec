@@ -17,6 +17,12 @@ hiddenimports = [
     "PIL.ImageTk",
     "PIL.ImageDraw",
     "PIL.ImageFont",
+    "controle",
+    "controle.auditoria",
+    "controle.backup",
+    "controle.calendario",
+    "controle.pendencias",
+    "controle.relatorio",
 ]
 
 tmp_ret = collect_all("googleapiclient")

@@ -6,6 +6,33 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.0] — 2026-08-18 — Pendências, relatório, backup e auditoria na planilha
+
+Código no repositório (EXE desta tag sai depois do merge / Actions).
+
+### O que entrou
+- **Pendências REAP:** lista só quem falta no calendário do ano (padrão mar–out). Marca somente os meses pendentes, em lote, sem apagar o que já está marcado.
+- **Calendário compartilhado:** aba **Config** na planilha (`calendario_padrao` / `calendario_2026`). Todos os admins usam a mesma regra.
+- **Relatório de conformidade:** HTML com logo Sinapesc, CPF mascarado, grade do ano, carimbo Regular/Pendente. Sem R$. Abrir no navegador → Imprimir → Salvar como PDF.
+- **Backup CSV local:** cópia das abas Pessoas + Reap em `backups/` ao lado do EXE (ou AppData). Lembrete a cada 7 dias no login admin. Guarda os últimos 12.
+- **Auditoria na planilha:** aba **Auditoria** (não é arquivo local). Cada admin vê o que o outro marcou: “fulano marcou OUT/2026 em Maria”. O site público **não** lê essa aba.
+
+### Organização (para não misturar com o código antigo)
+- Regras em `sinapesc-desktop/controle/`
+- Telas em `ui/tela_pendencias.py`, `ui/tela_relatorio.py`, `ui/tela_backup.py`, `ui/tela_auditoria.py`
+- Planilha: `sheets/client.py` cria as abas novas na primeira conexão
+
+### Bugs corrigidos nesta leva
+- Clique duplo na planilha: `_run_bg` agora zera o “ocupado” mesmo se o callback falhar; captura de erro no `lambda` (Python 3) não perde a exceção
+- Calendário/backup não dependem de memória de um único PC: calendário e auditoria vão para o Google; CSV é só cópia de segurança
+
+### O que não mudou
+- Consulta pública por CPF
+- Cadastro em lote e Config.Atalhos
+- Sem pagamento / boleto / valor em R$
+
+---
+
 ## [v1.5.0] — 2026-08-17 — Lote visual + site no ar + EXE
 
 **Tag:** [`v1.5.0`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0)  

@@ -12,6 +12,8 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from .client import (
+    AUDITORIA_TAB,
+    CONFIG_TAB,
     PESSOAS_TAB,
     REAP_TAB,
     GoogleSheetsClient,
@@ -64,6 +66,8 @@ class SheetsService:
 
     def __init__(self, client: GoogleSheetsClient) -> None:
         self.client = client
+        self.actor = ""
+        self._audit_silent = False
 
     @classmethod
     def from_config(cls, cfg: dict) -> "SheetsService":
@@ -152,7 +156,7 @@ class SheetsService:
             [[reap_id, person_id, ano_atual, *meses_row, now]],
         )
 
-        return PessoaComReap(
+        criado = PessoaComReap(
             id=person_id,
             nome=nome,
             cpf=cpf,
@@ -167,6 +171,14 @@ class SheetsService:
                 )
             ],
         )
+        self._registrar_auditoria(
+            "cadastro",
+            f"cadastrou sócio {nome}",
+            person_id=person_id,
+            nome=nome,
+            ano=ano_atual,
+        )
+        return criado
 
     def add_pessoas_lote(
         self,
@@ -214,6 +226,13 @@ class SheetsService:
         if pessoas_rows:
             self.client.append_values(f"{PESSOAS_TAB}!A2", pessoas_rows)
             self.client.append_values(f"{REAP_TAB}!A2", reap_rows)
+            meses_txt = ",".join(meses_on or []) or "(nenhum mês pré-marcado)"
+            self._registrar_auditoria(
+                "lote",
+                f"cadastrou {len(ids)} sócio(s) em lote (ano {ano_alvo}, {meses_txt})",
+                ano=ano_alvo,
+                meses=meses_on or [],
+            )
 
         return {"ok": len(ids), "erros": erros, "ids": ids, "ano": ano_alvo, "meses": meses_on or []}
 
@@ -281,8 +300,18 @@ class SheetsService:
         if novos:
             self.client.append_values(f"{REAP_TAB}!A2", novos)
 
+        total = atualizados + len(novos)
+        if total:
+            self._registrar_auditoria(
+                "marcar_massa",
+                f"marcou {', '.join(m.upper() for m in ligados)} em {ano} para {total} sócio(s)"
+                + (" (substituiu o ano)" if substituir else ""),
+                ano=ano,
+                meses=ligados,
+            )
+
         return {
-            "ok": atualizados + len(novos),
+            "ok": total,
             "atualizados": atualizados,
             "criados": len(novos),
             "erros": [],
@@ -345,8 +374,16 @@ class SheetsService:
         if novos:
             self.client.append_values(f"{REAP_TAB}!A2", novos)
 
+        total = len(data) + len(novos)
+        if total:
+            self._registrar_auditoria(
+                "copiar_ano",
+                f"copiou REAP {ano_origem} → {ano_destino} em {total} sócio(s) (pulados: {pulados})",
+                ano=ano_destino,
+            )
+
         return {
-            "ok": len(data) + len(novos),
+            "ok": total,
             "atualizados": len(data),
             "criados": len(novos),
             "pulados": pulados,
@@ -363,6 +400,12 @@ class SheetsService:
             f"{PESSOAS_TAB}!B{row_number}:C{row_number}",
             [[nome, cpf]],
         )
+        self._registrar_auditoria(
+            "editar",
+            f"editou sócio {nome}",
+            person_id=person_id,
+            nome=nome,
+        )
 
     def delete_pessoa(self, person_id: str) -> None:
         self.client.ensure_tabs()
@@ -376,6 +419,9 @@ class SheetsService:
         requests: List[dict] = []
 
         p_idx = next((i for i, r in enumerate(pessoas_rows) if r and r[0] == person_id), -1)
+        nome_apagado = ""
+        if p_idx >= 0 and len(pessoas_rows[p_idx]) > 1:
+            nome_apagado = str(pessoas_rows[p_idx][1])
         if p_idx >= 0 and pessoas_sheet_id is not None:
             # deleteDimension usa índice 0-based (linha 1 da planilha = índice 0)
             row_index = pessoas_start + p_idx - 1
@@ -417,6 +463,13 @@ class SheetsService:
                 )
 
         self.client.batch_update(requests)
+        if requests:
+            self._registrar_auditoria(
+                "excluir",
+                f"removeu sócio {nome_apagado or person_id} e o histórico REAP",
+                person_id=person_id,
+                nome=nome_apagado,
+            )
 
     def toggle_mes(
         self,
@@ -424,6 +477,8 @@ class SheetsService:
         ano: int,
         mes: MesKey,
         novo_status: bool,
+        *,
+        nome: str = "",
     ) -> None:
         rows, start = self._reap_rows()
         idx = next(
@@ -451,8 +506,17 @@ class SheetsService:
             f"{REAP_TAB}!{atualizado_col}{row_number}",
             [[now]],
         )
+        verbo = "marcou" if novo_status else "desmarcou"
+        self._registrar_auditoria(
+            "toggle_mes",
+            f"{verbo} {str(mes).upper()}/{ano} em {nome or person_id}",
+            person_id=person_id,
+            nome=nome,
+            ano=ano,
+            meses=[str(mes)],
+        )
 
-    def add_ano(self, person_id: str, ano: int) -> ReapAno:
+    def add_ano(self, person_id: str, ano: int, *, nome: str = "") -> ReapAno:
         rows, _ = self._reap_rows()
         ja_existe = any(
             len(r) > 2 and r[1] == person_id and str(r[2]).strip() == str(ano)
@@ -468,10 +532,149 @@ class SheetsService:
             f"{REAP_TAB}!A2",
             [[reap_id, person_id, ano, *meses_row, now]],
         )
-        return ReapAno(
+        criado = ReapAno(
             id=reap_id,
             person_id=person_id,
             ano=ano,
             meses=meses_vazios(),
             atualizado_em=now,
         )
+        self._registrar_auditoria(
+            "add_ano",
+            f"adicionou o ano {ano} para {nome or person_id}",
+            person_id=person_id,
+            nome=nome,
+            ano=ano,
+        )
+        return criado
+
+    # ---- auditoria / config / backup (planilha compartilhada) ---------
+
+    def _registrar_auditoria(
+        self,
+        acao: str,
+        detalhe: str,
+        *,
+        person_id: str = "",
+        nome: str = "",
+        ano: object = "",
+        meses: Optional[List[str]] = None,
+    ) -> None:
+        """Grava na aba Auditoria. Nunca levanta erro (não desfaz a ação principal)."""
+        if self._audit_silent:
+            return
+        from controle.auditoria import evento_para_row, EventoAuditoria
+
+        meses_txt = ",".join(str(m) for m in (meses or []) if m)
+        evt = EventoAuditoria(
+            id=str(uuid.uuid4()),
+            em=datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S"),
+            usuario=(self.actor or "").strip() or "(sem login)",
+            acao=acao,
+            detalhe=detalhe,
+            person_id=person_id or "",
+            nome=nome or "",
+            ano="" if ano in (None, "") else str(ano),
+            meses=meses_txt,
+        )
+        self._audit_silent = True
+        try:
+            self.client.ensure_tabs()
+            self.client.append_values(f"{AUDITORIA_TAB}!A2", [evento_para_row(evt)])
+        except Exception:
+            pass
+        finally:
+            self._audit_silent = False
+
+    def registrar_evento(self, acao: str, detalhe: str, **kwargs) -> None:
+        """Uso da UI (backup, relatório) — mesma aba que as outras ações."""
+        self._registrar_auditoria(acao, detalhe, **kwargs)
+
+    def listar_auditoria(self, limite: int = 400):
+        from controle.auditoria import EventoAuditoria, row_to_evento
+
+        self.client.ensure_tabs()
+        rows = self.client.get_values(f"{AUDITORIA_TAB}!A2:I")
+        eventos: List[EventoAuditoria] = []
+        for r in rows:
+            evt = row_to_evento(r)
+            if evt:
+                eventos.append(evt)
+        eventos.reverse()
+        return eventos[: max(1, int(limite))]
+
+    def _config_map(self) -> Dict[str, str]:
+        self.client.ensure_tabs()
+        rows = self.client.get_values(f"{CONFIG_TAB}!A2:B")
+        out: Dict[str, str] = {}
+        for r in rows:
+            if r and str(r[0]).strip():
+                out[str(r[0]).strip()] = str(r[1]).strip() if len(r) > 1 else ""
+        return out
+
+    def _config_set(self, chave: str, valor: str) -> None:
+        self.client.ensure_tabs()
+        rows = self.client.get_values(f"{CONFIG_TAB}!A2:B")
+        idx = next((i for i, r in enumerate(rows) if r and str(r[0]).strip() == chave), -1)
+        if idx >= 0:
+            self.client.update_values(f"{CONFIG_TAB}!B{idx + 2}", [[valor]])
+        else:
+            self.client.append_values(f"{CONFIG_TAB}!A2", [[chave, valor]])
+
+    def get_calendario(self, ano: Optional[int] = None) -> List[str]:
+        from controle.calendario import CALENDARIO_PADRAO, chave_calendario, parse_meses
+
+        try:
+            mapa = self._config_map()
+        except Exception:
+            return list(CALENDARIO_PADRAO)
+        raw = ""
+        if ano is not None:
+            raw = mapa.get(chave_calendario(int(ano)), "")
+        if not raw:
+            raw = mapa.get("calendario_padrao", "")
+        meses = parse_meses(raw)
+        if meses:
+            return meses
+        if "calendario_padrao" not in mapa:
+            try:
+                self._config_set("calendario_padrao", ",".join(CALENDARIO_PADRAO))
+            except Exception:
+                pass
+        return list(CALENDARIO_PADRAO)
+
+    def set_calendario(self, meses: List[str], *, ano: Optional[int] = None) -> List[str]:
+        from controle.calendario import (
+            CALENDARIO_PADRAO,
+            chave_calendario,
+            meses_para_texto,
+            normalizar_meses,
+        )
+
+        ligados = normalizar_meses(meses) or list(CALENDARIO_PADRAO)
+        chave = chave_calendario(ano)
+        self._config_set(chave, ",".join(ligados))
+        alvo = f"ano {ano}" if ano is not None else "padrão"
+        self._registrar_auditoria(
+            "calendario",
+            f"definiu calendário {alvo}: {meses_para_texto(ligados)}",
+            ano=ano or "",
+            meses=ligados,
+        )
+        return ligados
+
+    def exportar_abas(self) -> dict:
+        """Linhas brutas (com cabeçalho) para backup CSV."""
+        self.client.ensure_tabs()
+        pessoas = self.client.get_values(f"{PESSOAS_TAB}!A1:D")
+        last_col = _col_letter(3 + len(MESES))
+        reap = self.client.get_values(f"{REAP_TAB}!A1:{last_col}")
+        if not pessoas:
+            from .client import PESSOAS_HEADER
+
+            pessoas = [PESSOAS_HEADER]
+        if not reap:
+            from .client import REAP_HEADER
+
+            reap = [REAP_HEADER]
+        return {"pessoas": pessoas, "reap": reap}

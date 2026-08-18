@@ -50,7 +50,24 @@ https://docs.google.com/spreadsheets/d/1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrReP
 
 ---
 
-## 3. Atualizações da v1.5.0 (detalhe)
+## 3. Novidades v1.6.0 (controle REAP)
+
+No Admin, abaixo da lista de sócios:
+
+| Botão | Função |
+|-------|--------|
+| **Pendências** | Quem ainda não tem os meses obrigatórios do ano (padrão mar–out). Marca só o que falta. |
+| **Relatório** | HTML da diretoria ou comprovante de um sócio (CPF mascarado). Sem R$. |
+| **Backup** | Cópia CSV das abas Pessoas + Reap neste computador (lembrete semanal). |
+| **Auditoria** | Histórico **na planilha Google** — todos os admins veem as alterações uns dos outros. |
+
+Na primeira conexão o EXE cria as abas **Auditoria** e **Config** (calendário do ano). O site público continua lendo só Pessoas e Reap.
+
+Plano detalhado: [`PLANO_FUNCOES_v16.md`](./PLANO_FUNCOES_v16.md)
+
+---
+
+## 4. Atualizações da v1.5.0 (detalhe)
 
 Esta versão junta o que entrou depois da v1.3.0: site público estável, EXE azul com logo, e o lote visual.
 
@@ -103,7 +120,7 @@ Não mistura quantidade nem valor em R$ no lote: o REAP continua sendo **mês pa
 
 ---
 
-## 4. Como instalar (resumo)
+## 5. Como instalar (resumo)
 
 1. Baixe o ZIP: [SinapescREAP-Windows-v1.5.0.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip)  
 2. Extraia, por exemplo em `C:\Sinapesc\`  
@@ -122,7 +139,7 @@ API Google passo a passo: [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-d
 
 ---
 
-## 5. Duas peças (não misturar)
+## 6. Duas peças (não misturar)
 
 | Peça | Quem usa | Precisa do PC? | Precisa do GitHub aberto? |
 |------|----------|----------------|---------------------------|
@@ -135,10 +152,11 @@ Não é necessário domínio `.com.br`. O endereço gratuito do GitHub Pages já
 
 ---
 
-## 6. Histórico de versões
+## 7. Histórico de versões
 
 | Versão | Tag | O que entrou | EXE |
 |--------|-----|----------------|-----|
+| **v1.6.0** | código nesta branch | Pendências · relatório HTML · backup CSV · auditoria na planilha | após merge / Actions |
 | **v1.5.0** | [v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0) | Lote visual · site `sinapesc-casanova-reap` · URL/QR sem travar | [ZIP direto](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip) |
 | v1.4.0 | — (código na main, tag desta linha é a 1.5.0) | Site estático · UI azul · logo/peixe · Pages | [Actions 31863086521](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31863086521) |
 | v1.3.0 | [v1.3.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.3.0) | QR estável · consulta CPF · cofre `qr-codes/` | [Actions 31860049095](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31860049095) |
@@ -150,7 +168,7 @@ Histórico narrado: [`CHANGELOG.md`](./CHANGELOG.md)
 
 ---
 
-## 7. Bugs registrados
+## 8. Bugs registrados
 
 | ID | Problema | Resolvido em |
 |----|----------|----------------|
@@ -166,14 +184,18 @@ Histórico narrado: [`CHANGELOG.md`](./CHANGELOG.md)
 | B10 | QR/túnel mudavam a cada geração | v1.3.0 |
 | B11 | Consulta pública dependia do PC/túnel | v1.4.0 / v1.5.0 (site Pages) |
 | B12 | QR pedia URL mesmo depois de colar o site | v1.5.0 (normaliza e salva) |
+| B13 | Clique duplo na API / lambda de erro no fundo | v1.6.0 |
+| B14 | Auditoria só no PC (outro admin não via) | v1.6.0 (aba Auditoria) |
 
 ---
 
-## 8. Pastas do repositório
+## 9. Pastas do repositório
 
 | Pasta / arquivo | Função |
 |-----------------|--------|
 | `sinapesc-desktop/` | Código do programa Windows (Tkinter + Sheets) |
+| `sinapesc-desktop/controle/` | Pendências, relatório, backup (separado da UI) |
+| `sinapesc-desktop/ui/tela_*.py` | Telas Pendências / Relatório / Backup / Auditoria |
 | `site-publico/` | Site estático de consulta (GitHub Pages) |
 | `.github/workflows/build-windows-exe.yml` | Gera o `.exe` a cada push na `main` |
 | `.github/workflows/deploy-site.yml` | Publica `site-publico/` na branch `gh-pages` |
@@ -182,11 +204,12 @@ Histórico narrado: [`CHANGELOG.md`](./CHANGELOG.md)
 
 ---
 
-## 9. Segurança (quem pode mexer)
+## 10. Segurança (quem pode mexer)
 
 - **Código:** só quem tem acesso de escrita no GitHub (sua conta)  
 - **Site:** qualquer um **lê** a consulta; não altera a planilha pelo celular  
 - **Planilha:** Conta de Serviço = Editor (EXE); “qualquer pessoa com o link” = Leitor (site)  
+- A aba **Auditoria** fica na planilha para os admins (Editor). O site público **não** a lê. Quem abrir o Google Sheets no modo leitor vê as abas da planilha — compartilhe a planilha só com a secretaria como Editor, e o site usa o modo leitor já configurado.  
 - Não envie `google-credentials.json` nem a senha do admin para terceiros  
 
 O GitHub **não precisa ficar aberto** para o site funcionar.

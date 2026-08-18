@@ -1,10 +1,16 @@
-# Plano funcional — v1.6.0 (para avaliação)
+# Plano funcional — v1.6.0
 
-Quatro funções de **controle de REAP**. Não há pagamento, valor em R$, recibo financeiro nem boleto.
+**Status: implementado no código (agosto/2026).** Auditoria ficou **na planilha Google** (não só no PC), para todos os admins monitorarem uns aos outros.
 
-Última revisão: **18/08/2026**  
-Status: **somente plano** — nada disso está no EXE ainda.  
-Objetivo deste arquivo: você ler, marcar o que aprova / o que muda, e só então implementar.
+Detalhe de telas e regras originais abaixo. O que mudou na implementação:
+
+- Aba **Auditoria** na mesma planilha (id, em, usuario, acao, detalhe, personId, nome, ano, meses)
+- Aba **Config** com o calendário REAP compartilhado
+- Relatório HTML (imprimir PDF pelo navegador)
+- Backup CSV local + lembrete de 7 dias
+- Módulos em `sinapesc-desktop/controle/` e `ui/tela_*.py`
+
+Última revisão: **18/08/2026**
 
 ---
 

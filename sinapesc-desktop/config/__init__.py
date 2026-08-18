@@ -59,6 +59,8 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "public_port": 8765,
     "keep_tunnel_alive": True,
     "auto_start_tunnel": False,
+    "ultimo_backup_em": "",
+    "backup_adiado_em": "",
 }
 
 

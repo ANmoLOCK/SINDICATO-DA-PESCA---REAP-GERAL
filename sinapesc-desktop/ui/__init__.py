@@ -36,6 +36,10 @@ from ui.qr_vault import (
 )
 from ui.qrutil import make_qr_image, pil_to_tk, save_qr_png
 from ui.scroll import ScrollableFrame
+from ui.tela_auditoria import show_auditoria as open_auditoria
+from ui.tela_backup import pedir_backup_agora, talvez_lembrar_backup
+from ui.tela_pendencias import show_pendencias as open_pendencias
+from ui.tela_relatorio import show_relatorio as open_relatorio
 from ui.theme import (
     APP_TAGLINE,
     COLORS,
@@ -59,6 +63,8 @@ class SinapescApp(tk.Tk):
         self.cfg = load_config()
         self.service: Optional[SheetsService] = None
         self._logged_in = False
+        self._admin_user = ""
+        self._bg_busy = False
         self._lista_mode = False
         self._pessoas: List[PessoaComReap] = []
         self._expanded_ids: Set[str] = set()
@@ -188,12 +194,27 @@ class SinapescApp(tk.Tk):
         self._bg_busy = True
         self._set_busy(busy_msg)
 
+        def finish_ok(result) -> None:
+            try:
+                self._set_idle()
+                on_ok(result)
+            finally:
+                self._bg_busy = False
+
+        def finish_err(exc: Exception) -> None:
+            try:
+                self._set_idle("Erro.")
+                on_err(exc)
+            finally:
+                self._bg_busy = False
+
         def target() -> None:
             try:
                 result = work()
-                self.after(0, lambda: (self._set_idle(), setattr(self, "_bg_busy", False), on_ok(result)))
             except Exception as exc:  # noqa: BLE001
-                self.after(0, lambda: (self._set_idle("Erro."), setattr(self, "_bg_busy", False), on_err(exc)))
+                self.after(0, lambda e=exc: finish_err(e))
+                return
+            self.after(0, lambda r=result: finish_ok(r))
 
         threading.Thread(target=target, daemon=True).start()
         return True
@@ -203,6 +224,9 @@ class SinapescApp(tk.Tk):
         if not is_sheets_configured(self.cfg):
             raise SheetsConfigError("Google Sheets ainda não configurado. Abra Configurações.")
         self.service = SheetsService.from_config(self.cfg)
+        self.service.actor = (
+            getattr(self, "_admin_user", "") or str(self.cfg.get("admin_email") or "")
+        ).strip()
         return self.service
 
     def _ensure_public_server(self) -> str:
@@ -392,6 +416,7 @@ class SinapescApp(tk.Tk):
                 self.show_settings()
                 return
             self._logged_in = True
+            self._admin_user = email.get().strip()
             self.show_admin()
 
         self._btn(box, "Entrar", do_login).pack(anchor="e")
@@ -627,6 +652,13 @@ class SinapescApp(tk.Tk):
         self._btn(top, "Config.Atalhos", self._dialog_atalhos, kind="primary").pack(side="right", padx=4)
         self._btn(top, "Atualizar", self._load_admin_data, kind="ghost").pack(side="right", padx=4)
 
+        tools = tk.Frame(wrap, bg=COLORS["bg"])
+        tools.pack(fill="x", pady=(0, 8))
+        self._btn(tools, "Pendências", self.show_pendencias, kind="accent").pack(side="left", padx=(0, 4))
+        self._btn(tools, "Relatório", self.show_relatorio, kind="primary").pack(side="left", padx=4)
+        self._btn(tools, "Backup", self._backup_agora, kind="ghost").pack(side="left", padx=4)
+        self._btn(tools, "Auditoria", self.show_auditoria, kind="ghost").pack(side="left", padx=4)
+
         search_row = tk.Frame(wrap, bg=COLORS["bg"])
         search_row.pack(fill="x", pady=(0, 8))
         tk.Label(search_row, text="Buscar", bg=COLORS["bg"], fg=COLORS["muted"]).pack(side="left")
@@ -638,9 +670,23 @@ class SinapescApp(tk.Tk):
         self._scroll.pack(fill="both", expand=True)
         self.admin_list = self._scroll.inner
         self._load_admin_data()
+        self.after(1400, lambda: talvez_lembrar_backup(self))
+
+    def show_pendencias(self) -> None:
+        open_pendencias(self)
+
+    def show_relatorio(self) -> None:
+        open_relatorio(self)
+
+    def show_auditoria(self) -> None:
+        open_auditoria(self)
+
+    def _backup_agora(self) -> None:
+        pedir_backup_agora(self)
 
     def _logout(self) -> None:
         self._logged_in = False
+        self._admin_user = ""
         self._expanded_ids.clear()
         self.show_home()
 
@@ -794,9 +840,10 @@ class SinapescApp(tk.Tk):
             messagebox.showerror("Sheets", str(exc))
             return
         self._expanded_ids.add(person_id)
+        nome = next((p.nome for p in self._pessoas if p.id == person_id), "")
 
         def work():
-            svc.toggle_mes(person_id, ano, mes, novo)
+            svc.toggle_mes(person_id, ano, mes, novo, nome=nome)
             return True
 
         self._run_bg(work, lambda _: self._load_admin_data(), lambda e: messagebox.showerror("Erro", str(e)), f"Atualizando {mes}/{ano}…")
@@ -1325,7 +1372,7 @@ class SinapescApp(tk.Tk):
         self._expanded_ids.add(pessoa.id)
 
         def work():
-            svc.add_ano(pessoa.id, ano)
+            svc.add_ano(pessoa.id, ano, nome=pessoa.nome)
             return True
 
         self._run_bg(work, lambda _: self._load_admin_data(), lambda e: messagebox.showerror("Erro", str(e)), f"Adicionando {ano}…")

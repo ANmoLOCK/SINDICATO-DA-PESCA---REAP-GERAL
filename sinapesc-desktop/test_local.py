@@ -44,9 +44,93 @@ def test_row_parsers() -> None:
     assert r.meses["fev"] is False
 
 
+def test_controle_pendencias() -> None:
+    from sheets.models import PessoaComReap, ReapAno, meses_vazios
+    from controle.calendario import CALENDARIO_PADRAO, parse_meses
+    from controle.pendencias import classificar
+
+    assert parse_meses("mar, out, XYZ") == ["mar", "out"]
+    meses = meses_vazios()
+    for m in ("mar", "abr", "mai", "jun", "jul", "ago", "set"):
+        meses[m] = True
+    maria = PessoaComReap(
+        id="1",
+        nome="Maria",
+        cpf="12345678901",
+        criado_em="",
+        anos=[ReapAno(id="r", person_id="1", ano=2026, meses=meses, atualizado_em="")],
+    )
+    joao = PessoaComReap(id="2", nome="Joao", cpf="98765432100", criado_em="", anos=[])
+    pend, reg = classificar([maria, joao], 2026, CALENDARIO_PADRAO)
+    assert [p.pessoa.nome for p in pend] == ["Joao", "Maria"]
+    assert pend[1].faltando == ["out"]
+    assert not reg
+
+
+def test_auditoria_parse() -> None:
+    from controle.auditoria import combina_busca, row_to_evento
+
+    assert row_to_evento(["id", "em", "usuario"]) is None
+    evt = row_to_evento(
+        ["abc", "2026-08-18 09:00:00", "admin@x", "toggle_mes", "marcou OUT/2026 em Maria", "pid", "Maria", "2026", "out"]
+    )
+    assert evt is not None and evt.nome == "Maria"
+    assert combina_busca(evt, "maria")
+    assert not combina_busca(evt, "inexistente")
+
+
+def test_relatorio_mascara_cpf() -> None:
+    from sheets.models import PessoaComReap, ReapAno, meses_vazios
+    from controle.calendario import CALENDARIO_PADRAO
+    from controle.pendencias import situacao_de
+    from controle.relatorio import montar_html
+
+    meses = meses_vazios()
+    for m in CALENDARIO_PADRAO:
+        meses[m] = True
+    p = PessoaComReap(
+        id="1", nome="Maria Silva", cpf="12345678901", criado_em="",
+        anos=[ReapAno(id="r", person_id="1", ano=2026, meses=meses, atualizado_em="")],
+    )
+    item = situacao_de(p, 2026, CALENDARIO_PADRAO)
+    html_txt = montar_html(
+        org_short="Sinapesc",
+        org_full="Sindicato",
+        ano=2026,
+        calendario=CALENDARIO_PADRAO,
+        itens=[item],
+        titulo="Teste",
+        individual=True,
+    )
+    assert "12345678901" not in html_txt
+    assert "***" in html_txt
+    assert "não é comprovante de pagamento" in html_txt.lower() or "nao e comprovante" in html_txt.lower() or "não é comprovante" in html_txt
+
+
+def test_backup_rotacao() -> None:
+    import tempfile
+    from controle.backup import dias_desde, gravar_backup, listar_backups
+
+    assert dias_desde("") is None
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        for i in range(14):
+            gravar_backup(
+                pessoas_rows=[["id", "nome"], ["1", "A"]],
+                reap_rows=[["id"]],
+                stamp=f"2026-01-{i + 1:02d}_1000",
+                root=root,
+            )
+        assert len(listar_backups(root)) == 12
+
+
 if __name__ == "__main__":
     test_formatters()
     test_row_parsers()
     test_parse_lote()
     test_meses_intervalo()
+    test_controle_pendencias()
+    test_auditoria_parse()
+    test_relatorio_mascara_cpf()
+    test_backup_rotacao()
     print("OK — testes locais passaram.")
