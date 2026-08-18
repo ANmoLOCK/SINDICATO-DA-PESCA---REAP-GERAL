@@ -6,6 +6,25 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.1] — 2026-08-18 — Interface fusionada + rodapé limpo
+
+**Tag:** [`v1.6.1`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.1)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.1/SinapescREAP-Windows-v1.6.1.zip
+
+### O que entrou
+- **UI reorganizada:** header compacto, abas em texto (Pendências · Relatório · Backup · Auditoria · Sócios · Config.Atalhos)
+- Botões outline no topo: **Voltar · Lista pública · Configurações · Sair**
+- **Voltar** com histórico (não desloga ao voltar)
+- Tela Sócios mais limpa: busca + ações no topo, sem segunda fileira de botões coloridos
+- Rodapé: usuário, conexão, versão (removido texto “safra”)
+- Nova página **Backup** na aba (gerar, abrir pasta, listar recentes)
+- Módulo `ui/chrome.py` centraliza shell e navegação
+
+### Inclui tudo da v1.6.0
+Pendências, relatório HTML (CPF admin), backup CSV, auditoria na planilha.
+
+---
+
 ## [v1.6.0] — 2026-08-18 — Pendências, relatório, backup e auditoria na planilha
 
 **Tag:** [`v1.6.0`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0)  

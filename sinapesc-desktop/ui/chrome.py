@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional
 
 import tkinter as tk
 
 from config import is_sheets_configured, load_config
-from controle.calendario import CALENDARIO_PADRAO, meses_para_texto
 from ui.brand import load_logo
 from ui.theme import APP_VERSION, COLORS, FONT_DISPLAY, FONT_FAMILY, ORG_FULL, ORG_SHORT
 
@@ -124,11 +122,6 @@ def build_shell(app: "SinapescApp") -> None:
 
     foot_right = tk.Frame(app.footer, bg=COLORS["surface"])
     foot_right.pack(side="right", padx=14, pady=6)
-    app._footer_safra = tk.StringVar(value="")
-    tk.Label(
-        foot_right, textvariable=app._footer_safra, bg=COLORS["surface"], fg=COLORS["muted"],
-        font=(FONT_FAMILY, 9),
-    ).pack(side="left", padx=(0, 12))
     tk.Label(
         foot_right, text="Sinapesc REAP", bg=COLORS["surface"], fg=COLORS["muted"],
         font=(FONT_FAMILY, 9),
@@ -230,8 +223,6 @@ def sync_chrome(app: "SinapescApp", mode: str, *, active_tab: Optional[str] = No
         app._email_lbl.configure(text="")
 
     cfg = load_config()
-    ano = datetime.now().year
-    app._footer_safra.set(f"Safra {ano} · {meses_para_texto(CALENDARIO_PADRAO)}")
 
     if app._logged_in:
         user = app._admin_user or str(cfg.get("admin_email") or "admin")

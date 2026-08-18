@@ -2,187 +2,131 @@
 
 **Sinapesc — Sindicato Dos Aquicultores E Pescadores De Casa Nova**
 
-Sistema de **controle de REAP** (não é programa de pagamento): o EXE da secretaria grava a planilha Google; o associado consulta o CPF no celular **sem o notebook ligado**.
+Controle de **REAP** (não é pagamento): a secretaria usa o EXE no Windows; o associado consulta o CPF no celular **sem o notebook ligado**.
 
 | | |
 |--|--|
 | Repositório | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
-| Tag desta versão | [**v1.6.0**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0) |
-| Data | 18 de agosto de 2026 |
+| Versão atual | [**v1.6.1**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.1) |
 | Site (consulta) | https://anmolock.github.io/sinapesc-casanova-reap/consulta.html |
+| Planilha (leitor) | https://docs.google.com/spreadsheets/d/1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrRePft4/edit?usp=sharing |
 
 ---
 
-## 1. Download do programa (EXE v1.6.0)
+## Download do EXE (v1.6.1)
 
-**Clique neste link** (baixa o ZIP; não precisa entrar no Actions):
+**Link direto (ZIP):**
 
-**https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.0/SinapescREAP-Windows-v1.6.0.zip**
+https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.1/SinapescREAP-Windows-v1.6.1.zip
 
-Página da versão (notas + arquivo):  
-https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0
+Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.1
 
-Versão anterior (Config.Atalhos, sem pendências/relatório): [v1.5.1](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1)
+Versão anterior: [v1.6.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0) · [v1.5.1](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1)
 
-O ZIP contém `SinapescREAP.exe`, `config.json` e os tutoriais. Extraia numa pasta (ex.: `C:\Sinapesc\`) e coloque o `google-credentials.json` junto.
+O ZIP traz `SinapescREAP.exe`, `config.json`, `LEIA-ME.txt` e tutoriais. Extraia numa pasta (ex.: `C:\Sinapesc\`) e coloque o `google-credentials.json` junto.
 
 ---
 
-## 2. Site público (já no ar)
-
-O associado **não precisa** do GitHub aberto nem do PC da sede ligado.
+## Site público
 
 | Página | URL |
 |--------|-----|
 | Consulta por CPF (QR da sede) | https://anmolock.github.io/sinapesc-casanova-reap/consulta.html |
 | Lista pública | https://anmolock.github.io/sinapesc-casanova-reap/lista.html |
-| Início | https://anmolock.github.io/sinapesc-casanova-reap/ |
 
-**URL para colar no EXE** (Configurações). Sem `/consulta.html` no final:
+**URL para colar no EXE** (Configurações — sem `/consulta.html`):
 
 ```text
 https://anmolock.github.io/sinapesc-casanova-reap
 ```
 
-Planilha (modo leitor, a mesma do EXE):  
-https://docs.google.com/spreadsheets/d/1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrRePft4/edit?usp=sharing
-
-O site lê **somente** as abas Pessoas e Reap. CPF no celular fica **mascarado**.
+O site lê só as abas **Pessoas** e **Reap**. CPF no celular fica **mascarado**.
 
 ---
 
-## 3. O que há na v1.6.0
+## O que há na v1.6.1
 
-No Admin, faixa extra: **Pendências · Relatório · Backup · Auditoria**.
+### Interface reorganizada
+- Header compacto: logo, e-mail logado, botões **Voltar · Lista pública · Configurações · Sair**
+- Abas da secretaria: **Pendências · Relatório · Backup · Auditoria · Sócios · Config.Atalhos**
+- Tela **Sócios** mais limpa (busca + ações no topo, sem fileira extra de botões)
+- **Voltar** com histórico — volta à tela anterior sem deslogar
+- Rodapé com usuário, conexão e versão
 
-| Botão | O que faz |
-|-------|-----------|
-| **Pendências** | Lista só quem falta no calendário do ano (padrão **mar–out**). Marca só o que falta, sem apagar mês já marcado. |
-| **Relatório** | HTML da diretoria ou de um sócio, com logo. **CPF completo** — só o admin nesta tela. Imprimir → Salvar como PDF. Sem R$. |
-| **Backup** | Cópia CSV das abas Pessoas + Reap na pasta `backups/` (lembrete a cada 7 dias). |
-| **Auditoria** | Histórico **na planilha Google** (aba Auditoria). Todos os admins veem o que o outro alterou. |
+### Funções v1.6.0 (mantidas)
 
-Na primeira conexão o EXE cria as abas **Auditoria** e **Config** (calendário compartilhado).
+| Aba / botão | Função |
+|-------------|--------|
+| **Pendências** | Quem falta no calendário do ano (padrão **mar–out**). Marca só o que falta. |
+| **Relatório** | HTML com **CPF completo** (só admin). Imprimir → PDF. Sem R$. |
+| **Backup** | CSV local das abas Pessoas + Reap (`backups/`). Lembrete a cada 7 dias. |
+| **Auditoria** | Histórico na aba **Auditoria** da planilha (todos os admins veem). |
+| **Config.Atalhos** | Lote pré-marcado, marcar em massa, copiar ano. |
 
-Código separado do Admin antigo:
+Na primeira conexão o EXE cria as abas **Auditoria** e **Config**.
 
-- Regras: `sinapesc-desktop/controle/`
-- Telas: `ui/tela_pendencias.py`, `tela_relatorio.py`, `tela_backup.py`, `tela_auditoria.py`
-
-Plano: [`PLANO_FUNCOES_v16.md`](./PLANO_FUNCOES_v16.md) · Notas: [`CHANGELOG.md`](./CHANGELOG.md)
-
----
-
-## 4. O que já existia (v1.5.1 e v1.5.0)
-
-### Config.Atalhos (v1.5.1)
-
-Ao lado de **Atualizar**: lote com REAP já marcado (Mar→Out), marcar meses em massa, copiar um ano para outro. Escritas em lote na API.
-
-### Cadastro em lote (v1.5.0)
-
-Cada sócio numa linha: Nome, CPF (máscara ao digitar), lixeira. Importar CSV/TXT vira essas linhas. Sem R$ no lote.
-
-### Site + QR
-
-URL do site em Configurações; se colar com `/consulta.html`, o programa usa a raiz. QRs permanentes em `qr-codes/`.
+Código: `sinapesc-desktop/controle/` (regras) · `sinapesc-desktop/ui/` (telas + `chrome.py`)
 
 ---
 
-## 5. Como instalar (resumo)
+## Instalação rápida
 
 1. Extraia o ZIP do EXE  
-2. Coloque `google-credentials.json` (Conta de Serviço) na mesma pasta  
-3. Em `config.json`, confira o ID da planilha e:
+2. Coloque `google-credentials.json` na mesma pasta  
+3. Em `config.json`:
 
 ```json
 "public_site_url": "https://anmolock.github.io/sinapesc-casanova-reap"
 ```
 
 4. Abra o `.exe` → **Configurações** → **Salvar** → **Testar conexão**  
-5. **QR Consulta CPF** → salvar PNG → imprimir  
-6. Login admin → Pendências / Relatório / Backup / Auditoria (v1.6.0)
+5. **QR Consulta CPF** → imprimir na sede  
+6. Login admin → use as abas da secretaria  
 
 Guia completo: [`TUTORIAL_IMPLEMENTACAO.md`](./TUTORIAL_IMPLEMENTACAO.md)  
-API: [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md)
+API Google: [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md)  
+Histórico: [`CHANGELOG.md`](./CHANGELOG.md)
 
 ---
 
-## 6. Duas peças (não misturar)
+## Duas peças
 
-| Peça | Quem usa | Precisa do PC? | Precisa do GitHub aberto? |
-|------|----------|----------------|---------------------------|
-| `SinapescREAP.exe` | Secretaria | Sim, na sede | Não |
-| Site `consulta.html` | Associado (QR) | Não | Não |
+| Peça | Quem usa | PC ligado? |
+|------|----------|------------|
+| `SinapescREAP.exe` | Secretaria | Sim, na sede |
+| Site `consulta.html` | Associado (QR) | Não |
 
-Os dois usam a **mesma planilha**. O EXE grava (Editor). O site só lê (Leitor).
-
-Não é necessário domínio `.com.br`. O GitHub Pages já é o endereço oficial.
+Mesma planilha: EXE grava (Editor); site só lê (Leitor).
 
 ---
 
-## 7. Histórico de versões
+## Histórico de versões
 
-| Versão | Tag | O que entrou | EXE |
-|--------|-----|----------------|-----|
-| **v1.6.0** | [v1.6.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0) | Pendências · relatório HTML (CPF admin) · backup CSV · auditoria na planilha | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.0/SinapescREAP-Windows-v1.6.0.zip) |
-| **v1.5.1** | [v1.5.1](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1) | Config.Atalhos: lote pré-marcado · massa · copiar ano | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip) |
-| v1.5.0 | [v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0) | Lote visual · site Pages · URL/QR | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip) |
-| v1.4.0 | — | Site estático · UI azul · logo/peixe | [Actions 31863086521](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31863086521) |
-| v1.3.0 | [v1.3.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.3.0) | QR estável · consulta CPF | [Actions 31860049095](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31860049095) |
-| v1.2.0 | [v1.2.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.2.0) | Casa Nova · lote texto | [Actions 31858767536](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31858767536) |
-| v1.1.0 | [v1.1.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.1.0) | Scroll · accordion · QR | [Actions 31857220864](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31857220864) |
-| v1.0.0 | [v1.0.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.0.0) | Primeiro EXE + Sheets | [Actions 31854798304](https://github.com/ANmoLOCK/sinapesc-casanova-reap/actions/runs/31854798304) |
+| Versão | O que entrou | EXE |
+|--------|----------------|-----|
+| **v1.6.1** | UI fusionada, Voltar, abas, rodapé limpo | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.1/SinapescREAP-Windows-v1.6.1.zip) |
+| v1.6.0 | Pendências, relatório, backup, auditoria na planilha | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.0/SinapescREAP-Windows-v1.6.0.zip) |
+| v1.5.1 | Config.Atalhos (lote, massa, copiar ano) | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip) |
+| v1.5.0 | Lote visual, site Pages, QR permanente | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip) |
+
+Versões antigas: [`CHANGELOG.md`](./CHANGELOG.md)
 
 ---
 
-## 8. Bugs registrados
+## Pastas do repositório
 
-| ID | Problema | Resolvido em |
-|----|----------|----------------|
-| B01 | Scroll quebrado | v1.1.0 |
-| B02 | Todos os meses sempre abertos | v1.1.0 |
-| B03 | Build Windows (ícone PNG) | v1.0.0 |
-| B04 | API Google pouco clara | v1.0.0 |
-| B05 | Texto `0/12 pagos` na lista do EXE | v1.2.0 |
-| B06 | QR só na Wi‑Fi | v1.2.0 |
-| B07 | Cadastro um a um inviável | v1.2.0 |
-| B08 | `X/12 pagos` nas páginas do QR | v1.3.0 |
-| B09 | Frase “CPF parcialmente oculto” | v1.3.0 |
-| B10 | QR/túnel mudavam a cada geração | v1.3.0 |
-| B11 | Consulta pública dependia do PC/túnel | v1.4.0 / v1.5.0 (site Pages) |
-| B12 | QR pedia URL mesmo depois de colar o site | v1.5.0 |
-| B13 | Clique duplo na API / erro perdido no thread | v1.6.0 |
-| B14 | Auditoria só no PC (outro admin não via) | v1.6.0 (aba Auditoria) |
-| B15 | Relatório mascarava CPF do admin | v1.6.0 (CPF completo só no Relatório) |
-
----
-
-## 9. Pastas do repositório
-
-| Pasta / arquivo | Função |
-|-----------------|--------|
+| Pasta | Função |
+|-------|--------|
 | `sinapesc-desktop/` | Programa Windows (Tkinter + Sheets) |
-| `sinapesc-desktop/controle/` | Pendências, relatório, backup (separado da UI) |
-| `sinapesc-desktop/ui/tela_*.py` | Telas Pendências / Relatório / Backup / Auditoria |
+| `sinapesc-desktop/controle/` | Pendências, relatório, backup, auditoria |
+| `sinapesc-desktop/ui/` | Interface + `chrome.py` (header/abas/rodapé) |
 | `site-publico/` | Site estático (GitHub Pages) |
-| `.github/workflows/build-windows-exe.yml` | Gera o `.exe` (main + tags `v*`) |
-| `.github/workflows/deploy-site.yml` | Publica o site em `gh-pages` |
-| `TUTORIAL_IMPLEMENTACAO.md` | Instalação completa |
-| `CHANGELOG.md` | Notas de cada versão |
-| `PLANO_FUNCOES_v16.md` | Plano das funções v1.6.0 |
-| `MELHORIAS.md` | O que já entrou e o que fica para depois |
+| `.github/workflows/` | Build EXE + deploy site |
 
 ---
 
-## 10. Segurança
+## Segurança
 
-- **Código:** só quem tem escrita no GitHub  
-- **Site:** qualquer um lê a consulta; não grava a planilha  
-- **Planilha:** Conta de Serviço = Editor (EXE); “qualquer pessoa com o link” = Leitor (site)  
-- Aba **Auditoria**: para admins no EXE e na planilha. O site **não** a lê  
-- Relatório com CPF completo: **somente login admin**  
-- Consulta no celular: CPF **mascarado**  
-- Não envie `google-credentials.json` nem a senha do admin
-
-O GitHub **não precisa ficar aberto** para o site funcionar.
+- Relatório admin: **CPF completo** · consulta pública: **CPF mascarado**
+- Aba **Auditoria**: só no EXE/planilha; o site não lê
+- Não compartilhe `google-credentials.json` nem senha do admin

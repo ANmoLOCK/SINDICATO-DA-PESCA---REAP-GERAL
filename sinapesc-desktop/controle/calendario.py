@@ -6,7 +6,7 @@ from typing import Iterable, List, Sequence
 
 from sheets.models import MESES, meses_no_intervalo
 
-# Safra típica do sindicato — usado se a aba Config ainda não tiver valor.
+# Período padrão mar–out — usado se a aba Config ainda não tiver valor.
 CALENDARIO_PADRAO: List[str] = list(meses_no_intervalo("mar", "out"))
 
 
