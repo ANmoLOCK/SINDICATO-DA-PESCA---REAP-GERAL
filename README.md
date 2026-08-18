@@ -7,21 +7,21 @@ Controle de **REAP** (não é pagamento): a secretaria usa o EXE no Windows; o a
 | | |
 |--|--|
 | Repositório | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
-| Versão atual | [**v1.6.1**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.1) |
+| Versão atual | [**v1.6.2**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.2) |
 | Site (consulta) | https://anmolock.github.io/sinapesc-casanova-reap/consulta.html |
 | Planilha (leitor) | https://docs.google.com/spreadsheets/d/1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrRePft4/edit?usp=sharing |
 
 ---
 
-## Download do EXE (v1.6.1)
+## Download do EXE (v1.6.2)
 
 **Link direto (ZIP):**
 
-https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.1/SinapescREAP-Windows-v1.6.1.zip
+https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.2/SinapescREAP-Windows-v1.6.2.zip
 
-Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.1
+Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.2
 
-Versão anterior: [v1.6.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0) · [v1.5.1](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1)
+Versão anterior: [v1.6.1](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.1) · [v1.6.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0)
 
 O ZIP traz `SinapescREAP.exe`, `config.json`, `LEIA-ME.txt` e tutoriais. Extraia numa pasta (ex.: `C:\Sinapesc\`) e coloque o `google-credentials.json` junto.
 
@@ -44,9 +44,17 @@ O site lê só as abas **Pessoas** e **Reap**. CPF no celular fica **mascarado**
 
 ---
 
-## O que há na v1.6.1
+## O que há na v1.6.2
 
-### Interface reorganizada
+### Interface fiel ao mockup aprovado
+- Header: logo, e-mail acima dos botões, **← Voltar · Lista pública · ⚙ Configurações · Sair**
+- Abas com sublinhado: **Sócios · Pendências · Relatório · Backup · Auditoria · Config.Atalhos · Lista pública**
+- Busca larga com lupa, botões outline e **+ Novo sócio** azul
+- Cartões com avatar, **▦ QR · ✎ Editar · 🗑 Excluir**, chevron ▲/▼
+- Meses em fila horizontal: verde ✓ (regular) · vermelho ! (pendente)
+- Rodapé: **Pronto · Usuário · Conectado** | **Sinapesc REAP**
+
+### v1.6.1 / v1.6.0 (mantidos)
 - Header compacto: logo, e-mail logado, botões **Voltar · Lista pública · Configurações · Sair**
 - Abas da secretaria: **Pendências · Relatório · Backup · Auditoria · Sócios · Config.Atalhos**
 - Tela **Sócios** mais limpa (busca + ações no topo, sem fileira extra de botões)
@@ -104,7 +112,8 @@ Mesma planilha: EXE grava (Editor); site só lê (Leitor).
 
 | Versão | O que entrou | EXE |
 |--------|----------------|-----|
-| **v1.6.1** | UI fusionada, Voltar, abas, rodapé limpo | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.1/SinapescREAP-Windows-v1.6.1.zip) |
+| **v1.6.2** | UI fiel ao mockup (cartões, meses, abas, busca) | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.2/SinapescREAP-Windows-v1.6.2.zip) |
+| v1.6.1 | UI fusionada, Voltar, abas, rodapé limpo | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.1/SinapescREAP-Windows-v1.6.1.zip) |
 | v1.6.0 | Pendências, relatório, backup, auditoria na planilha | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.0/SinapescREAP-Windows-v1.6.0.zip) |
 | v1.5.1 | Config.Atalhos (lote, massa, copiar ano) | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip) |
 | v1.5.0 | Lote visual, site Pages, QR permanente | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip) |

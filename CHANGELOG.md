@@ -6,6 +6,21 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.2] — 2026-08-18 — UI fiel ao mockup aprovado
+
+**Tag:** [`v1.6.2`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.2)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.2/SinapescREAP-Windows-v1.6.2.zip
+
+### O que entrou
+- Módulo `ui/widgets.py` (busca com lupa, botões outline/primary, cartões, pills de mês)
+- Header: e-mail acima dos botões; abas com sublinhado branco na ativa
+- Ordem das abas igual ao mockup (+ Auditoria)
+- Cartões: avatar circular, ações com ícones, chevron ▲/▼
+- Meses em fila horizontal verde ✓ / vermelho !
+- Rodapé: Pronto · Usuário · Conectado
+
+---
+
 ## [v1.6.1] — 2026-08-18 — Interface fusionada + rodapé limpo
 
 **Tag:** [`v1.6.1`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.1)  

@@ -11,7 +11,7 @@ Programa Windows (Tkinter + Google Sheets) para controle REAP da secretaria.
 
 ## Versão
 
-**v1.6.1** — UI fusionada (header, abas, Voltar) + pendências, relatório, backup e auditoria.
+**v1.6.2** — UI fiel ao mockup (header, abas, cartões, meses horizontais).
 
 ## Desenvolvimento
 
