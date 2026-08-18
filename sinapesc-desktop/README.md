@@ -13,7 +13,7 @@ A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mo
 
 ## Versão
 
-**v1.6.7** — Logo selo SINAPESC fiel ao original (círculo, peixe, faixa).
+**v1.6.8** — Selo oficial no ícone, relatórios e marca d'água no fundo.
 
 ## Requisitos (Windows)
 

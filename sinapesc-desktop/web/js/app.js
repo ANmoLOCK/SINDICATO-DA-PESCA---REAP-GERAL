@@ -1047,7 +1047,7 @@
 <html lang="pt-BR"><head><meta charset="utf-8"><title>QR Sinapesc</title>
 <style>
   body { font-family: Segoe UI, Arial, sans-serif; text-align: center; color: #0A2F52; margin: 20px; }
-  img.logo { width: 72px; height: 72px; }
+  img.logo { width: 96px; height: auto; max-width: 120px; object-fit: contain; }
   img.qr { max-width: 380px; margin: 12px 0; }
   .url { font-size: 12px; word-break: break-all; color: #5A7388; }
   h1 { font-size: 18px; margin: 8px 0 4px; }

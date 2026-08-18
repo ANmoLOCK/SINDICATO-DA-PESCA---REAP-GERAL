@@ -39,9 +39,9 @@ body {
 }
 .brand { display: flex; gap: 14px; align-items: center; position: relative; z-index: 1; }
 .brand img {
-  width: 52px; height: 52px; border-radius: 12px;
+  width: 56px; height: 56px; border-radius: 10px;
   border: 2px solid rgba(196,163,90,.7);
-  background: #fff; object-fit: cover;
+  background: #fff; object-fit: contain;
 }
 .brand h1 { margin: 0; font-size: 1.35rem; letter-spacing: .02em; }
 .brand p { margin: 4px 0 0; opacity: .82; font-size: .86rem; max-width: 34rem; }

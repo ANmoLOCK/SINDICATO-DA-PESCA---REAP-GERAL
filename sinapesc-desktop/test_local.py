@@ -140,6 +140,31 @@ def test_chrome_routes() -> None:
     assert TAB_FOR_SCREEN["pendencias"] == "pendencias"
 
 
+def test_brand_assets() -> None:
+    from ui.brand import asset_path
+
+    logo = asset_path("logo.png")
+    icon = asset_path("icon.png")
+    ico = asset_path("icon.ico")
+    mark = asset_path("watermark.png")
+    assert logo.exists() and logo.stat().st_size > 10_000
+    assert icon.exists() and icon.stat().st_size > 10_000
+    assert ico.exists() and ico.stat().st_size > 10_000
+    assert mark.exists() and mark.stat().st_size > 10_000
+    from PIL import Image
+
+    im = Image.open(logo)
+    assert im.size[0] >= 256 and im.size[1] >= 256
+    assert Image.open(mark).mode == "RGBA"
+
+
+def test_qr_selo_usa_logo() -> None:
+    from ui.qrutil import make_qr_image
+
+    img = make_qr_image("https://example.com/consulta")
+    assert img.size[0] >= 200 and img.size[1] >= 200
+
+
 if __name__ == "__main__":
     test_formatters()
     test_display_nome()
@@ -151,4 +176,6 @@ if __name__ == "__main__":
     test_relatorio_mostra_cpf_completo()
     test_backup_rotacao()
     test_chrome_routes()
+    test_brand_assets()
+    test_qr_selo_usa_logo()
     print("OK — testes locais passaram.")

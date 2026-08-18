@@ -6,6 +6,16 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.8] — 2026-08-18 — Selo oficial, ícone, relatório e marca d'água
+
+### O que entrou
+- Logo **redesenhada fiel ao carimbo original** (peixe, montanha, faixa SINAPESC)
+- Ícone do EXE, logo do programa e relatórios HTML usam o mesmo selo
+- **Marca d'água visível** no fundo das telas (atrás dos cards)
+- Escala da logo corrigida: `object-fit: contain` (antes o círculo recortava o selo)
+
+---
+
 ## [v1.6.7] — 2026-08-18 — Logo selo SINAPESC fiel ao original
 
 **Tag:** [`v1.6.7`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.7)  
