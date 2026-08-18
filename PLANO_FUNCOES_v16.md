@@ -446,6 +446,6 @@ Marque Sim / Não / Mudar. Com isso dá para implementar sem adivinhar.
 3. Relatório: HTML + “imprimir / salvar PDF” do Windows — suficiente? Ou precisa gerar **arquivo .pdf pronto** sem abrir o navegador?
 4. Backup: perguntar a cada 7 dias no login — ok? Ou fazer **em silêncio** e só avisar na barra “Backup ok 18/08”?
 5. Auditoria: um usuário só (o e-mail do admin de hoje) — suficiente nesta versão?
-6. CPF no relatório e na pendência: **sempre mascarado**, igual ao site — ok também no PC da secretaria?
+6. Relatório do admin: **CPF completo**. Site público / QR: CPF mascarado.
 
 Quando responder, implementamos só o que estiver aprovado, em versão **v1.6.0**, com nota no `CHANGELOG.md`.

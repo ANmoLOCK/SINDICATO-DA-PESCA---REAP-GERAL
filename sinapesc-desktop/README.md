@@ -9,7 +9,7 @@ Site público: **[site-publico/](../site-publico/)**
 
 ## Versão atual
 
-**v1.5.0** — lote visual (Nome + CPF) + site público no GitHub Pages.
+**v1.6.0** — Pendências, relatório (CPF completo no admin), backup CSV e auditoria na planilha.
 
 ## Desenvolvimento
 

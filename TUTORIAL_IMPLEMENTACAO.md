@@ -1,11 +1,11 @@
-# Tutorial de implementação — Sinapesc REAP v1.5.0
+# Tutorial de implementação — Sinapesc REAP v1.6.0
 
-Guia completo para colocar no ar o **programa Windows** e o **site público gratuito** (consulta por CPF sem o notebook ligado).
+Guia para o **programa Windows** e o **site público** (consulta por CPF sem o notebook ligado).
 
-**Download do EXE:** [SinapescREAP-Windows-v1.5.0.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip)  
-(página: [v1.5.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.0))
+**Tag:** [v1.6.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0)  
+**Último ZIP público (v1.5.1):** [SinapescREAP-Windows-v1.5.1.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip)
 
-Site já publicado: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
+Site: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 
 ---
 
@@ -44,7 +44,7 @@ https://docs.google.com/spreadsheets/d/ ESTE_ID_AQUI /edit
 4. **Também** compartilhe como **Qualquer pessoa com o link → Leitor**  
    (para o site público ler no celular)
 
-Na primeira conexão o EXE cria as abas `Pessoas` e `Reap`.
+Na primeira conexão o EXE cria as abas `Pessoas`, `Reap`, `Auditoria` e `Config`.
 
 ---
 
@@ -138,13 +138,17 @@ Os QRs ficam em `qr-codes/` ao lado do `.exe` e **não mudam** enquanto a URL do
 
 ### Secretaria (EXE)
 - Entrar como administrador  
-- Cadastrar sócio (um a um ou **lote** com Nome + CPF nas linhas)  
+- Cadastrar sócio (um a um, **lote**, ou Config.Atalhos)  
+- **Pendências:** quem falta no calendário do ano; marcar só o que falta  
+- **Relatório:** HTML da diretoria ou de um sócio (**CPF completo**, só nesta tela)  
+- **Backup:** CSV local das abas Pessoas + Reap  
+- **Auditoria:** o que cada admin alterou (aba na planilha, todos veem)  
 - Clicar no nome → marcar meses do REAP  
 
 ### Associado (celular)
 1. Apontar a câmera no QR da sede  
 2. Digitar o CPF  
-3. Ver só os próprios meses/anos  
+3. Ver só os próprios meses/anos (CPF **mascarado**)  
 
 ---
 
@@ -165,7 +169,8 @@ Os QRs ficam em `qr-codes/` ao lado do `.exe` e **não mudam** enquanto a URL do
 
 | Item | Link |
 |------|------|
-| **EXE v1.5.0** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.0/SinapescREAP-Windows-v1.5.0.zip |
+| **EXE v1.6.0 (tag)** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0 |
+| **EXE v1.5.1 (ZIP)** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip |
 | Código | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
 | API detalhada | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
 | Site público | [`site-publico/README.md`](./site-publico/README.md) |

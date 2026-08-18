@@ -8,28 +8,52 @@ Formato: mais recente primeiro.
 
 ## [v1.6.0] — 2026-08-18 — Pendências, relatório, backup e auditoria na planilha
 
-Código no repositório (EXE desta tag sai depois do merge / Actions).
+**Tag:** [`v1.6.0`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.0)  
+**Repo:** https://github.com/ANmoLOCK/sinapesc-casanova-reap  
+**Consulta:** https://anmolock.github.io/sinapesc-casanova-reap/consulta.html  
+**Plano:** [`PLANO_FUNCOES_v16.md`](./PLANO_FUNCOES_v16.md)
 
 ### O que entrou
 - **Pendências REAP:** lista só quem falta no calendário do ano (padrão mar–out). Marca somente os meses pendentes, em lote, sem apagar o que já está marcado.
 - **Calendário compartilhado:** aba **Config** na planilha (`calendario_padrao` / `calendario_2026`). Todos os admins usam a mesma regra.
 - **Relatório de conformidade:** HTML com logo Sinapesc, **CPF completo** (somente o admin, pela tela Relatório), grade do ano, carimbo Regular/Pendente. Sem R$. Abrir no navegador → Imprimir → Salvar como PDF. A consulta pública no celular continua com CPF mascarado.
 - **Backup CSV local:** cópia das abas Pessoas + Reap em `backups/` ao lado do EXE (ou AppData). Lembrete a cada 7 dias no login admin. Guarda os últimos 12.
-- **Auditoria na planilha:** aba **Auditoria** (não é arquivo local). Cada admin vê o que o outro marcou: “fulano marcou OUT/2026 em Maria”. O site público **não** lê essa aba.
+- **Auditoria na planilha:** aba **Auditoria**. Cada admin vê o que o outro marcou: “fulano marcou OUT/2026 em Maria”. O site público **não** lê essa aba.
 
-### Organização (para não misturar com o código antigo)
+### Organização (código separado)
 - Regras em `sinapesc-desktop/controle/`
 - Telas em `ui/tela_pendencias.py`, `ui/tela_relatorio.py`, `ui/tela_backup.py`, `ui/tela_auditoria.py`
 - Planilha: `sheets/client.py` cria as abas novas na primeira conexão
 
 ### Bugs corrigidos nesta leva
-- Clique duplo na planilha: `_run_bg` agora zera o “ocupado” mesmo se o callback falhar; captura de erro no `lambda` (Python 3) não perde a exceção
-- Calendário/backup não dependem de memória de um único PC: calendário e auditoria vão para o Google; CSV é só cópia de segurança
+- Clique duplo na planilha: `_run_bg` zera o “ocupado” mesmo se o callback falhar (B13)
+- Exceção do thread não se perde no `lambda` (Python 3)
+- Relatório do admin deixa de mascarar o CPF (B15); site público permanece mascarado
+- Auditoria deixa de ser só local (B14)
 
 ### O que não mudou
 - Consulta pública por CPF
 - Cadastro em lote e Config.Atalhos
 - Sem pagamento / boleto / valor em R$
+
+---
+
+## [v1.5.1] — 2026-08-17 — Config.Atalhos
+
+**Tag:** [`v1.5.1`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.5.1)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.5.1/SinapescREAP-Windows-v1.5.1.zip  
+**Consulta:** https://anmolock.github.io/sinapesc-casanova-reap/consulta.html  
+**Sugestões:** [`MELHORIAS.md`](./MELHORIAS.md)
+
+### O que entrou
+- Botão **Config.Atalhos** no admin (ao lado de Atualizar)
+- **Lote com REAP já marcado** (Mar→Out, um mês ou ano inteiro)
+- **Marcar meses em massa** nos sócios existentes (opção de só a busca; não apaga pagos, salvo “substituir”)
+- **Copiar REAP** de um ano para outro
+- Escritas na planilha em **batch** (`values.batchUpdate` + append), para não estourar cota da API
+
+### O que não mudou
+- Site público, QR permanente, lote visual Nome/CPF, tema azul
 
 ---
 

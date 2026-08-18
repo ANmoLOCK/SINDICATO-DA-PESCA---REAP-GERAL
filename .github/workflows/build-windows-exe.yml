@@ -5,9 +5,8 @@ on:
     branches:
       - cursor/sinapesc-desktop-exe-46d6
       - main
-    paths:
-      - "sinapesc-desktop/**"
-      - ".github/workflows/build-windows-exe.yml"
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -44,7 +43,7 @@ jobs:
             Copy-Item ..\TUTORIAL_IMPLEMENTACAO.md release\
           }
           @"
-          SINAPESC REAP — COMO USAR (v1.5.0)
+          SINAPESC REAP — COMO USAR (v1.6.0)
           ==================================
           1. Leia TUTORIAL_IMPLEMENTACAO.md ou COMO_INTEGRAR_API.md
           2. Renomeie o JSON do Google Cloud para google-credentials.json
@@ -55,6 +54,8 @@ jobs:
              e como "qualquer pessoa com o link" (Leitor) para o site.
           5. Execute SinapescREAP.exe → Configurações → Testar conexão
           6. Cole a URL do site → Salvar → QR Consulta CPF → imprima
+          7. Login admin: Pendências, Relatório (CPF completo), Backup, Auditoria
+          A primeira conexão cria as abas Auditoria e Config na planilha.
           "@ | Set-Content -Encoding UTF8 release\LEIA-ME.txt
 
       - name: Upload artifact
