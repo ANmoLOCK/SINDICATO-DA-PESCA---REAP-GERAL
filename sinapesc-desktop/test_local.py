@@ -23,6 +23,8 @@ def test_meses_intervalo() -> None:
 def test_formatters() -> None:
     assert only_digits("123.456.789-01") == "12345678901"
     assert format_cpf("12345678901") == "123.456.789-01"
+    assert format_cpf("10520558545") == "105.205.585-45"
+    assert format_cpf("105.205.585-45") == "105.205.585-45"
     assert format_cpf_masked("12345678901") == "***.***.789-**"
 
 
@@ -182,6 +184,31 @@ def test_layout_centered_default_scale() -> None:
     assert "width=1280" in launcher
 
 
+def test_run_async_enfileira_em_vez_de_rejeitar() -> None:
+    from webapp.api import SinapescApi
+
+    api = SinapescApi()
+    api._busy = True
+    r = api._run_async("op", lambda: 1, "ocupado")
+    assert r.get("ok") is True
+    assert r.get("queued") is True
+    assert r.get("pending") is True
+    assert len(api._queue) == 1
+    api._queue.clear()
+    api._busy = False
+
+
+def test_js_tem_mes_instantaneo_e_cpf_formatado() -> None:
+    js = (ROOT / "web" / "js" / "app.js").read_text(encoding="utf-8")
+    assert "function paintPill(" in js
+    assert "function formatCpf(" in js
+    assert "function bindCpfMask(" in js
+    assert "000.000.000-00" in js
+    api_py = (ROOT / "webapp" / "api.py").read_text(encoding="utf-8")
+    assert "self._queue" in api_py
+    assert "queued" in api_py
+
+
 def test_qr_selo_usa_logo() -> None:
     from ui.qrutil import make_qr_image
 
@@ -203,5 +230,7 @@ if __name__ == "__main__":
     test_brand_assets()
     test_watermark_html_layer()
     test_layout_centered_default_scale()
+    test_run_async_enfileira_em_vez_de_rejeitar()
+    test_js_tem_mes_instantaneo_e_cpf_formatado()
     test_qr_selo_usa_logo()
     print("OK — testes locais passaram.")

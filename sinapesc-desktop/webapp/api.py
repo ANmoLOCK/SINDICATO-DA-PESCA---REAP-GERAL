@@ -39,6 +39,8 @@ class SinapescApi:
     def __init__(self) -> None:
         self._window: Any = None
         self._busy = False
+        self._queue: List[tuple] = []
+        self._lock = threading.Lock()
         self._logged_in = False
         self._admin_user = ""
         self._service: Optional[SheetsService] = None
@@ -166,23 +168,44 @@ class SinapescApi:
         self._window.evaluate_js(f"window.AppEvents.dispatch({json.dumps(event)}, {body})")
 
     def _run_async(self, op: str, work, busy: str = "Aguarde…") -> Dict[str, Any]:
-        if self._busy:
-            return err("Outra operação na planilha ainda está em andamento.")
-        self._busy = True
+        job = (op, work, busy)
+        with self._lock:
+            if self._busy:
+                self._queue.append(job)
+                queued = True
+            else:
+                self._busy = True
+                queued = False
+        if queued:
+            self._dispatch("status", {"msg": busy})
+            return ok(pending=True, op=op, queued=True)
+        self._start_job(job)
+        return ok(pending=True, op=op)
+
+    def _start_job(self, job: tuple) -> None:
+        op, work, busy = job
         self._dispatch("status", {"msg": busy})
 
         def target() -> None:
             try:
-                result = work()
-                self._dispatch(op, ok(result))
+                payload = ok(work())
             except Exception as exc:  # noqa: BLE001
-                self._dispatch(op, err(str(exc)))
-            finally:
-                self._busy = False
+                payload = err(str(exc))
+            nxt = None
+            with self._lock:
+                if self._queue:
+                    nxt = self._queue.pop(0)
+                else:
+                    self._busy = False
+            # Libera "ocupado" ANTES de avisar o JS, senão o recarregamento
+            # da lista é recusado e a tela só muda com Atualizar.
+            self._dispatch(op, payload)
+            if nxt:
+                self._start_job(nxt)
+            else:
                 self._dispatch("status", {"msg": "Pronto."})
 
         threading.Thread(target=target, daemon=True).start()
-        return ok(pending=True, op=op)
 
     def _ensure_service(self, *, require_login: bool = True) -> SheetsService:
         if require_login and not self._logged_in:
@@ -273,7 +296,7 @@ class SinapescApi:
             pessoa = svc.get_pessoa_com_reap(person_id)
             nome = pessoa.nome if pessoa else ""
             svc.toggle_mes(person_id, int(ano), mes, bool(novo), nome=nome)  # type: ignore[arg-type]
-            return True
+            return {"person_id": person_id, "ano": int(ano), "mes": mes, "on": bool(novo)}
 
         return self._run_async("mes_toggled", work, f"Atualizando {mes}/{ano}…")
 

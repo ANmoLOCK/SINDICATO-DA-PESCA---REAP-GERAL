@@ -837,7 +837,7 @@ class SinapescApp(tk.Tk):
         cpf = ttk.Entry(win, width=44)
         cpf.pack(padx=16)
         if pessoa:
-            cpf.insert(0, pessoa.cpf)
+            cpf.insert(0, format_cpf(pessoa.cpf))
 
         def save() -> None:
             n = nome.get().strip()

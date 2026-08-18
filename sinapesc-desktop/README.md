@@ -13,7 +13,7 @@ A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mo
 
 ## Versão
 
-**v1.6.9** — Marca d'água no fundo, layout centralizado e escala padrão (100%).
+**v1.6.10** — Mês instantâneo, CPF formatado (`105.205.585-45`) e lista sem precisar de Atualizar.
 
 ## Requisitos (Windows)
 
@@ -39,7 +39,7 @@ Gera `dist\SinapescREAP.exe` e pasta `release\` pronta para zipar.
 
 Ou dispare o workflow [build-windows-exe.yml](../.github/workflows/build-windows-exe.yml) (branch `main` ou tag `v*`).
 
-**Download pronto:** [SinapescREAP-Windows-v1.6.9.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.9/SinapescREAP-Windows-v1.6.9.zip)
+**Download pronto:** [SinapescREAP-Windows-v1.6.10.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.10/SinapescREAP-Windows-v1.6.10.zip)
 
 ## Estrutura
 

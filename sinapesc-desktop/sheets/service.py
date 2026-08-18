@@ -29,6 +29,13 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _format_cpf(digits: str) -> str:
+    clean = "".join(ch for ch in (digits or "") if ch.isdigit())[:11]
+    if len(clean) != 11:
+        return clean
+    return f"{clean[:3]}.{clean[3:6]}.{clean[6:9]}-{clean[9:]}"
+
+
 def _row_to_pessoa(row: List[str]) -> Pessoa:
     return Pessoa(
         id=row[0] if len(row) > 0 else "",
@@ -138,8 +145,22 @@ class SheetsService:
 
     # ---- escritas -----------------------------------------------------
 
+    def pessoa_por_cpf(self, cpf: str, except_id: str = "") -> Optional[Pessoa]:
+        digits = "".join(ch for ch in (cpf or "") if ch.isdigit())[:11]
+        if len(digits) != 11:
+            return None
+        for p in self.get_all_pessoas():
+            other = "".join(ch for ch in (p.cpf or "") if ch.isdigit())[:11]
+            if other == digits and p.id != except_id:
+                return p
+        return None
+
     def add_pessoa(self, nome: str, cpf: str) -> PessoaComReap:
         self.client.ensure_tabs()
+        dup = self.pessoa_por_cpf(cpf)
+        if dup:
+            raise ValueError(f"CPF já cadastrado: {dup.nome}")
+        cpf = _format_cpf(cpf)
         person_id = str(uuid.uuid4())
         now = _now_iso()
         ano_atual = datetime.now().year
@@ -193,7 +214,10 @@ class SheetsService:
         meses_on = meses já marcados no ano (ex.: ['mar','abr',...,'out']).
         """
         self.client.ensure_tabs()
-        existentes = {p.cpf for p in self.get_all_pessoas()}
+        existentes = {
+            "".join(ch for ch in (p.cpf or "") if ch.isdigit())[:11]
+            for p in self.get_all_pessoas()
+        }
         now = _now_iso()
         ano_alvo = int(ano or datetime.now().year)
         flags = meses_para_flags(meses_on)
@@ -219,7 +243,7 @@ class SheetsService:
             vistos.add(cpf)
             person_id = str(uuid.uuid4())
             reap_id = str(uuid.uuid4())
-            pessoas_rows.append([person_id, nome, cpf, now])
+            pessoas_rows.append([person_id, nome, _format_cpf(cpf), now])
             reap_rows.append([reap_id, person_id, ano_alvo, *flags, now])
             ids.append(person_id)
 
@@ -391,6 +415,10 @@ class SheetsService:
         }
 
     def update_pessoa(self, person_id: str, nome: str, cpf: str) -> None:
+        dup = self.pessoa_por_cpf(cpf, except_id=person_id)
+        if dup:
+            raise ValueError(f"CPF já cadastrado: {dup.nome}")
+        cpf = _format_cpf(cpf)
         rows, start = self._pessoas_rows()
         idx = next((i for i, r in enumerate(rows) if r and r[0] == person_id), -1)
         if idx < 0:

@@ -88,6 +88,26 @@
       .replace(/"/g, "&quot;");
   }
 
+  function formatCpf(value) {
+    const d = String(value || "").replace(/\D/g, "").slice(0, 11);
+    const p1 = d.slice(0, 3);
+    const p2 = d.slice(3, 6);
+    const p3 = d.slice(6, 9);
+    const p4 = d.slice(9, 11);
+    let out = p1;
+    if (p2) out += `.${p2}`;
+    if (p3) out += `.${p3}`;
+    if (p4) out += `-${p4}`;
+    return out;
+  }
+
+  function bindCpfMask(input) {
+    if (!input) return;
+    const paint = () => { input.value = formatCpf(input.value); };
+    input.addEventListener("input", paint);
+    paint();
+  }
+
   function createModal(html, className = "") {
     const backdrop = document.createElement("div");
     backdrop.className = "modal-backdrop";
@@ -530,7 +550,7 @@
           <div class="avatar">${esc(p.iniciais)}</div>
           <div class="card-info" data-toggle="${p.id}">
             <p class="card-name">${esc(p.nome_display)}</p>
-            <p class="card-cpf">CPF: ${esc(p.cpf)}</p>
+            <p class="card-cpf">CPF: ${esc(formatCpf(p.cpf_raw || p.cpf))}</p>
           </div>
           <div class="card-actions">
             ${actions}
@@ -550,6 +570,25 @@
       const title = esc(state.bootstrap?.meses_label?.[m] || m);
       return `<button type="button" class="pill ${cls}" ${ed} title="${title}">${m.toUpperCase()} ${mark}</button>`;
     }).join("");
+  }
+
+  function paintPill(btn, on) {
+    if (!btn) return;
+    btn.classList.toggle("on", on);
+    btn.classList.toggle("off", !on);
+    const label = (btn.textContent || "").trim().split(/\s+/)[0] || "";
+    btn.textContent = `${label} ${on ? "✓" : "!"}`;
+    const parts = (btn.dataset.pill || "").split("|");
+    if (parts.length >= 3) {
+      btn.dataset.pill = `${parts[0]}|${parts[1]}|${parts[2]}|${on ? 0 : 1}`;
+    }
+  }
+
+  function applyLocalMes(pid, ano, mes, on) {
+    const p = state.pessoas.find((x) => x.id === pid);
+    if (!p) return;
+    const a = (p.anos || []).find((x) => String(x.ano) === String(ano));
+    if (a && a.meses) a.meses[mes] = on;
   }
 
   function bindPessoaCards(root, editable) {
@@ -576,7 +615,20 @@
     }));
     root.querySelectorAll("[data-pill]").forEach((b) => b.addEventListener("click", () => {
       const [pid, ano, mes, novo] = b.dataset.pill.split("|");
-      api("toggle_mes", pid, parseInt(ano, 10), mes, novo === "1");
+      const wantOn = novo === "1";
+      paintPill(b, wantOn);
+      applyLocalMes(pid, ano, mes, wantOn);
+      api("toggle_mes", pid, parseInt(ano, 10), mes, wantOn).then((r) => {
+        if (r && r.ok === false && !r.pending) {
+          paintPill(b, !wantOn);
+          applyLocalMes(pid, ano, mes, !wantOn);
+          toast(r.error || "Não foi possível marcar o mês.");
+        }
+      }).catch(() => {
+        paintPill(b, !wantOn);
+        applyLocalMes(pid, ano, mes, !wantOn);
+        toast("Não foi possível marcar o mês.");
+      });
     }));
     root.querySelectorAll("[data-add-ano]").forEach((b) => b.addEventListener("click", () => {
       const id = b.dataset.addAno;
@@ -592,14 +644,15 @@
       <div class="modal-body">
         <label>Nome completo</label>
         <input id="m-nome" value="${esc(pessoa?.nome || "")}" />
-        <label>CPF (11 dígitos)</label>
-        <input id="m-cpf" value="${esc(pessoa?.cpf_raw || "")}" />
+        <label>CPF</label>
+        <input id="m-cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" value="${esc(formatCpf(pessoa?.cpf_raw || pessoa?.cpf || ""))}" />
       </div>
       <div class="modal-foot">
         <button type="button" class="btn btn-outline-dark" data-modal-close="">Cancelar</button>
         <button type="button" class="btn btn-primary" id="m-save">Salvar</button>
       </div>
     `);
+    bindCpfMask(backdrop.querySelector("#m-cpf"));
     backdrop.querySelector("#m-save").addEventListener("click", async () => {
       const r = await api("save_pessoa", {
         id: pessoa?.id || "",
@@ -648,7 +701,7 @@
       row.className = "lote-row";
       row.innerHTML = `
         <input class="l-nome" value="${esc(nome)}" placeholder="Nome completo" />
-        <input class="l-cpf" value="${esc(cpf)}" placeholder="000.000.000-00" />
+        <input class="l-cpf" value="${esc(formatCpf(cpf))}" placeholder="000.000.000-00" maxlength="14" />
         <button type="button" class="icon-btn danger l-del">🗑</button>
       `;
       row.querySelector(".l-del").addEventListener("click", () => {
@@ -660,6 +713,7 @@
         row.remove();
       });
       host.appendChild(row);
+      bindCpfMask(row.querySelector(".l-cpf"));
     }
 
     for (let i = 0; i < 6; i++) addRow();
@@ -735,7 +789,7 @@
         <div class="card-head">
           <div class="card-info">
             <p class="card-name">${esc(s.nome_display)}</p>
-            <p class="card-cpf">${esc(s.rotulo)} · CPF ${esc(s.cpf)}</p>
+            <p class="card-cpf">${esc(s.rotulo)} · CPF ${esc(formatCpf(s.cpf))}</p>
             <div class="pills" style="margin-top:4px">${pills}</div>
           </div>
           <div class="card-actions">
@@ -1091,8 +1145,10 @@
       else toast(r.error);
     });
     AppEvents.on("mes_toggled", (r) => {
-      if (r.ok) loadPessoas();
-      else toast(r.error);
+      if (!r.ok) {
+        toast(r.error || "Não foi possível marcar o mês.");
+        loadPessoas();
+      }
     });
     AppEvents.on("ano_added", (r) => {
       if (r.ok) loadPessoas();
@@ -1101,7 +1157,9 @@
     AppEvents.on("lote_saved", (r) => {
       if (r.ok) {
         const d = r.data || {};
-        toast(`Lote: ${d.ok ?? d.criados ?? "ok"} cadastrado(s).`);
+        const nErr = (d.erros || []).length;
+        toast(`Lote: ${d.ok ?? d.criados ?? "ok"} cadastrado(s)${nErr ? ` · ${nErr} recusado(s)` : ""}.`);
+        if (nErr) toast((d.erros || []).slice(0, 3).join(" "));
         loadPessoas();
       } else toast(r.error);
     });

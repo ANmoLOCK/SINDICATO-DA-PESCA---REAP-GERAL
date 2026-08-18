@@ -6,6 +6,19 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.10] — 2026-08-18 — Mês instantâneo, CPF formatado e fila da planilha
+
+**Tag:** [`v1.6.10`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.10)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.10/SinapescREAP-Windows-v1.6.10.zip
+
+### O que entrou
+- **Mês instantâneo:** ao clicar na pílula (JAN…DEZ) ela muda na hora (verde ✓ / cinza !); a planilha grava em segundo plano. Se der erro, a pílula volta e avisa
+- **Sem precisar de Atualizar:** a fila da planilha não bloqueia mais o recarregamento da lista
+- **CPF visível com máscara:** `105.205.585-45` (não mais `10520558545`) na lista, no cadastro e no lote
+- CPF duplicado continua bloqueado no cadastro e na edição
+
+---
+
 ## [v1.6.9] — 2026-08-18 — Marca d'água, layout centralizado e escala padrão
 
 **Tag:** [`v1.6.9`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.9)  

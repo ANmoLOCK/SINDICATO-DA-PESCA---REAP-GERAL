@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from sheets.models import MESES, PessoaComReap
-from ui.formatters import display_nome, format_cpf, format_cpf_masked
+from ui.formatters import display_nome, format_cpf, format_cpf_masked, only_digits
 
 
 def pessoa_to_dict(p: PessoaComReap, *, mask_cpf: bool = False) -> Dict[str, Any]:
@@ -15,7 +15,7 @@ def pessoa_to_dict(p: PessoaComReap, *, mask_cpf: bool = False) -> Dict[str, Any
         "nome": p.nome,
         "nome_display": display_nome(p.nome),
         "cpf": cpf_fmt,
-        "cpf_raw": p.cpf,
+        "cpf_raw": only_digits(p.cpf),
         "iniciais": _iniciais(p.nome),
         "criado_em": p.criado_em or "",
         "anos": [
