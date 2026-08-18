@@ -46,9 +46,10 @@ jobs:
             Copy-Item ..\TUTORIAL_IMPLEMENTACAO.md release\
           }
           @"
-          SINAPESC REAP — COMO USAR (v1.6.4)
+          SINAPESC REAP — COMO USAR (v1.6.8)
           ==================================
-          Interface web (HTML/CSS) dentro da janela — igual ao mockup aprovado.
+          Interface web (HTML/CSS) dentro da janela — selo oficial no icone,
+          relatorios e marca d'agua no fundo.
           Requer Windows 10/11 com WebView2 (Edge); na maioria dos PCs ja vem instalado.
 
           1. Leia TUTORIAL_IMPLEMENTACAO.md ou COMO_INTEGRAR_API.md

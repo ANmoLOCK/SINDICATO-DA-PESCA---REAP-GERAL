@@ -46,9 +46,10 @@ O site lê só as abas **Pessoas** e **Reap**. CPF no celular fica **mascarado**
 
 ## O que há na v1.6.8
 
-- Selo SINAPESC fiel ao carimbo (peixe, montanha, faixa) no **ícone**, no **programa** e nos **relatórios**
-- Marca d'água do selo no fundo das telas
+- Selo SINAPESC fiel ao carimbo (peixe, montanha, faixa) no **ícone do Windows**, no **programa** e nos **relatórios HTML**
+- **Marca d'água visível** do selo no fundo das telas (atrás dos cards)
 - Logo em escala correta (`contain`, sem recortar o círculo)
+- QR interno com o selo no centro
 - Inclui tudo da v1.6.7 / v1.6.6 (filtro recente/A–Z, imprimir QR)
 
 ### Interface web (pywebview)
