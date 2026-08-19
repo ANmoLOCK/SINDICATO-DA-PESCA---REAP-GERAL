@@ -1192,7 +1192,6 @@
       <div class="modal-head">QR Code</div>
       <div class="modal-body qr-preview">
         <img id="qr-img" src="${r.data.image}" alt="QR" />
-        <div class="qr-url">${esc(r.data.url)}</div>
       </div>
       <div class="modal-foot">
         <button type="button" class="btn btn-outline-dark" id="qr-print">Imprimir</button>

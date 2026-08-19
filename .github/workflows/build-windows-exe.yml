@@ -46,11 +46,12 @@ jobs:
             Copy-Item ..\TUTORIAL_IMPLEMENTACAO.md release\
           }
           @"
-          SINAPESC REAP — COMO USAR (v1.6.13)
+          SINAPESC REAP — COMO USAR (v1.6.14)
           ==================================
           Interface web (HTML/CSS) dentro da janela — selo oficial no icone,
           impressao abre no navegador (relatorio e QR, sem erro about:),
-          nome sempre com primeira letra maiuscula ao salvar.
+          QR sem link visivel (modal, impressao e PNG),
+          site publico so consulta individual por CPF.
           Requer Windows 10/11 com WebView2 (Edge); na maioria dos PCs ja vem instalado.
 
           1. Leia TUTORIAL_IMPLEMENTACAO.md ou COMO_INTEGRAR_API.md

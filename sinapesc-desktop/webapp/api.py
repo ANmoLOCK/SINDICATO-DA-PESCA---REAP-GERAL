@@ -623,13 +623,11 @@ class SinapescApi:
 <style>
   body {{ font-family: Segoe UI, Arial, sans-serif; text-align: center; color: #0A2F52; margin: 20px; }}
   img.qr {{ max-width: 420px; margin: 12px 0; }}
-  .url {{ font-size: 12px; word-break: break-all; color: #5A7388; }}
   h1 {{ font-size: 18px; margin: 8px 0 4px; }}
 </style></head><body onload="setTimeout(function(){{window.print();}},250)">
   <h1>SINAPESC</h1>
   <p>Sindicato Dos Aquicultores E Pescadores De Casa Nova</p>
   <img class="qr" src="{img_path.name}" alt="QR" />
-  <p class="url">{url}</p>
 </body></html>"""
             html_path.write_text(html_txt, encoding="utf-8")
             opened = self.open_path(str(html_path))

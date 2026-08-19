@@ -72,9 +72,8 @@ def make_qr_image(
 
     pad = 36
     title_h = 72
-    url_h = 44
     width = max(qr_img.width + pad * 2, 520)
-    height = title_h + qr_img.height + url_h + pad * 2 + 12
+    height = title_h + qr_img.height + pad * 2 + 20
     poster = Image.new("RGB", (width, height), "white")
     draw = ImageDraw.Draw(poster)
 
@@ -85,16 +84,13 @@ def make_qr_image(
     try:
         font_title = ImageFont.truetype("arialbd.ttf", 20)
         font_sub = ImageFont.truetype("arial.ttf", 11)
-        font_url = ImageFont.truetype("arial.ttf", 10)
     except OSError:
         try:
             font_title = ImageFont.truetype("arial.ttf", 20)
             font_sub = ImageFont.truetype("arial.ttf", 11)
-            font_url = ImageFont.truetype("arial.ttf", 10)
         except OSError:
             font_title = ImageFont.load_default()
             font_sub = font_title
-            font_url = font_title
 
     draw.text((pad, pad - 4), title, fill="#0A2F52", font=font_title)
     draw.text((pad, pad + 26), subtitle, fill="#5A7388", font=font_sub)
@@ -103,9 +99,6 @@ def make_qr_image(
     x = (width - qr_img.width) // 2
     y = title_h + pad - 8
     poster.paste(qr_img, (x, y))
-
-    url_show = url if len(url) < 72 else url[:69] + "..."
-    draw.text((pad, y + qr_img.height + 14), url_show, fill="#1B6CA8", font=font_url)
     return poster
 
 

@@ -6,6 +6,18 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.14] — 2026-08-19 — QR sem link visível + site sem lista pública
+
+**Tag:** [`v1.6.14`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.14)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.14/SinapescREAP-Windows-v1.6.14.zip
+
+### O que entrou
+- QR: removido texto do link na prévia (modal), no HTML de impressão e na imagem PNG final
+- Site público: removido botão **Lista pública** — consulta individual por CPF apenas
+- `lista.html` redireciona para `consulta.html`; backup em `site-publico/_backup/`
+
+---
+
 ## [v1.6.13] — 2026-08-19 — Impressão abre no navegador (sem erro about:)
 
 **Tag:** [`v1.6.13`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.13)  

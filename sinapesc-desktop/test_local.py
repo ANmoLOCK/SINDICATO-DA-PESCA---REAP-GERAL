@@ -210,11 +210,15 @@ def test_js_tem_mes_instantaneo_e_cpf_formatado() -> None:
     assert "function bindCpfMask(" in js
     assert 'api("print_qr"' in js
     assert "window.open(\"\")" not in js
+    assert "qr-url" not in js
     assert "000.000.000-00" in js
     api_py = (ROOT / "webapp" / "api.py").read_text(encoding="utf-8")
     assert "self._queue" in api_py
     assert "queued" in api_py
     assert "def print_qr(" in api_py
+    assert '<p class="url">' not in api_py
+    qrutil = (ROOT / "ui" / "qrutil.py").read_text(encoding="utf-8")
+    assert "url_show" not in qrutil
 
 
 def test_lote_50_socios_e_ponte_json() -> None:
