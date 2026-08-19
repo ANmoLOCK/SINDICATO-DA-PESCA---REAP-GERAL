@@ -8,9 +8,14 @@ from sheets.models import MESES, PessoaComReap
 from ui.formatters import display_nome, format_cpf, format_cpf_masked, format_nome, only_digits
 
 
-def pessoa_to_dict(p: PessoaComReap, *, mask_cpf: bool = False) -> Dict[str, Any]:
+def pessoa_to_dict(
+    p: PessoaComReap,
+    *,
+    mask_cpf: bool = False,
+    ultimo_toggle: Optional[Dict[str, str]] = None,
+) -> Dict[str, Any]:
     cpf_fmt = format_cpf_masked(p.cpf) if mask_cpf else format_cpf(p.cpf)
-    return {
+    out = {
         "id": p.id,
         "nome": format_nome(p.nome),
         "nome_display": display_nome(p.nome),
@@ -26,6 +31,13 @@ def pessoa_to_dict(p: PessoaComReap, *, mask_cpf: bool = False) -> Dict[str, Any
             for a in sorted(p.anos, key=lambda x: x.ano, reverse=True)
         ],
     }
+    if ultimo_toggle:
+        out["ultimo_toggle_em"] = ultimo_toggle.get("em") or ""
+        out["ultimo_toggle_label"] = ultimo_toggle.get("label") or ""
+    else:
+        out["ultimo_toggle_em"] = ""
+        out["ultimo_toggle_label"] = ""
+    return out
 
 
 def _iniciais(nome: str) -> str:

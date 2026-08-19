@@ -456,7 +456,14 @@
       <div>
         <span class="page-title">Sócios</span>
         <span class="page-meta" id="admin-count"></span>
-        <p class="page-sub">Clique no nome para abrir o REAP</p>
+        <p class="page-sub">Clique no nome para abrir o REAP · ao lado, há quanto tempo foi a última marca/desmarca de mês</p>
+      </div>
+      <div class="touch-legend" title="Atalho rápido — só conta marcar/desmarcar mês; detalhes completos na aba Auditoria">
+        <strong>Última alteração REAP:</strong>
+        <span class="touch-sample">1min atrás</span>
+        <span class="touch-sample">4h atrás</span>
+        <span class="touch-sample">14d</span>
+        <span class="touch-sample">1ano15d</span>
       </div>
       <div class="toolbar">
         <div class="search-wrap">
@@ -544,6 +551,15 @@
     bindPessoaCards(list, true);
   }
 
+  function touchBadgeHtml(p) {
+    const label = (p.ultimo_toggle_label || "").trim();
+    if (!label) return "";
+    const tip = p.ultimo_toggle_em
+      ? `Última marca/desmarca de mês · ${p.ultimo_toggle_em}`
+      : "Última marca/desmarca de mês";
+    return `<span class="card-touch" title="${esc(tip)}"> — ${esc(label)}</span>`;
+  }
+
   function pessoaCardHtml(p, editable) {
     const expanded = state.expanded.has(p.id);
     let detail = "";
@@ -569,7 +585,7 @@
         <div class="card-head">
           <div class="avatar">${esc(p.iniciais)}</div>
           <div class="card-info" data-toggle="${p.id}">
-            <p class="card-name">${esc(p.nome_display)}</p>
+            <p class="card-name">${esc(p.nome_display)}${touchBadgeHtml(p)}</p>
             <p class="card-cpf">CPF: ${esc(formatCpf(p.cpf_raw || p.cpf))}</p>
           </div>
           <div class="card-actions">
@@ -638,6 +654,12 @@
       const wantOn = novo === "1";
       paintPill(b, wantOn);
       applyLocalMes(pid, ano, mes, wantOn);
+      const pessoa = state.pessoas.find((x) => x.id === pid);
+      if (pessoa) {
+        pessoa.ultimo_toggle_label = "agora";
+        pessoa.ultimo_toggle_em = new Date().toISOString().slice(0, 19).replace("T", " ");
+        if (state.screen === "admin") renderAdminList();
+      }
       api("toggle_mes", pid, parseInt(ano, 10), mes, wantOn).then((r) => {
         if (r && r.ok === false && !r.pending) {
           paintPill(b, !wantOn);
@@ -1234,7 +1256,14 @@
       else toast(r.error);
     });
     AppEvents.on("mes_toggled", (r) => {
-      if (!r.ok) {
+      if (r.ok && r.data && r.data.person_id) {
+        const p = state.pessoas.find((x) => x.id === r.data.person_id);
+        if (p) {
+          p.ultimo_toggle_label = "agora";
+          p.ultimo_toggle_em = new Date().toISOString().slice(0, 19).replace("T", " ");
+          if (state.screen === "admin") renderAdminList();
+        }
+      } else if (!r.ok) {
         toast(r.error || "Não foi possível marcar o mês.");
         loadPessoas();
       }

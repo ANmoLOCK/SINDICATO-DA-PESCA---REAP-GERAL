@@ -81,7 +81,14 @@ def test_controle_pendencias() -> None:
 
 
 def test_auditoria_parse() -> None:
-    from controle.auditoria import combina_busca, row_to_evento
+    from datetime import datetime
+
+    from controle.auditoria import (
+        combina_busca,
+        format_tempo_desde,
+        row_to_evento,
+        ultimo_toggle_por_pessoa,
+    )
 
     assert row_to_evento(["id", "em", "usuario"]) is None
     evt = row_to_evento(
@@ -90,6 +97,23 @@ def test_auditoria_parse() -> None:
     assert evt is not None and evt.nome == "Maria"
     assert combina_busca(evt, "maria")
     assert not combina_busca(evt, "inexistente")
+
+    agora = datetime(2026, 8, 19, 12, 0, 0)
+    assert format_tempo_desde("2026-08-19 11:59:30", agora=agora) == "agora"
+    assert format_tempo_desde("2026-08-19 11:00:00", agora=agora) == "1h atrás"
+    assert format_tempo_desde("2026-08-19 08:00:00", agora=agora) == "4h atrás"
+    assert format_tempo_desde("2026-08-05 12:00:00", agora=agora) == "14d"
+    assert format_tempo_desde("2025-08-04 12:00:00", agora=agora) == "1ano15d"
+
+    e1 = row_to_evento(["1", "2026-08-19 10:00:00", "u", "toggle_mes", "", "p1", "A", "2026", "jan"])
+    e2 = row_to_evento(["2", "2026-08-18 10:00:00", "u", "toggle_mes", "", "p1", "A", "2026", "fev"])
+    e3 = row_to_evento(["3", "2026-08-17 10:00:00", "u", "save_pessoa", "", "p1", "A", "", ""])
+    e4 = row_to_evento(["4", "2026-08-16 10:00:00", "u", "toggle_mes", "", "p2", "B", "2026", "mar"])
+    assert e1 and e2 and e3 and e4
+    ultimo = ultimo_toggle_por_pessoa([e1, e2, e3, e4])
+    assert set(ultimo.keys()) == {"p1", "p2"}
+    assert ultimo["p1"]["em"] == "2026-08-19 10:00:00"
+    assert ultimo["p2"]["em"] == "2026-08-16 10:00:00"
 
 
 def test_relatorio_mostra_cpf_completo() -> None:

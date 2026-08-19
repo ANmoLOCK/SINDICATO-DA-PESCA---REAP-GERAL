@@ -254,8 +254,16 @@ class SinapescApi:
 
     def load_pessoas(self) -> Dict[str, Any]:
         def work():
-            pessoas = self._ensure_service(require_login=False).get_all_pessoas_com_reap()
-            return [pessoa_to_dict(p) for p in pessoas]
+            svc = self._ensure_service(require_login=False)
+            ultimo = {}
+            try:
+                from controle.auditoria import ultimo_toggle_por_pessoa
+
+                ultimo = ultimo_toggle_por_pessoa(svc.listar_auditoria(400))
+            except Exception:
+                pass
+            pessoas = svc.get_all_pessoas_com_reap()
+            return [pessoa_to_dict(p, ultimo_toggle=ultimo.get(p.id)) for p in pessoas]
 
         return self._run_async("pessoas", work, "Carregando sócios…")
 
