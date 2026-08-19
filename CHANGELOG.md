@@ -8,7 +8,7 @@ Formato: mais recente primeiro.
 
 ## [Unreleased] — Contrato de licença Sinapesc
 
-- Modelo `docs/CONTRATO-LICENCA-SINAPESC.md`: licença 12 meses, contrato 6 anos, prorrogação indeterminada
+- Modelo `docs/CONTRATO-LICENCA-SINAPESC.md`: licença 12 meses, contrato 6 anos, encerra salvo aditivo
 - Cláusula 3 atualizada no LICENSE
 
 ## [Unreleased] — Licença proprietária

@@ -52,15 +52,15 @@
 - inadimplência de valores acordados para manutenção/licenciamento; ou
 - descumprimento das cláusulas de uso.
 
-3.4. **Após os 6 (seis) anos:** findo o prazo inicial, o contrato **prorroga-se por tempo indeterminado**, mantendo-se a licença em **ciclos de 12 (doze) meses** nas mesmas condições de renovação da cláusula 3.3, podendo ser rescindido por qualquer das partes mediante aviso prévio de **90 (noventa) dias**.
+3.4. **Após os 6 (seis) anos:** findo o prazo contratual, o contrato **encerra-se automaticamente**, salvo **renovação expressa** por **termo aditivo escrito** assinado por ambas as partes. Sem aditivo, cessa o direito de uso do software e do site configurado.
 
 3.5. **Resumo prático**
 
 | Item | Prazo |
 |------|--------|
-| Cada licença de uso | **12 meses** (renovável) |
+| Cada licença de uso | **12 meses** (renovável durante a vigência) |
 | Contrato atual Sinapesc | **6 anos** a partir da assinatura |
-| Depois de 6 anos | **Tempo indeterminado**, salvo rescisão (90 dias) |
+| Depois de 6 anos | **Encerra**, salvo novo contrato/aditivo por escrito |
 | Código-fonte | **Sempre** propriedade do Licenciante |
 
 ---
@@ -89,8 +89,8 @@
 
 - por acordo entre as partes;
 - por descumprimento grave, após notificação e prazo de 15 dias para correção;
-- ao final de um ciclo de 12 meses, com aviso de 30 dias (durante os 6 anos iniciais);
-- após os 6 anos, em regime indeterminado, com aviso de 90 dias.
+- ao final de um ciclo de 12 meses, com aviso de 30 dias (durante os 6 anos de vigência);
+- **automaticamente** ao término dos **6 (seis) anos**, salvo termo aditivo de renovação.
 
 6.2. Rescindido o contrato, o Licenciado **cessa o uso** do software e do site configurado. Os **dados na planilha** permanecem com o Licenciado.
 
