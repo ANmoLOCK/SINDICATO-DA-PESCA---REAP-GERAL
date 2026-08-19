@@ -102,7 +102,22 @@ details.card summary::-webkit-details-marker { display: none; }
 .nav-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 footer {
   text-align: center; color: var(--muted); font-size: .75rem;
-  padding: 8px 16px 28px;
+  padding: 8px 16px 52px;
+}
+.legal-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  padding: 8px 12px;
+  font-size: .68rem;
+  line-height: 1.35;
+  text-align: center;
+  color: #e8f2f8;
+  background: linear-gradient(180deg, rgba(8, 39, 68, .94), rgba(8, 39, 68, .98));
+  border-top: 2px solid var(--gold);
+  box-shadow: 0 -4px 16px rgba(8, 39, 68, .25);
 }
 .status { font-size: .85rem; color: var(--muted); margin-top: 8px; }
 

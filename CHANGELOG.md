@@ -6,6 +6,14 @@ Formato: mais recente primeiro.
 
 ---
 
+## [Unreleased] — Licença proprietária
+
+- Arquivo `LICENSE` e `COPYRIGHT` — titular Gabriel Lourran Da Silva Costa
+- Aviso legal fixo no site público e na interface do EXE
+- Proibição expressa de cópia/modificação sem autorização
+
+---
+
 ## [v1.6.14] — 2026-08-19 — QR sem link visível + site sem lista pública
 
 **Tag:** [`v1.6.14`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.14)  

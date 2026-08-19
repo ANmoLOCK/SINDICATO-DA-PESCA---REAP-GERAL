@@ -42,6 +42,8 @@ jobs:
           Copy-Item config.example.json release\config.json
           Copy-Item COMO_INTEGRAR_API.md release\
           Copy-Item README.md release\
+          if (Test-Path ..\LICENSE) { Copy-Item ..\LICENSE release\ }
+          if (Test-Path ..\COPYRIGHT) { Copy-Item ..\COPYRIGHT release\ }
           if (Test-Path ..\TUTORIAL_IMPLEMENTACAO.md) {
             Copy-Item ..\TUTORIAL_IMPLEMENTACAO.md release\
           }
@@ -65,6 +67,10 @@ jobs:
           6. Cole a URL do site -> Salvar -> QR Consulta CPF -> imprima
           7. Login admin: abas Sócios, Pendencias, Relatorio, Backup, Auditoria
           A primeira conexao cria as abas Auditoria e Config na planilha.
+
+          8. LICENCA: software proprietario — Gabriel Lourran Da Silva Costa
+             gabriel730costa@gmail.com — ver LICENSE na pasta. Proibido copiar
+             ou modificar sem autorizacao.
 
           Fallback Tkinter (legado): SinapescREAP.exe --tk
           "@ | Set-Content -Encoding UTF8 release\LEIA-ME.txt

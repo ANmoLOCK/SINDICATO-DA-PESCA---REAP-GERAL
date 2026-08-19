@@ -2,6 +2,8 @@
 
 Programa Windows (**pywebview** + Google Sheets) para controle REAP da secretaria.
 
+**Licença:** software proprietário de **Gabriel Lourran Da Silva Costa** — ver [`../LICENSE`](../LICENSE).
+
 A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mockup aprovado. Tkinter legado: `python main.py --tk`.
 
 | Documento | Link |

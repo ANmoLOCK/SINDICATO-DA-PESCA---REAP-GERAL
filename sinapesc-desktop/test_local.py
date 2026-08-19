@@ -288,6 +288,18 @@ def test_lote_50_socios_e_ponte_json() -> None:
     assert "backdrop._close(true);\n      const mesesOn" not in js
 
 
+def test_licenca_proprietaria() -> None:
+    repo = ROOT.parent
+    lic = (repo / "LICENSE").read_text(encoding="utf-8")
+    assert "Gabriel Lourran Da Silva Costa" in lic
+    assert "105.825.755-24" in lic
+    assert "gabriel730costa@gmail.com" in lic
+    assert "PROIBI" in lic.upper() or "proibid" in lic.lower()
+    assert (repo / "COPYRIGHT").exists()
+    assert (ROOT / "web" / "js" / "legal.js").exists()
+    assert (repo / "site-publico" / "js" / "legal.js").exists()
+
+
 def test_qr_selo_usa_logo() -> None:
     from ui.qrutil import make_qr_image
 
@@ -312,5 +324,6 @@ if __name__ == "__main__":
     test_run_async_enfileira_em_vez_de_rejeitar()
     test_js_tem_mes_instantaneo_e_cpf_formatado()
     test_lote_50_socios_e_ponte_json()
+    test_licenca_proprietaria()
     test_qr_selo_usa_logo()
     print("OK — testes locais passaram.")
