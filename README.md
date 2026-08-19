@@ -8,6 +8,8 @@
 > Proibido copiar, clonar, modificar ou redistribuir este software sem autorização expressa por escrito.  
 > Ver [`LICENSE`](./LICENSE) e [`COPYRIGHT`](./COPYRIGHT).
 
+> Ver contrato modelo: [`docs/CONTRATO-LICENCA-SINAPESC.md`](./docs/CONTRATO-LICENCA-SINAPESC.md) (licença 12 meses · contrato 6 anos · prorrogação indeterminada).
+
 Controle de **REAP** (não é pagamento): a secretaria usa o EXE no Windows; o associado consulta o CPF no celular **sem o notebook ligado**.
 
 | | |

@@ -6,6 +6,11 @@ Formato: mais recente primeiro.
 
 ---
 
+## [Unreleased] — Contrato de licença Sinapesc
+
+- Modelo `docs/CONTRATO-LICENCA-SINAPESC.md`: licença 12 meses, contrato 6 anos, prorrogação indeterminada
+- Cláusula 3 atualizada no LICENSE
+
 ## [Unreleased] — Licença proprietária
 
 - Arquivo `LICENSE` e `COPYRIGHT` — titular Gabriel Lourran Da Silva Costa

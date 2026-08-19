@@ -31,6 +31,12 @@ scripts, assets, configurações e código-fonte deste repositório).
    somente dentro dos limites, prazo e escopo definidos no contrato
    assinado com o titular. A licença não transfere propriedade do software.
 
+   Modelo de prazo (contrato Sinapesc Casa Nova — ver docs/CONTRATO-LICENCA-SINAPESC.md):
+   - Licença de uso em ciclos de 12 (doze) meses, renováveis;
+   - Vigência contratual inicial de 6 (seis) anos;
+   - Após 6 anos, prorrogação por tempo indeterminado, rescindível
+     conforme o contrato. O código-fonte permanece sempre do titular.
+
 5. MARCAS DE TERCEIROS
    Nomes, logos e marcas exibidos em implantações específicas (ex.: Sinapesc)
    pertencem aos respectivos titulares. O titular do software mantém os
