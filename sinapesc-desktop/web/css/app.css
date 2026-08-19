@@ -610,6 +610,17 @@ body { overflow: hidden; }
   color: var(--primary);
 }
 
+.footer-legal {
+  font-size: 9px;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--muted);
+  padding: 3px 16px 7px;
+  border-top: 1px solid var(--border-soft);
+  max-width: var(--page-width);
+  margin: 0 auto;
+}
+
 .dot { color: var(--border); }
 
 /* ---- Modal ---- */
@@ -777,19 +788,4 @@ body { overflow: hidden; }
 @media (max-width: 800px) {
   .home-cards { grid-template-columns: 1fr; }
   .lote-head, .lote-row { grid-template-columns: 1fr 1fr 36px; }
-}
-
-.legal-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 10000;
-  padding: 6px 10px;
-  font-size: 10px;
-  line-height: 1.35;
-  text-align: center;
-  color: #eaf6fc;
-  background: linear-gradient(180deg, rgba(10, 47, 82, .94), rgba(10, 47, 82, .98));
-  border-top: 1px solid var(--gold);
 }

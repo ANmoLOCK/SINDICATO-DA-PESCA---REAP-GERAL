@@ -297,7 +297,12 @@ def test_licenca_proprietaria() -> None:
     assert "gabriel730costa@gmail.com" in lic
     assert "PROIBI" in lic.upper() or "proibid" in lic.lower()
     assert (repo / "COPYRIGHT").exists()
-    assert (ROOT / "web" / "js" / "legal.js").exists()
+    html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+    assert "footer-legal" in html
+    assert "status-text" in html
+    assert "footer-user" in html
+    assert "footer-conn" in html
+    assert "legal-bar" not in html
     assert (repo / "site-publico" / "js" / "legal.js").exists()
     assert (repo / "docs" / "DIREITOS-AUTORAIS.md").exists()
     assert "prazo indeterminado" in lic.lower() or "indeterminado" in lic.lower()

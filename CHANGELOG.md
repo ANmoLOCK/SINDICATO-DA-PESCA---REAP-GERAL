@@ -6,6 +6,17 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.16] — 2026-08-19 — Rodapé status restaurado
+
+**Tag:** [`v1.6.16`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.16)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.16/SinapescREAP-Windows-v1.6.16.zip
+
+### O que entrou
+- Restaura rodapé **Pronto · admin · Conectado**
+- Copyright em linha `.footer-legal` abaixo, sem barra fixa cobrindo a tela
+
+---
+
 ## [v1.6.15] — 2026-08-19 — Direitos autorais reservados
 
 **Tag:** [`v1.6.15`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.15)  
