@@ -6,6 +6,18 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.17] — 2026-08-19 — Última alteração REAP ao lado do nome
+
+**Tag:** [`v1.6.17`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.17)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.17/SinapescREAP-Windows-v1.6.17.zip
+
+### O que entrou
+- Contador **última alteração** ao lado do nome: `agora`, `1min atrás`, `4h atrás`, `14d`, `1ano15d`
+- Dados lidos da aba **Auditoria** da planilha (eventos `toggle_mes`) — visível a todos os admins
+- Telas **Sócios** e **Pendências**; recarrega da planilha após marcar/desmarcar mês
+
+---
+
 ## [v1.6.16] — 2026-08-19 — Rodapé status restaurado
 
 **Tag:** [`v1.6.16`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.16)  

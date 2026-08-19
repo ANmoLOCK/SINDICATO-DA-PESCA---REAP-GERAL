@@ -255,13 +255,7 @@ class SinapescApi:
     def load_pessoas(self) -> Dict[str, Any]:
         def work():
             svc = self._ensure_service(require_login=False)
-            ultimo = {}
-            try:
-                from controle.auditoria import ultimo_toggle_por_pessoa
-
-                ultimo = ultimo_toggle_por_pessoa(svc.listar_auditoria(400))
-            except Exception:
-                pass
+            ultimo = _ultimo_toggle_map(svc)
             pessoas = svc.get_all_pessoas_com_reap()
             return [pessoa_to_dict(p, ultimo_toggle=ultimo.get(p.id)) for p in pessoas]
 
@@ -410,6 +404,7 @@ class SinapescApi:
     def load_pendencias(self, ano: int) -> Dict[str, Any]:
         def work():
             svc = self._ensure_service()
+            ultimo = _ultimo_toggle_map(svc)
             pessoas = svc.get_all_pessoas_com_reap()
             cal = svc.get_calendario(int(ano))
             pend, reg = classificar(pessoas, int(ano), cal)
@@ -417,7 +412,7 @@ class SinapescApi:
                 "ano": int(ano),
                 "calendario": cal,
                 "calendario_texto": meses_para_texto(cal),
-                "pendentes": [_situacao_dict(s) for s in pend],
+                "pendentes": [_situacao_dict(s, ultimo.get(s.pessoa.id)) for s in pend],
                 "regulares_count": len(reg),
             }
 
@@ -696,9 +691,22 @@ def _lote_itens_from_rows(rows: Any) -> List[tuple[str, str]]:
     return itens
 
 
-def _situacao_dict(item) -> Dict[str, Any]:
+AUDIT_ULTIMO_LIMITE = 2000
+
+
+def _ultimo_toggle_map(svc: SheetsService) -> Dict[str, Dict[str, str]]:
+    """Última marca/desmarca de mês por sócio — lido da aba Auditoria (visível a todos)."""
+    try:
+        from controle.auditoria import ultimo_toggle_por_pessoa
+
+        return ultimo_toggle_por_pessoa(svc.listar_auditoria(AUDIT_ULTIMO_LIMITE))
+    except Exception:
+        return {}
+
+
+def _situacao_dict(item, ultimo_toggle: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     p = item.pessoa
-    return {
+    out: Dict[str, Any] = {
         "person_id": p.id,
         "nome": p.nome,
         "nome_display": display_nome(p.nome),
@@ -709,3 +717,10 @@ def _situacao_dict(item) -> Dict[str, Any]:
         "tem_ano": item.tem_ano,
         "ano": item.ano,
     }
+    if ultimo_toggle:
+        out["ultimo_toggle_em"] = ultimo_toggle.get("em") or ""
+        out["ultimo_toggle_label"] = ultimo_toggle.get("label") or ""
+    else:
+        out["ultimo_toggle_em"] = ""
+        out["ultimo_toggle_label"] = ""
+    return out

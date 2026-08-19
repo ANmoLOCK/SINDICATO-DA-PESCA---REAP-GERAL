@@ -11,21 +11,21 @@ Controle de **REAP** (não é pagamento): a secretaria usa o EXE no Windows; o a
 | | |
 |--|--|
 | Repositório | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
-| Versão atual | [**v1.6.16**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.16) |
+| Versão atual | [**v1.6.17**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.17) |
 | Site (consulta) | https://anmolock.github.io/sinapesc-casanova-reap/consulta.html |
 | Planilha (leitor) | https://docs.google.com/spreadsheets/d/1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrRePft4/edit?usp=sharing |
 
 ---
 
-## Download do EXE (v1.6.16)
+## Download do EXE (v1.6.17)
 
 **Link direto (ZIP):**
 
-https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.16/SinapescREAP-Windows-v1.6.16.zip
+https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.17/SinapescREAP-Windows-v1.6.17.zip
 
-Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.16
+Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.17
 
-Versão anterior: [v1.6.15](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.15) · [v1.6.14](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.14)
+Versão anterior: [v1.6.16](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.16) · [v1.6.15](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.15) · [v1.6.14](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.14)
 
 O ZIP traz `SinapescREAP.exe`, `config.json`, `LEIA-ME.txt` e tutoriais. Extraia numa pasta (ex.: `C:\Sinapesc\`) e coloque o `google-credentials.json` junto.
 
@@ -46,6 +46,12 @@ https://anmolock.github.io/sinapesc-casanova-reap
 O site lê só as abas **Pessoas** e **Reap**. CPF no celular fica **mascarado**.
 
 ---
+
+## O que há na v1.6.17
+
+- **Última alteração REAP** ao lado do nome do sócio (`1min atrás`, `4h atrás`, `14d`, `1ano15d`)
+- Contador lido da aba **Auditoria** da planilha — qualquer admin que abrir o EXE vê os mesmos tempos
+- Visível em **Sócios** e **Pendências**; atualiza após marcar/desmarcar mês
 
 ## O que há na v1.6.16
 
@@ -81,7 +87,7 @@ O site lê só as abas **Pessoas** e **Reap**. CPF no celular fica **mascarado**
 | **Pendências** | Quem falta no calendário do ano (padrão **mar–out**). Marca só o que falta. |
 | **Relatório** | HTML com **CPF completo** (só admin). Imprimir → PDF. Sem R$. |
 | **Backup** | CSV local das abas Pessoas + Reap (`backups/`). Lembrete a cada 7 dias. |
-| **Auditoria** | Histórico na aba **Auditoria** da planilha (todos os admins veem). |
+| **Auditoria** | Histórico na aba **Auditoria** da planilha (todos os admins veem). Ao lado do nome: **última alteração REAP** (`1min atrás`, `4h atrás`, …). |
 | **Config.Atalhos** | Lote pré-marcado, marcar em massa, copiar ano. |
 
 Na primeira conexão o EXE cria as abas **Auditoria** e **Config**.
@@ -125,6 +131,7 @@ Mesma planilha: EXE grava (Editor); site só lê (Leitor).
 
 | Versão | O que entrou | EXE |
 |--------|----------------|-----|
+| **v1.6.17** | Última alteração REAP ao lado do nome (planilha Auditoria) | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.17/SinapescREAP-Windows-v1.6.17.zip) |
 | **v1.6.16** | Rodapé status + copyright em linha separada | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.16/SinapescREAP-Windows-v1.6.16.zip) |
 | v1.6.15 | Direitos autorais reservados + licença indeterminada | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.15/SinapescREAP-Windows-v1.6.15.zip) |
 | v1.6.14 | QR sem link visível + site só consulta CPF | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.14/SinapescREAP-Windows-v1.6.14.zip) |

@@ -15,7 +15,7 @@ A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mo
 
 ## Versão
 
-**v1.6.16** — Rodapé status + copyright em linha separada.
+**v1.6.17** — Última alteração REAP ao lado do nome (aba Auditoria da planilha).
 
 ## Requisitos (Windows)
 
@@ -41,7 +41,7 @@ Gera `dist\SinapescREAP.exe` e pasta `release\` pronta para zipar.
 
 Ou dispare o workflow [build-windows-exe.yml](../.github/workflows/build-windows-exe.yml) (branch `main` ou tag `v*`).
 
-**Download pronto:** [SinapescREAP-Windows-v1.6.16.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.16/SinapescREAP-Windows-v1.6.16.zip)
+**Download pronto:** [SinapescREAP-Windows-v1.6.17.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.17/SinapescREAP-Windows-v1.6.17.zip)
 
 ## Estrutura
 

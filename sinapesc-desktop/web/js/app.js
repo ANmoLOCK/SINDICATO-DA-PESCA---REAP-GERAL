@@ -873,7 +873,11 @@
   function renderPendencias() {
     const ano = new Date().getFullYear();
     setPage(`
-      <div><span class="page-title">Pendências REAP</span> <span class="page-meta" id="pend-stats">Carregando…</span></div>
+      <div>
+        <span class="page-title">Pendências REAP</span>
+        <span class="page-meta" id="pend-stats">Carregando…</span>
+        <p class="page-sub">Ao lado do nome: há quanto tempo foi a última marca/desmarca (aba Auditoria da planilha — todos os admins veem)</p>
+      </div>
       <div class="toolbar">
         <label>Ano</label>
         <input type="number" id="pend-ano" value="${ano}" style="width:80px" />
@@ -925,7 +929,7 @@
       <div class="card">
         <div class="card-head">
           <div class="card-info">
-            <p class="card-name">${esc(s.nome_display)}</p>
+            <p class="card-name">${esc(s.nome_display)}${touchBadgeHtml(s)}</p>
             <p class="card-cpf">${esc(s.rotulo)} · CPF ${esc(formatCpf(s.cpf))}</p>
             <div class="pills" style="margin-top:4px">${pills}</div>
           </div>
@@ -1257,11 +1261,10 @@
     });
     AppEvents.on("mes_toggled", (r) => {
       if (r.ok && r.data && r.data.person_id) {
-        const p = state.pessoas.find((x) => x.id === r.data.person_id);
-        if (p) {
-          p.ultimo_toggle_label = "agora";
-          p.ultimo_toggle_em = new Date().toISOString().slice(0, 19).replace("T", " ");
-          if (state.screen === "admin") renderAdminList();
+        loadPessoas();
+        if (state.screen === "pendencias") {
+          const anoEl = $("#pend-ano");
+          if (anoEl) api("load_pendencias", parseInt(anoEl.value, 10));
         }
       } else if (!r.ok) {
         toast(r.error || "Não foi possível marcar o mês.");
