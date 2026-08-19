@@ -299,6 +299,9 @@ def test_licenca_proprietaria() -> None:
     assert (repo / "COPYRIGHT").exists()
     assert (ROOT / "web" / "js" / "legal.js").exists()
     assert (repo / "site-publico" / "js" / "legal.js").exists()
+    assert (repo / "docs" / "DIREITOS-AUTORAIS.md").exists()
+    assert "prazo indeterminado" in lic.lower() or "indeterminado" in lic.lower()
+    assert "permanece de propriedade do autor" in lic.lower() or "propriedade do autor" in lic.lower()
 
 
 def test_qr_selo_usa_logo() -> None:

@@ -2,6 +2,8 @@
 
 **Modelo de cláusulas** — Sinapesc Casa Nova (contrato vigente)
 
+> **Direitos autorais reservados.** O software Sinapesc REAP foi desenvolvido por **Gabriel Lourran Da Silva Costa**. O Sindicato recebe **licença por prazo indeterminado**. O **código-fonte permanece de propriedade do autor**.
+
 | | |
 |--|--|
 | **LICENCIANTE (autor e titular)** | Gabriel Lourran Da Silva Costa |

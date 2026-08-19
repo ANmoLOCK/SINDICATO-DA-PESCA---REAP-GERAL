@@ -44,17 +44,16 @@ jobs:
           Copy-Item README.md release\
           if (Test-Path ..\LICENSE) { Copy-Item ..\LICENSE release\ }
           if (Test-Path ..\COPYRIGHT) { Copy-Item ..\COPYRIGHT release\ }
+          if (Test-Path ..\docs\DIREITOS-AUTORAIS.md) { Copy-Item ..\docs\DIREITOS-AUTORAIS.md release\ }
           if (Test-Path ..\TUTORIAL_IMPLEMENTACAO.md) {
             Copy-Item ..\TUTORIAL_IMPLEMENTACAO.md release\
           }
           @"
-          SINAPESC REAP — COMO USAR (v1.6.14)
+          SINAPESC REAP — COMO USAR (v1.6.15)
           ==================================
-          Interface web (HTML/CSS) dentro da janela — selo oficial no icone,
-          impressao abre no navegador (relatorio e QR, sem erro about:),
-          QR sem link visivel (modal, impressao e PNG),
-          site publico so consulta individual por CPF.
-          Requer Windows 10/11 com WebView2 (Edge); na maioria dos PCs ja vem instalado.
+          © Gabriel Lourran Da Silva Costa — Todos os direitos reservados.
+          Software de Gabriel; Sindicato licenciado por prazo indeterminado;
+          codigo-fonte permanece do autor. Ver LICENSE e DIREITOS-AUTORAIS.md
 
           1. Leia TUTORIAL_IMPLEMENTACAO.md ou COMO_INTEGRAR_API.md
           2. Renomeie o JSON do Google Cloud para google-credentials.json

@@ -2,34 +2,30 @@
 
 **Sinapesc — Sindicato Dos Aquicultores E Pescadores De Casa Nova**
 
-> **Licença proprietária — todos os direitos reservados**  
-> **Titular:** Gabriel Lourran Da Silva Costa  
-> **Contato:** gabriel730costa@gmail.com  
-> Proibido copiar, clonar, modificar ou redistribuir este software sem autorização expressa por escrito.  
-> Ver [`LICENSE`](./LICENSE) e [`COPYRIGHT`](./COPYRIGHT).
-
-> Ver contrato modelo: [`docs/CONTRATO-LICENCA-SINAPESC.md`](./docs/CONTRATO-LICENCA-SINAPESC.md) (licença e contrato por **prazo indeterminado**).
+> **© Gabriel Lourran Da Silva Costa — Todos os direitos reservados**  
+> O software Sinapesc REAP foi desenvolvido por **Gabriel**. O Sindicato recebe **licença por prazo indeterminado**. O **código-fonte permanece de propriedade do autor**.  
+> **Contato:** gabriel730costa@gmail.com · Ver [`LICENSE`](./LICENSE) · [`DIREITOS-AUTORAIS`](./docs/DIREITOS-AUTORAIS.md) · [`CONTRATO`](./docs/CONTRATO-LICENCA-SINAPESC.md)
 
 Controle de **REAP** (não é pagamento): a secretaria usa o EXE no Windows; o associado consulta o CPF no celular **sem o notebook ligado**.
 
 | | |
 |--|--|
 | Repositório | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
-| Versão atual | [**v1.6.14**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.14) |
+| Versão atual | [**v1.6.15**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.15) |
 | Site (consulta) | https://anmolock.github.io/sinapesc-casanova-reap/consulta.html |
 | Planilha (leitor) | https://docs.google.com/spreadsheets/d/1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrRePft4/edit?usp=sharing |
 
 ---
 
-## Download do EXE (v1.6.14)
+## Download do EXE (v1.6.15)
 
 **Link direto (ZIP):**
 
-https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.14/SinapescREAP-Windows-v1.6.14.zip
+https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.15/SinapescREAP-Windows-v1.6.15.zip
 
-Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.14
+Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.15
 
-Versão anterior: [v1.6.13](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.13) · [v1.6.12](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.12)
+Versão anterior: [v1.6.14](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.14) · [v1.6.13](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.13)
 
 O ZIP traz `SinapescREAP.exe`, `config.json`, `LEIA-ME.txt` e tutoriais. Extraia numa pasta (ex.: `C:\Sinapesc\`) e coloque o `google-credentials.json` junto.
 
@@ -51,11 +47,11 @@ O site lê só as abas **Pessoas** e **Reap**. CPF no celular fica **mascarado**
 
 ---
 
-## O que há na v1.6.14
+## O que há na v1.6.15
 
-- **QR sem link visível:** modal, impressão e PNG final não mostram mais a URL escrita
-- **Site:** consulta individual por CPF (sem botão Lista pública)
-- Mantém impressão formal no navegador (sem erro `about:`)
+- **Direitos autorais reservados:** declaração oficial de autoria (Gabriel), licença indeterminada ao Sindicato e código-fonte do autor
+- Documentos: `LICENSE`, `COPYRIGHT`, `docs/DIREITOS-AUTORAIS.md`, `docs/CONTRATO-LICENCA-SINAPESC.md`
+- Inclui v1.6.14: QR sem link visível; site só consulta por CPF; aviso legal fixo
 
 ### Interface web (pywebview)
 - **HTML + CSS real** dentro da janela (WebView2 no Windows) — avatares circulares, pílulas, abas sublinhadas
@@ -124,7 +120,8 @@ Mesma planilha: EXE grava (Editor); site só lê (Leitor).
 
 | Versão | O que entrou | EXE |
 |--------|----------------|-----|
-| **v1.6.14** | QR sem link visível + site só consulta CPF | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.14/SinapescREAP-Windows-v1.6.14.zip) |
+| **v1.6.15** | Direitos autorais reservados + licença indeterminada | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.15/SinapescREAP-Windows-v1.6.15.zip) |
+| v1.6.14 | QR sem link visível + site só consulta CPF | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.14/SinapescREAP-Windows-v1.6.14.zip) |
 | v1.6.13 | Impressão no navegador (sem `about:`) | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.13/SinapescREAP-Windows-v1.6.13.zip) |
 | v1.6.12 | Nome com primeira letra maiúscula ao salvar | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.12/SinapescREAP-Windows-v1.6.12.zip) |
 | v1.6.11 | Lote 50 sócios sem perder o preenchimento | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.11/SinapescREAP-Windows-v1.6.11.zip) |

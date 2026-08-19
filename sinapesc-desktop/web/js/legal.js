@@ -5,7 +5,8 @@
 (function () {
   "use strict";
   var NOTICE =
-    "© Gabriel Lourran Da Silva Costa · Software proprietário · " +
+    "© Gabriel Lourran Da Silva Costa · Todos os direitos reservados · " +
+    "Software proprietário · Licença indeterminada ao Sindicato · " +
     "Proibido copiar, modificar ou redistribuir sem autorização · " +
     "gabriel730costa@gmail.com";
   function mount() {

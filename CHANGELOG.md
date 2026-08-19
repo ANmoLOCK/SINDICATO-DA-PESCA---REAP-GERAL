@@ -6,16 +6,15 @@ Formato: mais recente primeiro.
 
 ---
 
-## [Unreleased] — Contrato de licença Sinapesc
+## [v1.6.15] — 2026-08-19 — Direitos autorais reservados
 
-- Modelo `docs/CONTRATO-LICENCA-SINAPESC.md`: licença e contrato por prazo indeterminado
-- Cláusula 3 atualizada no LICENSE
+**Tag:** [`v1.6.15`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.15)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.15/SinapescREAP-Windows-v1.6.15.zip
 
-## [Unreleased] — Licença proprietária
-
-- Arquivo `LICENSE` e `COPYRIGHT` — titular Gabriel Lourran Da Silva Costa
-- Aviso legal fixo no site público e na interface do EXE
-- Proibição expressa de cópia/modificação sem autorização
+### O que entrou
+- Declaração oficial: software de Gabriel; Sindicato com licença indeterminada; código-fonte do autor
+- `docs/DIREITOS-AUTORAIS.md`, `LICENSE` e `COPYRIGHT` atualizados
+- EXE inclui LICENSE e COPYRIGHT na pasta de instalação
 
 ---
 
