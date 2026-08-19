@@ -18,10 +18,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Método 1: GitHub Actions Pages (se Pages já estiver ligado como "GitHub Actions")
+  # Método 1: GitHub Actions Pages (se Pages estiver em "GitHub Actions" no repositório)
   deploy-actions:
     name: Deploy (GitHub Actions)
     runs-on: ubuntu-latest
+    continue-on-error: true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
