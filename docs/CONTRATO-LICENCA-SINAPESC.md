@@ -40,28 +40,22 @@
 
 ---
 
-## Cláusula 3 — Prazo: licença em ciclos de 12 meses e contrato de 6 anos
+## Cláusula 3 — Prazo indeterminado
 
-3.1. **Licença de uso (ciclos):** a licença opera em **períodos de 12 (doze) meses**, contados da data de início ou de cada renovação. Cada ciclo confere direito de uso pelo prazo de **12 meses**, renovável conforme esta cláusula.
+3.1. A licença de uso e o presente contrato vigoram por **prazo indeterminado**, contados da data de assinatura, enquanto perdurar o acordo entre as partes.
 
-3.2. **Vigência do contrato (Sinapesc — prazo atual):** o presente contrato entre as partes tem vigência de **6 (seis) anos**, contados da data de assinatura, independentemente dos ciclos de licença de 12 meses.
+3.2. O Licenciado pode utilizar o software enquanto o contrato estiver vigente, observadas as demais cláusulas deste instrumento.
 
-3.3. **Renovação automática dos ciclos:** durante os **6 (seis) anos** de vigência contratual, a licença **renova-se automaticamente** a cada **12 (doze) meses**, salvo:
+3.3. A licença **não transfere** propriedade do código-fonte ao Licenciado, ainda que o prazo seja indeterminado.
 
-- manifestação contrária de qualquer das partes com **30 (trinta) dias** de antecedência ao fim do ciclo; ou
-- inadimplência de valores acordados para manutenção/licenciamento; ou
-- descumprimento das cláusulas de uso.
-
-3.4. **Após os 6 (seis) anos:** findo o prazo contratual, o contrato **encerra-se automaticamente**, salvo **renovação expressa** por **termo aditivo escrito** assinado por ambas as partes. Sem aditivo, cessa o direito de uso do software e do site configurado.
-
-3.5. **Resumo prático**
+3.4. **Resumo prático**
 
 | Item | Prazo |
 |------|--------|
-| Cada licença de uso | **12 meses** (renovável durante a vigência) |
-| Contrato atual Sinapesc | **6 anos** a partir da assinatura |
-| Depois de 6 anos | **Encerra**, salvo novo contrato/aditivo por escrito |
+| Licença de uso | **Indeterminado** |
+| Contrato Sinapesc | **Indeterminado** |
 | Código-fonte | **Sempre** propriedade do Licenciante |
+| Encerramento | Por acordo, descumprimento ou aviso prévio (Cláusula 6) |
 
 ---
 
@@ -75,11 +69,11 @@
 
 ## Cláusula 5 — Suporte, atualizações e valores
 
-5.1. Durante cada ciclo de **12 meses**, o Licenciante pode disponibilizar correções e atualizações de versão, conforme acordo comercial separado ou anexo.
+5.1. Enquanto vigente o contrato, o Licenciante pode disponibilizar correções e atualizações de versão, conforme acordo comercial separado ou anexo.
 
-5.2. Valores, forma de pagamento e escopo de suporte (horas, canal, prazo de resposta) constam de **anexo comercial** ou instrumento apartado, renovável a cada ciclo.
+5.2. Valores, forma de pagamento e escopo de suporte (horas, canal, prazo de resposta) constam de **anexo comercial** ou instrumento apartado, quando aplicável.
 
-5.3. A falta de pagamento na renovação pode **suspender** o direito a novas versões e suporte, **sem** excluir a titularidade do Licenciante sobre o software.
+5.3. A falta de pagamento de valores acordados pode **suspender** o direito a novas versões e suporte, **sem** excluir a titularidade do Licenciante sobre o software.
 
 ---
 
@@ -87,10 +81,9 @@
 
 6.1. O contrato pode ser rescindido:
 
-- por acordo entre as partes;
+- por acordo entre as partes, a qualquer tempo;
 - por descumprimento grave, após notificação e prazo de 15 dias para correção;
-- ao final de um ciclo de 12 meses, com aviso de 30 dias (durante os 6 anos de vigência);
-- **automaticamente** ao término dos **6 (seis) anos**, salvo termo aditivo de renovação.
+- por qualquer das partes, mediante aviso prévio de **30 (trinta) dias**, sem necessidade de motivação.
 
 6.2. Rescindido o contrato, o Licenciado **cessa o uso** do software e do site configurado. Os **dados na planilha** permanecem com o Licenciado.
 
