@@ -13,7 +13,7 @@ A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mo
 
 ## Versão
 
-**v1.6.14** — Remove lista pública e oculta links visíveis no QR.
+**v1.6.13** — Impressão abre no navegador (relatório + QR, sem erro `about:`).
 
 ## Requisitos (Windows)
 
@@ -39,7 +39,7 @@ Gera `dist\SinapescREAP.exe` e pasta `release\` pronta para zipar.
 
 Ou dispare o workflow [build-windows-exe.yml](../.github/workflows/build-windows-exe.yml) (branch `main` ou tag `v*`).
 
-**Download pronto:** [SinapescREAP-Windows-v1.6.14.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.14/SinapescREAP-Windows-v1.6.14.zip)
+**Download pronto:** [SinapescREAP-Windows-v1.6.13.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.13/SinapescREAP-Windows-v1.6.13.zip)
 
 ## Estrutura
 

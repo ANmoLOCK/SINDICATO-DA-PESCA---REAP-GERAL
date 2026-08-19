@@ -1,8 +1,9 @@
 """
-Servidor HTTP público — comprovante e consulta por CPF.
+Servidor HTTP público — lista, comprovante e consulta por CPF.
 
 Rotas estáveis (não mudam):
   /consulta     → associado digita o CPF e vê só o próprio REAP
+  /lista        → lista geral
   /p/{id}       → comprovante individual (QR único por sócio)
   /pessoa/{id}  → alias
 """
@@ -10,6 +11,7 @@ Rotas estáveis (não mudam):
 from __future__ import annotations
 
 import html
+import json
 import socket
 import threading
 from datetime import datetime
@@ -78,6 +80,11 @@ def start_public_server(fetch_pessoas: Callable[[], List[PessoaComReap]], port: 
                 self._send(200, "text/html; charset=utf-8", body)
                 return
 
+            if path in ("/lista", "/lista/"):
+                body = render_lista_html(pessoas).encode("utf-8")
+                self._send(200, "text/html; charset=utf-8", body)
+                return
+
             if path.startswith("/p/") or path.startswith("/pessoa/"):
                 pid = path.split("/", 2)[-1].strip("/")
                 pessoa = next((p for p in pessoas if p.id == pid), None)
@@ -86,6 +93,19 @@ def start_public_server(fetch_pessoas: Callable[[], List[PessoaComReap]], port: 
                     return
                 body = render_pessoa_html(pessoa).encode("utf-8")
                 self._send(200, "text/html; charset=utf-8", body)
+                return
+
+            if path == "/api/lista":
+                payload = [
+                    {
+                        "id": p.id,
+                        "nome": p.nome,
+                        "anos": [{"ano": a.ano, "meses": a.meses} for a in p.anos],
+                    }
+                    for p in pessoas
+                ]
+                raw = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+                self._send(200, "application/json; charset=utf-8", raw)
                 return
 
             self._send(404, "text/html; charset=utf-8", render_not_found().encode("utf-8"))
@@ -235,6 +255,24 @@ def render_consulta_html(pessoas: List[PessoaComReap], *, cpf_query: str = "") -
         f"{ORG_SHORT} — Consulta REAP",
         "Consulta individual por CPF",
         form,
+    )
+
+
+def render_lista_html(pessoas: List[PessoaComReap]) -> str:
+    cards = []
+    for p in pessoas:
+        cards.append(
+            f"""<details class="card">
+            <summary><span>{html.escape(p.nome)}</span><span class="cpf">{html.escape(format_cpf_masked(p.cpf))}</span></summary>
+            {_years_html(p)}
+            </details>"""
+        )
+    content = "".join(cards) if cards else "<p class='empty'>Nenhum associado cadastrado.</p>"
+    nav = '<p><a class="btn" href="/consulta">Consultar meu CPF</a></p>'
+    return _shell(
+        f"{ORG_SHORT} — Lista REAP",
+        "Lista pública de associados",
+        nav + content,
     )
 
 

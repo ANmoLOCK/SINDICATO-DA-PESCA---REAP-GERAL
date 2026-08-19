@@ -6,16 +6,6 @@ Formato: mais recente primeiro.
 
 ---
 
-## [v1.6.14] — 2026-08-19 — Remoção da lista pública e links visíveis no QR
-
-### O que entrou
-- Removida a opção de **Lista pública** da interface web do EXE
-- Site público ficou somente com **consulta por CPF** e comprovante individual
-- Removidos links/textos visíveis de URL na prévia e impressão de QR
-- Removida a página `site-publico/lista.html` para evitar exposição de quantidade de associados
-
----
-
 ## [v1.6.13] — 2026-08-19 — Impressão abre no navegador (sem erro about:)
 
 **Tag:** [`v1.6.13`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.13)  

@@ -154,6 +154,13 @@ def ensure_stable_qrs(
         title=f"{ORG_SHORT} — Consulta por CPF",
         subtitle="Site público online · digite o CPF",
     )
+    save_qr_png(
+        lista_url(base),
+        qr_dir() / "lista.png",
+        title=f"{ORG_SHORT} — Lista pública",
+        subtitle="Lista geral online · QR permanente",
+    )
+
     files = {}
     if pessoas:
         for p in pessoas:
@@ -173,6 +180,7 @@ def ensure_stable_qrs(
     manifest = {
         "base_url": base,
         "consulta": {"file": "consulta.png", "url": consulta_url(base)},
+        "lista": {"file": "lista.png", "url": lista_url(base)},
         "pessoas": files,
     }
     save_manifest(manifest)

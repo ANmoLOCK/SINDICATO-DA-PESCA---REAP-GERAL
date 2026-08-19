@@ -9,6 +9,7 @@ from sheets import PessoaComReap
 from ui.qr_vault import (
     consulta_url,
     ensure_stable_qrs,
+    lista_url,
     pessoa_url,
     preferred_public_base,
 )
@@ -42,8 +43,7 @@ def ensure_site_qrs(pessoas=None, force: bool = False) -> str:
 def urls_for(base: str, pessoa: Optional[PessoaComReap] = None) -> dict:
     out = {
         "consulta": consulta_url(base),
-        # Compatibilidade: "lista" aponta para consulta para evitar exposição da lista geral.
-        "lista": consulta_url(base),
+        "lista": lista_url(base),
     }
     if pessoa:
         out["pessoa"] = pessoa_url(base, pessoa.id)
