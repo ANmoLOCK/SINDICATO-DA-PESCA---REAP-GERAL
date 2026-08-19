@@ -3,7 +3,7 @@ Sinapesc Desktop — Controle de REAP
 ===================================
 
 Copyright (c) 2024-2026 Gabriel Lourran Da Silva Costa
-CPF 105.825.755-24 · gabriel730costa@gmail.com
+gabriel730costa@gmail.com
 Software proprietário — ver LICENSE na raiz do repositório.
 
 Ponto de entrada do programa para notebook/computador.

@@ -292,7 +292,8 @@ def test_licenca_proprietaria() -> None:
     repo = ROOT.parent
     lic = (repo / "LICENSE").read_text(encoding="utf-8")
     assert "Gabriel Lourran Da Silva Costa" in lic
-    assert "105.825.755-24" in lic
+    assert "105.825.755-24" not in lic
+    assert "10582575524" not in lic
     assert "gabriel730costa@gmail.com" in lic
     assert "PROIBI" in lic.upper() or "proibid" in lic.lower()
     assert (repo / "COPYRIGHT").exists()

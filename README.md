@@ -3,7 +3,7 @@
 **Sinapesc — Sindicato Dos Aquicultores E Pescadores De Casa Nova**
 
 > **Licença proprietária — todos os direitos reservados**  
-> **Titular:** Gabriel Lourran Da Silva Costa (CPF 105.825.755-24)  
+> **Titular:** Gabriel Lourran Da Silva Costa  
 > **Contato:** gabriel730costa@gmail.com  
 > Proibido copiar, clonar, modificar ou redistribuir este software sem autorização expressa por escrito.  
 > Ver [`LICENSE`](./LICENSE) e [`COPYRIGHT`](./COPYRIGHT).
