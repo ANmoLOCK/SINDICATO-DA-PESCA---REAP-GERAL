@@ -208,10 +208,13 @@ def test_js_tem_mes_instantaneo_e_cpf_formatado() -> None:
     assert "function formatCpf(" in js
     assert "function formatNome(" in js
     assert "function bindCpfMask(" in js
+    assert 'api("print_qr"' in js
+    assert "window.open(\"\")" not in js
     assert "000.000.000-00" in js
     api_py = (ROOT / "webapp" / "api.py").read_text(encoding="utf-8")
     assert "self._queue" in api_py
     assert "queued" in api_py
+    assert "def print_qr(" in api_py
 
 
 def test_lote_50_socios_e_ponte_json() -> None:

@@ -13,7 +13,7 @@ A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mo
 
 ## Versão
 
-**v1.6.12** — Nome sempre `Gabriel Lourran Da Silva` ao salvar (Caps Lock não altera).
+**v1.6.13** — Impressão abre no navegador (relatório + QR, sem erro `about:`).
 
 ## Requisitos (Windows)
 
@@ -39,7 +39,7 @@ Gera `dist\SinapescREAP.exe` e pasta `release\` pronta para zipar.
 
 Ou dispare o workflow [build-windows-exe.yml](../.github/workflows/build-windows-exe.yml) (branch `main` ou tag `v*`).
 
-**Download pronto:** [SinapescREAP-Windows-v1.6.12.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.12/SinapescREAP-Windows-v1.6.12.zip)
+**Download pronto:** [SinapescREAP-Windows-v1.6.13.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.13/SinapescREAP-Windows-v1.6.13.zip)
 
 ## Estrutura
 

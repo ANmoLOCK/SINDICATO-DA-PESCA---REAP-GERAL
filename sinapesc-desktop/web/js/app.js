@@ -1199,36 +1199,11 @@
         <button type="button" class="btn btn-primary" data-modal-close="ok">Fechar</button>
       </div>
     `);
-    backdrop.querySelector("#qr-print").addEventListener("click", () => {
-      printQr(r.data.image, r.data.url);
+    backdrop.querySelector("#qr-print").addEventListener("click", async () => {
+      const pr = await api("print_qr", kind, personId || "");
+      if (pr.ok) toast("QR aberto no navegador para imprimir.");
+      else toast(pr.error || "Falha ao abrir impressão do QR.");
     });
-  }
-
-  function printQr(image, url) {
-    const logoSrc = document.querySelector(".logo-img")?.src || "";
-    const w = window.open("", "_blank", "width=520,height=720");
-    if (!w) {
-      toast("Permita pop-ups para imprimir o QR.");
-      return;
-    }
-    const logoTag = logoSrc ? `<img class="logo" src="${logoSrc}" alt="SINAPESC" />` : "";
-    w.document.write(`<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="utf-8"><title>QR Sinapesc</title>
-<style>
-  body { font-family: Segoe UI, Arial, sans-serif; text-align: center; color: #0A2F52; margin: 20px; }
-  img.logo { width: 96px; height: auto; max-width: 120px; object-fit: contain; }
-  img.qr { max-width: 380px; margin: 12px 0; }
-  .url { font-size: 12px; word-break: break-all; color: #5A7388; }
-  h1 { font-size: 18px; margin: 8px 0 4px; }
-</style></head><body>
-  ${logoTag}
-  <h1>SINAPESC</h1>
-  <p>Sindicato Dos Aquicultores E Pescadores De Casa Nova</p>
-  <img class="qr" src="${image}" alt="QR" />
-  <p class="url">${esc(url)}</p>
-</body></html>`);
-    w.document.close();
-    setTimeout(() => { try { w.focus(); w.print(); } catch (_e) {} }, 250);
   }
 
   async function refreshBootstrap() {
@@ -1318,10 +1293,9 @@
       } else toast(r.error);
     });
     AppEvents.on("relatorio", (r) => {
-      if (r.ok && r.data?.html) {
-        const w = window.open("");
-        if (w) { w.document.write(r.data.html); w.document.close(); }
-        toast("Relatório aberto.");
+      if (r.ok && r.data?.path) {
+        api("open_path", r.data.path);
+        toast("Relatório aberto no navegador para imprimir.");
       } else toast(r.error);
     });
     AppEvents.on("backup", (r) => {

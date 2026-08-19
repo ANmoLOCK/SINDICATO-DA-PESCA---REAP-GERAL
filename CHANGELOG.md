@@ -6,6 +6,18 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.13] — 2026-08-19 — Impressão abre no navegador (sem erro about:)
+
+**Tag:** [`v1.6.13`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.13)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.13/SinapescREAP-Windows-v1.6.13.zip
+
+### O que entrou
+- Relatório abre arquivo HTML local no navegador padrão para imprimir
+- QR (consulta, lista e individual) gera HTML local e abre no navegador para impressão formal
+- Correção do erro de abrir `about:` pedindo aplicativo no Windows
+
+---
+
 ## [v1.6.12] — 2026-08-18 — Nome sempre com a primeira letra maiúscula
 
 **Tag:** [`v1.6.12`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.12)  

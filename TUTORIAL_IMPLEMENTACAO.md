@@ -1,11 +1,11 @@
-# Tutorial de implementação — Sinapesc REAP v1.6.12
+# Tutorial de implementação — Sinapesc REAP v1.6.13
 
 Guia para o **programa Windows** e o **site público** (consulta por CPF sem o notebook ligado).
 
-**Download do EXE:** [SinapescREAP-Windows-v1.6.12.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.12/SinapescREAP-Windows-v1.6.12.zip)  
-**Página da release:** [v1.6.12](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.12)
+**Download do EXE:** [SinapescREAP-Windows-v1.6.13.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.13/SinapescREAP-Windows-v1.6.13.zip)  
+**Página da release:** [v1.6.13](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.13)
 
-> v1.6.12: nome com primeira letra maiúscula ao salvar. Interface **web** (HTML/CSS) na janela — requer WebView2 (Edge) no Windows 10/11.
+> v1.6.13: impressão de relatório/QR abre no navegador (sem erro `about:`). Interface **web** (HTML/CSS) na janela — requer WebView2 (Edge) no Windows 10/11.
 
 Site: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 
@@ -171,8 +171,8 @@ Os QRs ficam em `qr-codes/` ao lado do `.exe` e **não mudam** enquanto a URL do
 
 | Item | Link |
 |------|------|
-| **EXE v1.6.12 (ZIP)** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.12/SinapescREAP-Windows-v1.6.12.zip |
-| **Release v1.6.12** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.12 |
+| **EXE v1.6.13 (ZIP)** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.13/SinapescREAP-Windows-v1.6.13.zip |
+| **Release v1.6.13** | https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.13 |
 | Código | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
 | API detalhada | [`sinapesc-desktop/COMO_INTEGRAR_API.md`](./sinapesc-desktop/COMO_INTEGRAR_API.md) |
 | Site público | [`site-publico/README.md`](./site-publico/README.md) |

@@ -588,6 +588,57 @@ class SinapescApi:
         except Exception as exc:  # noqa: BLE001
             return err(str(exc))
 
+    def print_qr(self, kind: str, person_id: str = "") -> Dict[str, Any]:
+        """Gera HTML local de impressão e abre no navegador padrão."""
+        base = preferred_public_base()
+        if not base:
+            return err("Site público não configurado.")
+        try:
+            if kind == "consulta":
+                url = urls_for(base)["consulta"]
+                subtitle = "Consulta por CPF"
+                slug = "consulta"
+            elif kind == "lista":
+                url = urls_for(base)["lista"]
+                subtitle = "Lista pública"
+                slug = "lista"
+            elif kind == "pessoa" and person_id:
+                pessoa = self._ensure_service(require_login=False).get_pessoa_com_reap(person_id)
+                if not pessoa:
+                    return err("Sócio não encontrado.")
+                url = urls_for(base, pessoa)["pessoa"]
+                subtitle = display_nome(pessoa.nome)
+                slug = f"pessoa-{person_id[:8]}"
+            else:
+                return err("Tipo de QR inválido.")
+
+            stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            out_dir = Path(qr_dir())
+            out_dir.mkdir(parents=True, exist_ok=True)
+            img_path = out_dir / f"qr-{slug}-{stamp}.png"
+            html_path = out_dir / f"qr-{slug}-{stamp}.html"
+            make_qr_image(url, subtitle=subtitle).save(img_path, format="PNG")
+            html_txt = f"""<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>QR Sinapesc</title>
+<style>
+  body {{ font-family: Segoe UI, Arial, sans-serif; text-align: center; color: #0A2F52; margin: 20px; }}
+  img.qr {{ max-width: 420px; margin: 12px 0; }}
+  .url {{ font-size: 12px; word-break: break-all; color: #5A7388; }}
+  h1 {{ font-size: 18px; margin: 8px 0 4px; }}
+</style></head><body onload="setTimeout(function(){{window.print();}},250)">
+  <h1>SINAPESC</h1>
+  <p>Sindicato Dos Aquicultores E Pescadores De Casa Nova</p>
+  <img class="qr" src="{img_path.name}" alt="QR" />
+  <p class="url">{url}</p>
+</body></html>"""
+            html_path.write_text(html_txt, encoding="utf-8")
+            opened = self.open_path(str(html_path))
+            if not opened.get("ok"):
+                return opened
+            return ok(data={"path": str(html_path), "image_path": str(img_path), "url": url})
+        except Exception as exc:  # noqa: BLE001
+            return err(str(exc))
+
     def open_path(self, path: str) -> Dict[str, Any]:
         p = Path(path)
         if not p.exists():

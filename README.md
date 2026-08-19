@@ -7,21 +7,21 @@ Controle de **REAP** (não é pagamento): a secretaria usa o EXE no Windows; o a
 | | |
 |--|--|
 | Repositório | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
-| Versão atual | [**v1.6.12**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.12) |
+| Versão atual | [**v1.6.13**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.13) |
 | Site (consulta) | https://anmolock.github.io/sinapesc-casanova-reap/consulta.html |
 | Planilha (leitor) | https://docs.google.com/spreadsheets/d/1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrRePft4/edit?usp=sharing |
 
 ---
 
-## Download do EXE (v1.6.12)
+## Download do EXE (v1.6.13)
 
 **Link direto (ZIP):**
 
-https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.12/SinapescREAP-Windows-v1.6.12.zip
+https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.13/SinapescREAP-Windows-v1.6.13.zip
 
-Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.12
+Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.13
 
-Versão anterior: [v1.6.11](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.11) · [v1.6.10](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.10)
+Versão anterior: [v1.6.12](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.12) · [v1.6.11](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.11)
 
 O ZIP traz `SinapescREAP.exe`, `config.json`, `LEIA-ME.txt` e tutoriais. Extraia numa pasta (ex.: `C:\Sinapesc\`) e coloque o `google-credentials.json` junto.
 
@@ -44,10 +44,11 @@ O site lê só as abas **Pessoas** e **Reap**. CPF no celular fica **mascarado**
 
 ---
 
-## O que há na v1.6.12
+## O que há na v1.6.13
 
-- **Nome formatado ao salvar:** `Gabriel Lourran Da Silva` — nunca tudo minúsculo nem tudo MAIÚSCULO, mesmo com Caps Lock
-- Inclui a v1.6.11: lote grande sem perder o preenchimento
+- **Impressão formal no navegador:** relatório e QR abrem arquivo HTML local pronto para imprimir
+- Corrige o erro de abrir `about:` pedindo para escolher aplicativo no Windows
+- Inclui a v1.6.12: nome formatado ao salvar
 
 ### Interface web (pywebview)
 - **HTML + CSS real** dentro da janela (WebView2 no Windows) — avatares circulares, pílulas, abas sublinhadas
@@ -116,7 +117,8 @@ Mesma planilha: EXE grava (Editor); site só lê (Leitor).
 
 | Versão | O que entrou | EXE |
 |--------|----------------|-----|
-| **v1.6.12** | Nome com primeira letra maiúscula ao salvar | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.12/SinapescREAP-Windows-v1.6.12.zip) |
+| **v1.6.13** | Impressão no navegador (sem `about:`) | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.13/SinapescREAP-Windows-v1.6.13.zip) |
+| v1.6.12 | Nome com primeira letra maiúscula ao salvar | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.12/SinapescREAP-Windows-v1.6.12.zip) |
 | v1.6.11 | Lote 50 sócios sem perder o preenchimento | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.11/SinapescREAP-Windows-v1.6.11.zip) |
 | v1.6.10 | Mês instantâneo, CPF `105.205.585-45`, lista sem Atualizar | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.10/SinapescREAP-Windows-v1.6.10.zip) |
 | v1.6.9 | Marca d'água, layout centralizado, escala padrão | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.9/SinapescREAP-Windows-v1.6.9.zip) |
