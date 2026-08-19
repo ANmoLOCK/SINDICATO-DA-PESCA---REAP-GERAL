@@ -10,7 +10,6 @@
     { id: "backup", label: "Backup", screen: "backup" },
     { id: "auditoria", label: "Auditoria", screen: "auditoria" },
     { id: "atalhos", label: "Config.Atalhos", screen: "atalhos" },
-    { id: "lista", label: "Lista pública", screen: "lista" },
   ];
 
   const MAR_OUT = ["mar", "abr", "mai", "jun", "jul", "ago", "set", "out"];
@@ -228,7 +227,6 @@
       backup: "backup",
       auditoria: "auditoria",
       atalhos: "atalhos",
-      lista: "lista",
     };
     return map[screen] || null;
   }
@@ -276,7 +274,6 @@
       if (state.navHistory.length) {
         headerActions.appendChild(mkBtn("← Voltar", "btn-outline", goBack));
       }
-      headerActions.appendChild(mkBtn("Lista pública", "btn-outline", () => navigate("lista", { tab: "lista" })));
       headerActions.appendChild(mkBtn("⚙ Configurações", "btn-outline", () => navigate("settings")));
       headerActions.appendChild(mkBtn("Sair", "btn-outline", doLogout));
       return;
@@ -308,7 +305,6 @@
       backup: renderBackup,
       auditoria: renderAuditoria,
       atalhos: renderAtalhos,
-      lista: renderLista,
     };
     (fns[state.screen] || renderHome)();
   }
@@ -327,15 +323,24 @@
           <button type="button" class="btn btn-primary" id="go-login">Entrar como administrador</button>
         </div>
         <div class="home-card">
-          <h3>Consulta &amp; QR</h3>
-          <p>Site público online (CPF) e QRs permanentes para imprimir na sede.</p>
-          <button type="button" class="btn btn-primary" id="go-lista">Abrir lista e QRs</button>
+          <h3>Consulta por CPF</h3>
+          <p>Apenas consulta individual por CPF (sem lista pública de associados).</p>
+          <button type="button" class="btn btn-primary" id="go-site">Abrir consulta do site</button>
         </div>
       </div>
       <div class="tip-box">Site gratuito: compartilhe a planilha como Leitor, publique site-publico/, cole a URL em Configurações e gere o QR Consulta.</div>
     `);
     $("#go-login").addEventListener("click", () => navigate("login"));
-    $("#go-lista").addEventListener("click", () => navigate("lista"));
+    $("#go-site").addEventListener("click", async () => {
+      const base = (state.bootstrap?.public_site_url || "").replace(/\/+$/, "");
+      if (!base) {
+        toast("Configure a URL do site em Configurações.");
+        return;
+      }
+      const url = `${base}/consulta.html`;
+      const r = await api("open_url", url);
+      if (!r.ok) toast(r.error || "Não foi possível abrir o navegador.");
+    });
   }
 
   function renderLogin() {
@@ -617,8 +622,7 @@
         const id = el.dataset.toggle;
         if (state.expanded.has(id)) state.expanded.delete(id);
         else state.expanded.add(id);
-        if (state.screen === "lista") renderListaCards();
-        else renderAdminList();
+        renderAdminList();
       });
     });
     if (!editable) return;
@@ -1136,49 +1140,6 @@
     });
   }
 
-  function renderLista() {
-    setPage(`
-      <div class="toolbar" style="margin-top:0">
-        <span class="page-title">Lista pública</span>
-        <div class="btn-row" style="margin-left:auto">
-          <button type="button" class="btn btn-outline-dark btn-sm" id="qr-consulta">QR Consulta CPF</button>
-          <button type="button" class="btn btn-primary btn-sm" id="qr-lista">QR Lista</button>
-          <button type="button" class="btn btn-outline-dark btn-sm" id="qr-pasta">Pasta QRs</button>
-        </div>
-      </div>
-      <p class="page-sub">Consulta online — CPF mascarado no celular.</p>
-      <div class="toolbar">
-        <div class="search-wrap">
-          <span class="search-icon">⌕</span>
-          <input type="search" id="lista-search" placeholder="Buscar por nome ou CPF" value="${esc(state.search)}" />
-        </div>
-      </div>
-      <div id="lista-cards"></div>
-    `);
-    $("#qr-consulta").addEventListener("click", () => showQr("consulta"));
-    $("#qr-lista").addEventListener("click", () => showQr("lista"));
-    $("#qr-pasta").addEventListener("click", () => api("open_path", state.bootstrap?.qr_dir || ""));
-    $("#lista-search").addEventListener("input", (e) => {
-      state.search = e.target.value;
-      renderListaCards();
-    });
-    if (!state.pessoas.length) loadPessoas();
-    else renderListaCards();
-  }
-
-  function renderListaCards() {
-    const list = $("#lista-cards");
-    if (!list) return;
-    const pessoas = filteredPessoas();
-    if (!pessoas.length) {
-      list.innerHTML = `<div class="empty-msg">${state.pessoas.length ? "Nenhum sócio encontrado." : "Carregando…"}</div>`;
-      if (!state.pessoas.length) loadPessoas();
-      return;
-    }
-    list.innerHTML = pessoas.map((p) => pessoaCardHtml({ ...p, cpf: maskCpf(p.cpf_raw) }, false)).join("");
-    bindPessoaCards(list, false);
-  }
-
   function maskCpf(raw) {
     const d = String(raw || "").replace(/\D/g, "");
     if (d.length !== 11) return d;
@@ -1192,7 +1153,6 @@
       <div class="modal-head">QR Code</div>
       <div class="modal-body qr-preview">
         <img id="qr-img" src="${r.data.image}" alt="QR" />
-        <div class="qr-url">${esc(r.data.url)}</div>
       </div>
       <div class="modal-foot">
         <button type="button" class="btn btn-outline-dark" id="qr-print">Imprimir</button>
@@ -1223,7 +1183,6 @@
         state.connLabel = "Conectado";
         setFooter();
         if (state.screen === "admin") renderAdminList();
-        if (state.screen === "lista") renderListaCards();
       } else toast(r.error);
     });
     AppEvents.on("pessoa_saved", (r) => {
