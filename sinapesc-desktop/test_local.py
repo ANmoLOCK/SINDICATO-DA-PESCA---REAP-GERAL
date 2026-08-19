@@ -303,7 +303,10 @@ def test_licenca_proprietaria() -> None:
     assert "footer-user" in html
     assert "footer-conn" in html
     assert "legal-bar" not in html
-    assert (repo / "site-publico" / "js" / "legal.js").exists()
+    consulta = (repo / "site-publico" / "consulta.html").read_text(encoding="utf-8")
+    assert "footer-copy" in consulta
+    assert "© todos os direitos reservados - 2026 - Gabriel" in consulta
+    assert "legal.js" not in consulta
     assert (repo / "docs" / "DIREITOS-AUTORAIS.md").exists()
     assert "prazo indeterminado" in lic.lower() or "indeterminado" in lic.lower()
     assert "permanece de propriedade do autor" in lic.lower() or "propriedade do autor" in lic.lower()
