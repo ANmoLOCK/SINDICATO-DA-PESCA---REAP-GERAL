@@ -29,12 +29,7 @@
     connLabel: "",
     sortMode: (typeof localStorage !== "undefined" && localStorage.getItem("sinapesc_sort")) || "recent",
     loteBackdrop: null,
-    autoSyncSilent: false,
   };
-
-  /** Sync automático com a planilha (sócios + contador da Auditoria). */
-  const AUTO_SYNC_MS = 8 * 60 * 1000;
-  let autoSyncTimer = null;
 
   const $ = (sel) => document.querySelector(sel);
   const content = $("#content");
@@ -210,7 +205,13 @@
     return [...root.querySelectorAll(`.${className}:checked`)].map((c) => c.value);
   }
 
+  function isSecretariaScreen(screen) {
+    return !["home", "login", "settings"].includes(screen || "");
+  }
+
   function navigate(screen, { push = true, tab = null } = {}) {
+    const leavingSecretaria =
+      state.loggedIn && isSecretariaScreen(state.screen) && !isSecretariaScreen(screen);
     if (push && state.screen && state.screen !== screen) {
       state.navHistory.push(state.screen);
     }
@@ -218,6 +219,8 @@
     renderTabs(tab);
     renderHeader();
     renderScreen();
+    // Ao sair da secretaria, puxa a planilha fresca do Google (contador e REAP).
+    if (leavingSecretaria) loadPessoas();
   }
 
   function goBack() {
@@ -299,6 +302,7 @@
     state.expanded.clear();
     state.connLabel = "";
     setFooter();
+    loadPessoas();
     navigate("home", { push: false });
   }
 
@@ -699,7 +703,7 @@
       const pessoa = state.pessoas.find((x) => x.id === pid);
       if (pessoa) {
         pessoa.ultimo_toggle_label = "agora";
-        pessoa.ultimo_toggle_em = new Date().toISOString().slice(0, 19).replace("T", " ");
+        pessoa.ultimo_toggle_em = nowLocalStamp();
         if (state.screen === "admin") renderAdminList();
       }
       api("toggle_mes", pid, parseInt(ano, 10), mes, wantOn).then((r) => {
@@ -908,48 +912,14 @@
     });
   }
 
-  function loadPessoas(silent) {
-    state.autoSyncSilent = !!silent;
-    api("load_pessoas", !!silent);
+  function nowLocalStamp() {
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
   }
 
-  function startAutoSync() {
-    if (autoSyncTimer) return;
-    autoSyncTimer = setInterval(tickAutoSync, AUTO_SYNC_MS);
-  }
-
-  function tickAutoSync() {
-    if (!state.bootstrap || !state.bootstrap.configured) return;
-    if (state.loteBackdrop) return;
-    if (modalRoot && modalRoot.children.length) return;
-    // Só sincroniza quando a lista já foi usada ou o admin está logado.
-    if (!state.loggedIn && !state.pessoas.length) return;
-
-    loadPessoas(true);
-    if (state.screen === "pendencias") {
-      const anoEl = $("#pend-ano");
-      if (anoEl) api("load_pendencias", parseInt(anoEl.value, 10));
-    } else if (state.screen === "auditoria") {
-      api("load_auditoria");
-    }
-  }
-
-  function mergePessoasFromSheet(incoming) {
-    const prev = new Map((state.pessoas || []).map((p) => [p.id, p]));
-    return (incoming || []).map((p, i) => {
-      const old = prev.get(p.id);
-      let next = { ...p, _idx: i };
-      // Não apaga o "agora" local se a planilha ainda não refletiu o toggle.
-      if (old && old.ultimo_toggle_label === "agora" && old.ultimo_toggle_em) {
-        const sheetEm = String(p.ultimo_toggle_em || "");
-        const localEm = String(old.ultimo_toggle_em || "");
-        if (!sheetEm || sheetEm < localEm) {
-          next.ultimo_toggle_label = "agora";
-          next.ultimo_toggle_em = localEm;
-        }
-      }
-      return next;
-    });
+  function loadPessoas() {
+    api("load_pessoas");
   }
 
   function renderPendencias() {
@@ -1324,17 +1294,14 @@
   function wireEvents() {
     AppEvents.on("status", (p) => setStatus(p.msg));
     AppEvents.on("pessoas", (r) => {
-      const wasSilent = state.autoSyncSilent;
-      state.autoSyncSilent = false;
       if (r.ok) {
-        state.pessoas = mergePessoasFromSheet(r.data || []);
+        // Sempre confia na planilha (evita contador preso em "agora").
+        state.pessoas = (r.data || []).map((p, i) => ({ ...p, _idx: i }));
         state.connLabel = "Conectado";
         setFooter();
         if (state.screen === "admin") renderAdminList();
         if (state.screen === "lista") renderListaCards();
-      } else if (!wasSilent) {
-        toast(r.error);
-      }
+      } else toast(r.error);
     });
     AppEvents.on("pessoa_saved", (r) => {
       if (r.ok) { toast("Salvo."); loadPessoas(); }
@@ -1350,7 +1317,7 @@
         const p = state.pessoas.find((x) => x.id === r.data.person_id);
         if (p) {
           p.ultimo_toggle_label = "agora";
-          p.ultimo_toggle_em = new Date().toISOString().slice(0, 19).replace("T", " ");
+          p.ultimo_toggle_em = nowLocalStamp();
           if (state.screen === "admin") renderAdminList();
           if (state.screen === "lista") renderListaCards();
         }
@@ -1446,7 +1413,6 @@
   async function init() {
     wireEvents();
     await refreshBootstrap();
-    startAutoSync();
     $("#app").classList.remove("hidden");
     navigate("home", { push: false });
   }

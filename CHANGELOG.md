@@ -6,6 +6,18 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.21] — 2026-08-21 — Contador respeita a planilha + sem sync auto
+
+**Tag:** [`v1.6.21`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.21)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.21/SinapescREAP-Windows-v1.6.21.zip
+
+### O que entrou
+- Corrige bug do contador preso em **agora** após ↻ Atualizar
+- Remove atualização automática periódica
+- Ao sair da secretaria, recarrega sócios/contador da planilha Google
+
+---
+
 ## [v1.6.20] — 2026-08-21 — Sync automático a cada 8 minutos
 
 **Tag:** [`v1.6.20`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.20)  

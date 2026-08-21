@@ -11,21 +11,21 @@ Controle de **REAP** (não é pagamento): a secretaria usa o EXE no Windows; o a
 | | |
 |--|--|
 | Repositório | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
-| Versão atual | [**v1.6.20**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.20) |
+| Versão atual | [**v1.6.21**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.21) |
 | Site (consulta) | https://anmolock.github.io/sinapesc-casanova-reap/consulta.html |
 | Planilha (leitor) | https://docs.google.com/spreadsheets/d/1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrRePft4/edit?usp=sharing |
 
 ---
 
-## Download do EXE (v1.6.20)
+## Download do EXE (v1.6.21)
 
 **Link direto (ZIP):**
 
-https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.20/SinapescREAP-Windows-v1.6.20.zip
+https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.21/SinapescREAP-Windows-v1.6.21.zip
 
-Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.20
+Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.21
 
-Versão anterior: [v1.6.19](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.19) · [v1.6.18](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.18) · [v1.6.17](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.17)
+Versão anterior: [v1.6.20](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.20) · [v1.6.19](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.19) · [v1.6.18](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.18)
 
 O ZIP traz `SinapescREAP.exe`, `config.json`, `LEIA-ME.txt` e tutoriais. Extraia numa pasta (ex.: `C:\Sinapesc\`) e coloque o `google-credentials.json` junto.
 
@@ -46,6 +46,12 @@ https://anmolock.github.io/sinapesc-casanova-reap
 O site lê só as abas **Pessoas** e **Reap**. CPF no celular fica **mascarado**.
 
 ---
+
+## O que há na v1.6.21
+
+- Corrige contador preso em **agora** (↻ Atualizar passa a respeitar a planilha)
+- Remove sync automático (8 min)
+- Ao sair da secretaria (home / config / sair), puxa a planilha atualizada do Google
 
 ## O que há na v1.6.20
 
@@ -147,6 +153,7 @@ Mesma planilha: EXE grava (Editor); site só lê (Leitor).
 
 | Versão | O que entrou | EXE |
 |--------|----------------|-----|
+| **v1.6.21** | Fix contador “agora” + remove sync auto; refresh ao sair | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.21/SinapescREAP-Windows-v1.6.21.zip) |
 | **v1.6.20** | Sync automático da planilha a cada 8 min | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.20/SinapescREAP-Windows-v1.6.20.zip) |
 | **v1.6.19** | Sync automático da planilha a cada 3 min | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.19/SinapescREAP-Windows-v1.6.19.zip) |
 | **v1.6.18** | Filtro 30d/1ano + contador instantâneo; sem legenda | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.18/SinapescREAP-Windows-v1.6.18.zip) |

@@ -252,15 +252,14 @@ class SinapescApi:
 
     # ---- sócios ----------------------------------------------------------
 
-    def load_pessoas(self, silent: bool = False) -> Dict[str, Any]:
+    def load_pessoas(self) -> Dict[str, Any]:
         def work():
             svc = self._ensure_service(require_login=False)
             ultimo = _ultimo_toggle_map(svc)
             pessoas = svc.get_all_pessoas_com_reap()
             return [pessoa_to_dict(p, ultimo_toggle=ultimo.get(p.id)) for p in pessoas]
 
-        busy = "Sincronizando…" if silent else "Carregando sócios…"
-        return self._run_async("pessoas", work, busy)
+        return self._run_async("pessoas", work, "Carregando sócios…")
 
     def save_pessoa(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         nome = format_nome(str(payload.get("nome") or ""))
