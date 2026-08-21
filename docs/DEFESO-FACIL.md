@@ -32,11 +32,20 @@ https://drive.google.com/drive/folders/ ESTE_E_O_ID
 
 ### Compartilhar (obrigatório)
 
-1. Planilha Defeso → Compartilhar com o `client_email` do JSON → **Editor**
-2. Pasta `Sinapesc-Defeso` → Compartilhar com o mesmo e-mail → **Editor**
-3. Google Cloud: **Google Drive API** ativada (além da Sheets)
+1. Planilha **REAP** (`spreadsheet_id`) → Compartilhar com o `client_email` → **Editor**
+2. Planilha **Defeso** `1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf` → mesmo `client_email` → **Editor**
+3. Pasta `Sinapesc-Defeso` → mesmo e-mail → **Editor**
+4. Google Cloud: **Sheets API** + **Drive API** ativadas
+
+Use só o ID limpo (sem `?hl=pt-br`):
+
+```text
+1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf
+```
 
 O EXE cria a aba **Defeso** sozinho na primeira abertura do módulo.
+
+Se a planilha Defeso não estiver compartilhada, a partir da **v1.7.1** a lista de CPFs do REAP ainda abre (com aviso).
 
 ## Fluxo
 

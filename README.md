@@ -11,21 +11,21 @@ Controle de **REAP** (não é pagamento): a secretaria usa o EXE no Windows; o a
 | | |
 |--|--|
 | Repositório | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
-| Versão atual | [**v1.7.0**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.0) |
+| Versão atual | [**v1.7.1**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.1) |
 | Site (consulta) | https://anmolock.github.io/sinapesc-casanova-reap/consulta.html |
 | Planilha (leitor) | https://docs.google.com/spreadsheets/d/1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrRePft4/edit?usp=sharing |
 
 ---
 
-## Download do EXE (v1.7.0)
+## Download do EXE (v1.7.1)
 
 **Link direto (ZIP):**
 
-https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.0/SinapescREAP-Windows-v1.7.0.zip
+https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.1/SinapescREAP-Windows-v1.7.1.zip
 
-Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.0
+Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.1
 
-Versão anterior: [v1.6.21](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.21) · [v1.6.20](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.20)
+Versão anterior: [v1.7.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.0) · [v1.6.21](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.21)
 
 Guia Defeso: [`docs/DEFESO-FACIL.md`](./docs/DEFESO-FACIL.md)
 
@@ -48,6 +48,12 @@ https://anmolock.github.io/sinapesc-casanova-reap
 O site lê só as abas **Pessoas** e **Reap**. CPF no celular fica **mascarado**.
 
 ---
+
+## O que há na v1.7.1
+
+- Corrige erro ao abrir Defeso Fácil: lista de CPFs do REAP não cai mais se a planilha Defeso falhar
+- Mensagem clara se REAP ou Defeso estiver sem permissão / ID inválido
+- Aceita ID com `?hl=pt-br` ou URL completa
 
 ## O que há na v1.7.0
 
@@ -161,6 +167,7 @@ Mesma planilha: EXE grava (Editor); site só lê (Leitor).
 
 | Versão | O que entrou | EXE |
 |--------|----------------|-----|
+| **v1.7.1** | Fix lista Defeso (CPFs REAP isolados + ID limpo) | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.1/SinapescREAP-Windows-v1.7.1.zip) |
 | **v1.7.0** | Defeso Fácil (ficha, declaração, anexos Drive) | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.0/SinapescREAP-Windows-v1.7.0.zip) |
 | **v1.6.21** | Fix contador “agora” + remove sync auto; refresh ao sair | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.21/SinapescREAP-Windows-v1.6.21.zip) |
 | **v1.6.20** | Sync automático da planilha a cada 8 min | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.20/SinapescREAP-Windows-v1.6.20.zip) |

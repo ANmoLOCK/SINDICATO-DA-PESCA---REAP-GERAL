@@ -13,7 +13,7 @@ from controle.defeso import (
     row_to_ficha,
     validar_ficha,
 )
-from sheets.client import GoogleSheetsClient, SheetsConfigError
+from sheets.client import GoogleSheetsClient, SheetsConfigError, normalize_sheet_id
 from ui.formatters import only_digits
 
 
@@ -24,7 +24,9 @@ class DefesoService:
 
     @classmethod
     def from_config(cls, cfg: dict) -> "DefesoService":
-        sid = str(cfg.get("defeso_spreadsheet_id") or cfg.get("spreadsheet_id") or "").strip()
+        sid = normalize_sheet_id(
+            str(cfg.get("defeso_spreadsheet_id") or cfg.get("spreadsheet_id") or "")
+        )
         if not sid:
             raise SheetsConfigError(
                 "Configure o ID da planilha Defeso (defeso_spreadsheet_id) em config.json."

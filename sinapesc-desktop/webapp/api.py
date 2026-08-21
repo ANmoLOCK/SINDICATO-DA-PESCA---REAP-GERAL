@@ -22,6 +22,7 @@ from controle.pendencias import classificar
 from controle.relatorio import itens_para_relatorio, montar_html, nome_arquivo_relatorio, salvar_html
 from drive import DriveDefesoClient
 from sheets import MESES, MESES_LABEL, MesKey, SheetsConfigError, SheetsService
+from sheets.client import normalize_sheet_id
 from sheets.defeso_service import DefesoService
 from ui.formatters import display_nome, format_cpf, format_nome, only_digits, parse_lote_lines
 from ui.public_link import ensure_site_qrs, urls_for
@@ -130,11 +131,15 @@ class SinapescApi:
     def save_settings(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         cfg = load_config()
         if "spreadsheet_id" in payload:
-            cfg["spreadsheet_id"] = str(payload.get("spreadsheet_id") or "").strip()
+            cfg["spreadsheet_id"] = normalize_sheet_id(str(payload.get("spreadsheet_id") or ""))
         if "defeso_spreadsheet_id" in payload:
-            cfg["defeso_spreadsheet_id"] = str(payload.get("defeso_spreadsheet_id") or "").strip()
+            cfg["defeso_spreadsheet_id"] = normalize_sheet_id(
+                str(payload.get("defeso_spreadsheet_id") or "")
+            )
         if "defeso_drive_folder_id" in payload:
-            cfg["defeso_drive_folder_id"] = str(payload.get("defeso_drive_folder_id") or "").strip()
+            cfg["defeso_drive_folder_id"] = normalize_sheet_id(
+                str(payload.get("defeso_drive_folder_id") or "")
+            )
         if "public_site_url" in payload:
             base = normalize_public_base(str(payload.get("public_site_url") or ""))
             cfg["public_site_url"] = base
@@ -689,14 +694,33 @@ class SinapescApi:
 
     def load_defeso_lista(self) -> Dict[str, Any]:
         def work():
-            reap = self._ensure_service()
-            defeso = self._ensure_defeso()
-            pessoas = reap.get_all_pessoas()
-            fichas = {only_digits(f.cpf): f for f in defeso.listar() if only_digits(f.cpf)}
+            # 1) REAP (CPFs) — obrigatório e isolado
+            try:
+                reap = self._ensure_service()
+                pessoas = reap.get_all_pessoas()
+            except Exception as exc:  # noqa: BLE001
+                raise ValueError(
+                    "Não foi possível ler a planilha REAP (sócios/CPF). "
+                    f"Confira spreadsheet_id e o compartilhamento com o client_email. Detalhe: {exc}"
+                ) from exc
+
+            # 2) Planilha Defeso — opcional para montar a lista (não bloqueia os CPFs)
+            fichas: Dict[str, Any] = {}
+            defeso_aviso = ""
+            try:
+                defeso = self._ensure_defeso()
+                fichas = {only_digits(f.cpf): f for f in defeso.listar() if only_digits(f.cpf)}
+            except Exception as exc:  # noqa: BLE001
+                defeso_aviso = (
+                    "Lista de CPFs do REAP ok, mas a planilha Defeso falhou. "
+                    "Compartilhe a planilha Defeso com o client_email (Editor) e confira "
+                    f"defeso_spreadsheet_id. Detalhe: {exc}"
+                )
+
             rows = []
             for p in pessoas:
                 cpf = only_digits(p.cpf)
-                f = fichas.pop(cpf, None)
+                f = fichas.pop(cpf, None) if fichas else None
                 rows.append(
                     {
                         "person_id": p.id,
@@ -736,8 +760,13 @@ class SinapescApi:
             cfg = load_config()
             return {
                 "itens": rows,
-                "defeso_spreadsheet_id": str(cfg.get("defeso_spreadsheet_id") or ""),
-                "drive_ok": bool(str(cfg.get("defeso_drive_folder_id") or "").strip()),
+                "defeso_spreadsheet_id": normalize_sheet_id(
+                    str(cfg.get("defeso_spreadsheet_id") or "")
+                ),
+                "drive_ok": bool(
+                    normalize_sheet_id(str(cfg.get("defeso_drive_folder_id") or ""))
+                ),
+                "aviso": defeso_aviso,
             }
 
         return self._run_async("defeso_lista", work, "Carregando Defeso Fácil…")

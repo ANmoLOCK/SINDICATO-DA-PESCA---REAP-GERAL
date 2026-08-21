@@ -100,10 +100,12 @@ class SheetsService:
           - service_account_email + private_key
         """
         credentials_json = cfg.get("credentials_json")
+        from sheets.client import normalize_sheet_id
+
         client = GoogleSheetsClient(
             service_account_email=cfg.get("service_account_email", ""),
             private_key=cfg.get("private_key", ""),
-            spreadsheet_id=cfg.get("spreadsheet_id", ""),
+            spreadsheet_id=normalize_sheet_id(cfg.get("spreadsheet_id", "")),
             credentials_info=credentials_json if isinstance(credentials_json, dict) else None,
         )
         return cls(client)

@@ -1684,6 +1684,7 @@
       if (r.ok) {
         state.defesoItens = r.data?.itens || [];
         if (state.screen === "defeso") paintDefesoLista();
+        if (r.data?.aviso) toast(r.data.aviso, 6000);
       } else toast(r.error);
     });
     AppEvents.on("defeso_ficha", (r) => {

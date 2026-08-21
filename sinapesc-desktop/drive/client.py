@@ -10,7 +10,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaInMemoryUpload
 
-from sheets.client import SCOPES, SheetsConfigError
+from sheets.client import DRIVE_SCOPES, SheetsConfigError
 from ui.formatters import only_digits
 
 
@@ -24,23 +24,30 @@ ANEXO_NOMES = {
 
 class DriveDefesoClient:
     def __init__(self, credentials_info: dict, *, parent_folder_id: str) -> None:
-        if not parent_folder_id:
+        folder = normalize_folder_id(parent_folder_id)
+        if not folder:
             raise SheetsConfigError(
                 "Configure defeso_drive_folder_id no config.json (pasta Sinapesc-Defeso)."
             )
         if not isinstance(credentials_info, dict):
             raise SheetsConfigError("Credenciais Google não configuradas.")
         creds = service_account.Credentials.from_service_account_info(
-            credentials_info, scopes=SCOPES
+            credentials_info, scopes=DRIVE_SCOPES
         )
         self._drive = build("drive", "v3", credentials=creds, cache_discovery=False)
-        self.parent_folder_id = parent_folder_id.strip()
+        self.parent_folder_id = folder
 
     @classmethod
     def from_config(cls, cfg: dict) -> "DriveDefesoClient":
         folder = str(cfg.get("defeso_drive_folder_id") or "").strip()
         creds = cfg.get("credentials_json")
         return cls(creds if isinstance(creds, dict) else {}, parent_folder_id=folder)
+
+
+def normalize_folder_id(value: str) -> str:
+    from sheets.client import normalize_sheet_id
+
+    return normalize_sheet_id(value)
 
     def _find_child_folder(self, parent_id: str, name: str) -> Optional[str]:
         safe = name.replace("'", "\\'")

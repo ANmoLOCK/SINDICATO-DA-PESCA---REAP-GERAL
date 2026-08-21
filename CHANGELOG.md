@@ -6,6 +6,18 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.7.1] — 2026-08-21 — Fix lista Defeso / CPFs REAP
+
+**Tag:** [`v1.7.1`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.1)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.1/SinapescREAP-Windows-v1.7.1.zip
+
+### O que entrou
+- Leitura REAP (CPFs) isolada da planilha Defeso — falha no Defeso não zera a lista
+- Aviso claro na tela se faltar compartilhar a planilha Defeso
+- Normaliza ID (`?hl=pt-br`, URL completa)
+
+---
+
 ## [v1.7.0] — 2026-08-21 — Defeso Fácil
 
 **Tag:** [`v1.7.0`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.0)  

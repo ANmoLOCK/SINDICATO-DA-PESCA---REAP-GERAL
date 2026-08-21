@@ -49,11 +49,31 @@ from googleapiclient.discovery import build
 
 from .models import MESES
 
-# Escopo: planilhas + Drive (anexos Defeso Fácil).
-SCOPES = [
+# Escopo mínimo das planilhas (Drive fica só no cliente Drive).
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+DRIVE_SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
 ]
+
+
+def normalize_sheet_id(value: str) -> str:
+    """Aceita ID puro ou URL completa do Google Sheets/Drive."""
+    raw = (value or "").strip()
+    if not raw:
+        return ""
+    # remove query/hash
+    raw = raw.split("?", 1)[0].split("#", 1)[0].strip()
+    # URL /d/<id>/
+    if "/d/" in raw:
+        raw = raw.split("/d/", 1)[1]
+        raw = raw.split("/", 1)[0]
+    # URL /folders/<id>
+    if "/folders/" in raw:
+        raw = raw.split("/folders/", 1)[1]
+        raw = raw.split("/", 1)[0]
+    return raw.strip()
+
 
 PESSOAS_TAB = "Pessoas"
 REAP_TAB = "Reap"
@@ -100,7 +120,9 @@ class GoogleSheetsClient:
         if not spreadsheet_id:
             raise SheetsConfigError("GOOGLE_SHEET_ID (ID da planilha) não informado.")
 
-        self.spreadsheet_id = spreadsheet_id.strip()
+        self.spreadsheet_id = normalize_sheet_id(spreadsheet_id)
+        if not self.spreadsheet_id:
+            raise SheetsConfigError("ID da planilha inválido.")
         self._service = None
         self._tabs_ready = False
 

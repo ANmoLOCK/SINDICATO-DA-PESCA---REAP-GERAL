@@ -378,6 +378,26 @@ def test_defeso_ficha_e_html() -> None:
     assert validar_ficha(FichaDefeso(nome="", cpf="123")) == "Informe o nome completo."
 
 
+def test_normalize_sheet_id() -> None:
+    from sheets.client import normalize_sheet_id
+
+    assert normalize_sheet_id("1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf") == "1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf"
+    assert (
+        normalize_sheet_id("1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf?hl=pt-br")
+        == "1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf"
+    )
+    assert (
+        normalize_sheet_id(
+            "https://docs.google.com/spreadsheets/d/1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf/edit#gid=0"
+        )
+        == "1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf"
+    )
+    assert (
+        normalize_sheet_id("https://drive.google.com/drive/folders/abc123XYZ/view")
+        == "abc123XYZ"
+    )
+
+
 if __name__ == "__main__":
     test_formatters()
     test_display_nome()
@@ -388,6 +408,7 @@ if __name__ == "__main__":
     test_auditoria_parse()
     test_relatorio_mostra_cpf_completo()
     test_defeso_ficha_e_html()
+    test_normalize_sheet_id()
     test_backup_rotacao()
     test_chrome_routes()
     test_brand_assets()
