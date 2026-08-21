@@ -6,6 +6,17 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.20] — 2026-08-21 — Sync automático a cada 8 minutos
+
+**Tag:** [`v1.6.20`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.20)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.20/SinapescREAP-Windows-v1.6.20.zip
+
+### O que entrou
+- Intervalo de sync automático alterado de **3 minutos** para **8 minutos**
+- Menos uso da API Sheets; outros admins veem contadores em até ~8 min
+
+---
+
 ## [v1.6.19] — 2026-08-21 — Sync automático a cada 3 minutos
 
 **Tag:** [`v1.6.19`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.19)  

@@ -33,7 +33,7 @@
   };
 
   /** Sync automático com a planilha (sócios + contador da Auditoria). */
-  const AUTO_SYNC_MS = 3 * 60 * 1000;
+  const AUTO_SYNC_MS = 8 * 60 * 1000;
   let autoSyncTimer = null;
 
   const $ = (sel) => document.querySelector(sel);
