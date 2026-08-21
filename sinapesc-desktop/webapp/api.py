@@ -18,6 +18,12 @@ from controle.auditoria import combina_busca
 from controle.backup import backup_root, gravar_backup, listar_backups
 from controle.calendario import meses_para_texto
 from controle.defeso import montar_declaracao_html, salvar_declaracao_html
+from controle.defeso_anexos import (
+    is_storage_quota_error,
+    listar_anexos_local,
+    pasta_anexos_root,
+    salvar_anexo_local,
+)
 from controle.pendencias import classificar
 from controle.relatorio import itens_para_relatorio, montar_html, nome_arquivo_relatorio, salvar_html
 from drive import DriveDefesoClient
@@ -834,14 +840,31 @@ class SinapescApi:
             anexos: List[Dict[str, str]] = []
             drive_ok = False
             cfg = load_config()
+            # Sempre lista anexos locais
+            try:
+                anexos.extend(listar_anexos_local(str(base["cpf"])))
+            except Exception:
+                pass
             if str(cfg.get("defeso_drive_folder_id") or "").strip():
                 drive_ok = True
                 try:
-                    anexos = DriveDefesoClient.from_config(cfg).listar_anexos(str(base["cpf"]))
+                    anexos.extend(
+                        DriveDefesoClient.from_config(cfg).listar_anexos(str(base["cpf"]))
+                    )
                 except Exception:
-                    anexos = []
-            base["anexos"] = anexos
+                    pass
+            # dedupe by name (local first)
+            seen = set()
+            uniq = []
+            for a in anexos:
+                key = str(a.get("name") or "")
+                if key in seen:
+                    continue
+                seen.add(key)
+                uniq.append(a)
+            base["anexos"] = uniq
             base["drive_ok"] = drive_ok
+            base["anexos_local_root"] = str(pasta_anexos_root())
             return base
 
         return self._run_async("defeso_ficha", work, "Abrindo ficha Defeso…")
@@ -888,26 +911,68 @@ class SinapescApi:
     ) -> Dict[str, Any]:
         def work():
             cfg = load_config()
-            if not str(cfg.get("defeso_drive_folder_id") or "").strip():
-                raise ValueError(
-                    "Configure defeso_drive_folder_id no config.json (ID da pasta no Drive)."
-                )
             defeso = self._ensure_defeso()
             ficha = defeso.por_id(ficha_id)
             if not ficha:
                 raise ValueError("Salve a ficha antes de anexar documentos.")
-            drive = DriveDefesoClient.from_config(cfg)
-            up = drive.upload_base64(
-                cpf=ficha.cpf,
-                kind=kind,
-                filename=filename,
-                data_b64=data_b64,
-                mime=mime,
-            )
+
+            folder_cfg = str(cfg.get("defeso_drive_folder_id") or "").strip()
+            aviso = ""
+            up: Dict[str, Any]
+
+            # Conta de serviço NÃO tem cota no "Meu Drive".
+            # Tentamos Drive; se der storageQuotaExceeded, salvamos local.
+            if folder_cfg:
+                try:
+                    drive = DriveDefesoClient.from_config(cfg)
+                    up = drive.upload_base64(
+                        cpf=ficha.cpf,
+                        kind=kind,
+                        filename=filename,
+                        data_b64=data_b64,
+                        mime=mime,
+                    )
+                    up["where"] = "drive"
+                except Exception as exc:  # noqa: BLE001
+                    if is_storage_quota_error(exc):
+                        up = salvar_anexo_local(
+                            cpf=ficha.cpf,
+                            kind=kind,
+                            filename=filename,
+                            data_b64=data_b64,
+                            mime=mime,
+                        )
+                        aviso = (
+                            "O Google bloqueou o upload: conta de serviço não tem cota no Meu Drive. "
+                            "Arquivo salvo na pasta local do EXE. "
+                            "Para ir ao Drive na nuvem, use um Drive compartilhado (Shared Drive) "
+                            "e coloque a pasta Defeso lá, com o robô como membro."
+                        )
+                    else:
+                        # Outro erro de Drive → ainda salva local para não perder o anexo
+                        up = salvar_anexo_local(
+                            cpf=ficha.cpf,
+                            kind=kind,
+                            filename=filename,
+                            data_b64=data_b64,
+                            mime=mime,
+                        )
+                        aviso = f"Drive falhou ({exc}). Anexo guardado localmente."
+            else:
+                up = salvar_anexo_local(
+                    cpf=ficha.cpf,
+                    kind=kind,
+                    filename=filename,
+                    data_b64=data_b64,
+                    mime=mime,
+                )
+                aviso = "Anexo salvo localmente (defeso_drive_folder_id não configurado)."
+
             defeso.marcar_anexo(ficha.id, kind, True)
+            up["aviso"] = aviso
             return up
 
-        return self._run_async("defeso_anexo", work, "Enviando anexo ao Drive…")
+        return self._run_async("defeso_anexo", work, "Enviando anexo…")
 
     def quit_app(self) -> Dict[str, Any]:
         if webview:

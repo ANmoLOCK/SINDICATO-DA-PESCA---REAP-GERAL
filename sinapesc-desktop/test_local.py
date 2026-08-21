@@ -407,6 +407,34 @@ def test_drive_client_tem_upload() -> None:
     assert normalize_folder_id("abc?hl=pt-br") == "abc"
 
 
+def test_defeso_anexo_local() -> None:
+    from controle.defeso_anexos import (
+        is_storage_quota_error,
+        listar_anexos_local,
+        salvar_anexo_local,
+    )
+
+    raw = b"%PDF-1.4 test"
+    import base64
+
+    b64 = base64.b64encode(raw).decode("ascii")
+    up = salvar_anexo_local(
+        cpf="10582575524",
+        kind="identidade",
+        filename="rg.pdf",
+        data_b64=b64,
+        mime="application/pdf",
+    )
+    assert up["where"] == "local"
+    assert up["name"] == "identidade.pdf"
+    assert Path(up["path"]).exists()
+    listed = listar_anexos_local("10582575524")
+    assert any(x["name"] == "identidade.pdf" for x in listed)
+    assert is_storage_quota_error(
+        Exception("Service Accounts do not have storage quota. storageQuotaExceeded")
+    )
+
+
 if __name__ == "__main__":
     test_formatters()
     test_display_nome()
@@ -419,6 +447,7 @@ if __name__ == "__main__":
     test_defeso_ficha_e_html()
     test_normalize_sheet_id()
     test_drive_client_tem_upload()
+    test_defeso_anexo_local()
     test_backup_rotacao()
     test_chrome_routes()
     test_brand_assets()

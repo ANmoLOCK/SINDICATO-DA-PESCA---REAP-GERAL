@@ -15,38 +15,51 @@ Na pasta do EXE (`C:\Sinapesc\config.json`), use (ou complete) assim:
 }
 ```
 
-### Campos novos
+### Campos
 
 | Campo | O que é |
 |-------|---------|
-| `defeso_spreadsheet_id` | Planilha Defeso (já definida): `1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf` |
-| `defeso_drive_folder_id` | ID da pasta `Sinapesc-Defeso` no Drive (anexos). Sem isso, ficha/impressão funcionam; anexos não. |
+| `defeso_spreadsheet_id` | Planilha Defeso (dados da ficha) |
+| `defeso_drive_folder_id` | Pasta no Drive para anexos (opcional). Sem isso, anexos vão para pasta **local** do EXE |
 
-### Como pegar o ID da pasta Drive
+---
 
-URL da pasta:
+## Por que o Drive deu erro 403 (storage quota)?
+
+A Conta de Serviço (**robô**) **não tem espaço** no “Meu Drive” pessoal.
+
+Compartilhar uma pasta do Meu Drive com o robô **não resolve** upload de arquivo — o Google ainda usa a cota do robô (zero).
+
+### Opções
+
+**A) Usar pasta local (já funciona na v1.7.3)**  
+Anexos ficam em:
 
 ```text
-https://drive.google.com/drive/folders/ ESTE_E_O_ID
+%APPDATA%\SinapescREAP\backups\defeso_anexos\{CPF}\
 ```
 
-### Compartilhar (obrigatório)
+**B) Subir na nuvem de verdade**  
+1. Crie um **Drive compartilhado** (Shared Drive) no Google Workspace  
+2. Coloque a pasta Defeso **dentro** desse Drive compartilhado  
+3. Adicione o `client_email` como membro (**Gerenciador de conteúdo**)  
+4. Cole o ID dessa pasta em `defeso_drive_folder_id`
 
-1. Planilha **REAP** (`spreadsheet_id`) → Compartilhar com o `client_email` → **Editor**
-2. Planilha **Defeso** `1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf` → mesmo `client_email` → **Editor**
-3. Pasta `Sinapesc-Defeso` → mesmo e-mail → **Editor**
-4. Google Cloud: **Sheets API** + **Drive API** ativadas
+Conta Gmail gratuita (só Meu Drive) **não** consegue dar cota ao robô.
 
-Use só o ID limpo (sem `?hl=pt-br`):
+---
+
+### Compartilhar planilha Defeso
+
+1. Planilha REAP → `client_email` → Editor  
+2. Planilha Defeso `1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf` → mesmo e-mail → Editor  
+
+ID limpo (sem `?hl=pt-br`):
 
 ```text
 1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf
 ```
 
-O EXE cria a aba **Defeso** sozinho na primeira abertura do módulo.
-
-Se a planilha Defeso não estiver compartilhada, a partir da **v1.7.1** a lista de CPFs do REAP ainda abre (com aviso).
-
 ## Fluxo
 
-Home → **Defeso Fácil** → login → lista REAP → Abrir ficha → preencher → Salvar → Gerar declaração / Imprimir → Anexos (Identidade, Carteira pesca, CAF)
+Home → **Defeso Fácil** → login → Abrir ficha → Salvar → Imprimir declaração → Anexar docs

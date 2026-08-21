@@ -1514,20 +1514,38 @@
     if (meta) meta.textContent = d.atualizado_em ? `Atualizado ${d.atualizado_em}` : "Nova ficha";
     const hint = $("#df-drive-hint");
     if (hint) {
-      hint.textContent = d.drive_ok
-        ? (d.id ? "Anexos vão para Drive/Defeso/{CPF}/" : "Salve a ficha antes de anexar.")
-        : "Configure defeso_drive_folder_id no config.json para anexos.";
+      if (d.drive_ok) {
+        hint.textContent = d.id
+          ? "Anexos: tenta Drive; se a conta de serviço não tiver cota, salva na pasta local do EXE."
+          : "Salve a ficha antes de anexar.";
+      } else {
+        hint.textContent = d.id
+          ? `Anexos salvos localmente em: ${d.anexos_local_root || "pasta defeso_anexos"}`
+          : "Salve a ficha antes de anexar.";
+      }
     }
     const ul = $("#df-anexo-list");
     if (ul) {
       const anexos = d.anexos || [];
       ul.innerHTML = anexos.length
-        ? anexos.map((a) => `<li>${esc(a.name)}${a.url ? ` · <a href="#" data-url="${esc(a.url)}">abrir</a>` : ""}</li>`).join("")
+        ? anexos.map((a) => {
+            const where = a.where === "local" || a.path ? "local" : "drive";
+            const openAttr = a.path
+              ? `data-path="${esc(a.path)}"`
+              : (a.url ? `data-url="${esc(a.url)}"` : "");
+            return `<li>${esc(a.name)} · ${where}${openAttr ? ` · <a href="#" ${openAttr}>abrir</a>` : ""}</li>`;
+          }).join("")
         : "<li>Nenhum anexo ainda.</li>";
       ul.querySelectorAll("[data-url]").forEach((a) => {
         a.addEventListener("click", (e) => {
           e.preventDefault();
           api("open_url", a.dataset.url);
+        });
+      });
+      ul.querySelectorAll("[data-path]").forEach((a) => {
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          api("open_path", a.dataset.path);
         });
       });
     }
@@ -1709,7 +1727,9 @@
     });
     AppEvents.on("defeso_anexo", (r) => {
       if (r.ok) {
-        toast(`Anexo enviado: ${r.data?.name || "ok"}`);
+        const where = r.data?.where === "drive" ? "Drive" : "pasta local";
+        toast(`Anexo enviado (${where}): ${r.data?.name || "ok"}`);
+        if (r.data?.aviso) toast(r.data.aviso, 7000);
         const ref = state.defesoFicha || {};
         api("load_defeso_ficha", ref.person_id || "", ref.cpf || $("#df-cpf")?.value || "", $("#df-id")?.value || ref.ficha_id || "");
         api("load_defeso_lista");

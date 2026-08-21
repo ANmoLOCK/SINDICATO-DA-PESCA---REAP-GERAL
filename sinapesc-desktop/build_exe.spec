@@ -24,6 +24,7 @@ hiddenimports = [
     "controle.pendencias",
     "controle.relatorio",
     "controle.defeso",
+    "controle.defeso_anexos",
     "drive",
     "drive.client",
     "sheets.defeso_service",

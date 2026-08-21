@@ -6,6 +6,17 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.7.3] — 2026-08-21 — Anexos locais se Drive sem cota
+
+**Tag:** [`v1.7.3`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.3)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.3/SinapescREAP-Windows-v1.7.3.zip
+
+### O que entrou
+- Erro 403 `storageQuotaExceeded` da Conta de Serviço: anexo é salvo em pasta local
+- Aviso na tela explicando Shared Drive vs Meu Drive
+
+---
+
 ## [v1.7.2] — 2026-08-21 — Fix anexos no Google Drive
 
 **Tag:** [`v1.7.2`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.2)  
