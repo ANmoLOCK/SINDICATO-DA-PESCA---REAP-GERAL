@@ -1,11 +1,11 @@
-# Tutorial de implementação — Sinapesc REAP v1.6.21
+# Tutorial de implementação — Sinapesc REAP v1.7.0
 
 Guia para o **programa Windows** e o **site público** (consulta por CPF sem o notebook ligado).
 
-**Download do EXE:** [SinapescREAP-Windows-v1.6.21.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.21/SinapescREAP-Windows-v1.6.21.zip)  
-**Página da release:** [v1.6.21](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.21)
+**Download do EXE:** [SinapescREAP-Windows-v1.7.0.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.0/SinapescREAP-Windows-v1.7.0.zip)  
+**Página da release:** [v1.7.0](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.0)
 
-> v1.6.21: contador da última alteração respeita a planilha no Atualizar; sem sync automático; ao sair da secretaria recarrega do Google.
+> v1.7.0: módulo **Defeso Fácil** — ficha + declaração de residência + anexos no Drive. Ver [`docs/DEFESO-FACIL.md`](./docs/DEFESO-FACIL.md).
 
 Site: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 

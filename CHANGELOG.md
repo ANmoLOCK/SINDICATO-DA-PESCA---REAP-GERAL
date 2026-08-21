@@ -6,6 +6,18 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.7.0] — 2026-08-21 — Defeso Fácil
+
+**Tag:** [`v1.7.0`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.0)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.0/SinapescREAP-Windows-v1.7.0.zip
+
+### O que entrou
+- Módulo **Defeso Fácil** (card na home): lista integrada ao REAP, ficha, salvar aba `Defeso`, gerar/imprimir declaração
+- Anexos Identidade · Carteira de pesca · CAF → Google Drive `Defeso/{CPF}/`
+- Config: `defeso_spreadsheet_id`, `defeso_drive_folder_id` — guia em `docs/DEFESO-FACIL.md`
+
+---
+
 ## [v1.6.21] — 2026-08-21 — Contador respeita a planilha + sem sync auto
 
 **Tag:** [`v1.6.21`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.21)  

@@ -49,8 +49,11 @@ from googleapiclient.discovery import build
 
 from .models import MESES
 
-# Escopo mínimo: só planilhas (não precisa de Drive completo).
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+# Escopo: planilhas + Drive (anexos Defeso Fácil).
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+]
 
 PESSOAS_TAB = "Pessoas"
 REAP_TAB = "Reap"

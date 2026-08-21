@@ -29,6 +29,10 @@
     connLabel: "",
     sortMode: (typeof localStorage !== "undefined" && localStorage.getItem("sinapesc_sort")) || "recent",
     loteBackdrop: null,
+    afterLogin: "",
+    defesoItens: [],
+    defesoFicha: null,
+    defesoSearch: "",
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -206,7 +210,7 @@
   }
 
   function isSecretariaScreen(screen) {
-    return !["home", "login", "settings"].includes(screen || "");
+    return !["home", "login", "settings", "defeso", "defeso_ficha"].includes(screen || "");
   }
 
   function navigate(screen, { push = true, tab = null } = {}) {
@@ -242,7 +246,7 @@
   }
 
   function renderTabs(activeTab) {
-    const secretaria = state.loggedIn && !["home", "login", "settings"].includes(state.screen);
+    const secretaria = state.loggedIn && isSecretariaScreen(state.screen);
     tabBar.hidden = !secretaria;
     if (!secretaria) return;
 
@@ -276,6 +280,18 @@
     };
 
     if (state.screen === "home") {
+      headerActions.appendChild(mkBtn("⚙ Configurações", "btn-outline", () => navigate("settings")));
+      return;
+    }
+
+    if (state.screen === "defeso" || state.screen === "defeso_ficha") {
+      headerActions.appendChild(mkBtn("← Voltar", "btn-outline", () => {
+        if (state.screen === "defeso_ficha") navigate("defeso", { push: false });
+        else navigate("home", { push: false });
+      }));
+      if (state.loggedIn) {
+        headerActions.appendChild(mkBtn("Sair", "btn-outline", doLogout));
+      }
       headerActions.appendChild(mkBtn("⚙ Configurações", "btn-outline", () => navigate("settings")));
       return;
     }
@@ -318,8 +334,19 @@
       auditoria: renderAuditoria,
       atalhos: renderAtalhos,
       lista: renderLista,
+      defeso: renderDefesoLista,
+      defeso_ficha: renderDefesoFicha,
     };
     (fns[state.screen] || renderHome)();
+  }
+
+  function goDefeso() {
+    if (state.loggedIn) {
+      navigate("defeso");
+      return;
+    }
+    state.afterLogin = "defeso";
+    navigate("login");
   }
 
   function renderHome() {
@@ -327,13 +354,18 @@
       <div class="hero">
         <div class="hero-title">${esc(state.bootstrap?.org_short || "Sinapesc")}</div>
         <div class="hero-sub">${esc(state.bootstrap?.org_full || "")}</div>
-        <div class="hero-tag">Controle REAP · consulta online · QR permanente</div>
+        <div class="hero-tag">Controle REAP · Defeso Fácil · consulta online</div>
       </div>
       <div class="home-cards">
         <div class="home-card">
           <h3>Secretaria</h3>
           <p>Cadastre sócios, marque REAPs e importe lotes na planilha Google.</p>
           <button type="button" class="btn btn-primary" id="go-login">Entrar como administrador</button>
+        </div>
+        <div class="home-card">
+          <h3>Defeso Fácil</h3>
+          <p>Ficha do pescador, declaração de residência para imprimir e anexos no Drive.</p>
+          <button type="button" class="btn btn-primary" id="go-defeso">Abrir Defeso Fácil</button>
         </div>
         <div class="home-card">
           <h3>Consulta &amp; QR</h3>
@@ -343,7 +375,11 @@
       </div>
       <div class="tip-box">Site gratuito: compartilhe a planilha como Leitor, publique site-publico/, cole a URL em Configurações e gere o QR Consulta.</div>
     `);
-    $("#go-login").addEventListener("click", () => navigate("login"));
+    $("#go-login").addEventListener("click", () => {
+      state.afterLogin = "admin";
+      navigate("login");
+    });
+    $("#go-defeso").addEventListener("click", goDefeso);
     $("#go-lista").addEventListener("click", () => navigate("lista"));
   }
 
@@ -374,9 +410,14 @@
       state.connLabel = "Conectado";
       setFooter();
       state.navHistory = [];
-      navigate("admin", { push: false, tab: "socies" });
-      loadPessoas();
-      maybeBackupReminder();
+      const dest = state.afterLogin === "defeso" ? "defeso" : "admin";
+      state.afterLogin = "";
+      if (dest === "defeso") navigate("defeso", { push: false });
+      else {
+        navigate("admin", { push: false, tab: "socies" });
+        loadPessoas();
+        maybeBackupReminder();
+      }
     };
     $("#login-btn").addEventListener("click", tryLogin);
     $("#login-pass").addEventListener("keydown", (e) => { if (e.key === "Enter") tryLogin(); });
@@ -399,6 +440,10 @@
       <div class="form-panel" style="margin-top:10px">
         <label>ID da planilha Google (admin / API)</label>
         <input id="cfg-sheet" value="${esc(s.spreadsheet_id || "")}" />
+        <label>ID da planilha Defeso Fácil</label>
+        <input id="cfg-defeso-sheet" value="${esc(s.defeso_spreadsheet_id || "")}" placeholder="1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf" />
+        <label>ID da pasta Drive Defeso (anexos)</label>
+        <input id="cfg-defeso-drive" value="${esc(s.defeso_drive_folder_id || "")}" placeholder="Cole o ID da pasta Sinapesc-Defeso" />
         <label>URL do site público (sem /consulta.html)</label>
         <input id="cfg-site" value="${esc(s.public_site_url || "")}" placeholder="https://anmolock.github.io/sinapesc-casanova-reap" />
         <label>E-mail do administrador</label>
@@ -426,6 +471,8 @@
 
     const persist = () => api("save_settings", {
       spreadsheet_id: $("#cfg-sheet").value,
+      defeso_spreadsheet_id: $("#cfg-defeso-sheet").value,
+      defeso_drive_folder_id: $("#cfg-defeso-drive").value,
       public_site_url: $("#cfg-site").value,
       admin_email: $("#cfg-email").value,
       admin_password: $("#cfg-pass").value,
@@ -1291,6 +1338,231 @@
     }
   }
 
+  function renderDefesoLista() {
+    setPage(`
+      <div>
+        <span class="page-title">Defeso Fácil</span>
+        <span class="page-meta" id="defeso-count">Carregando…</span>
+        <p class="page-sub">Sócios do REAP · abra a ficha, salve endereço e imprima a declaração</p>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="search" id="defeso-search" placeholder="Buscar nome ou CPF" value="${esc(state.defesoSearch)}" />
+        </div>
+        <button type="button" class="btn btn-outline-dark btn-sm" id="defeso-refresh">↻ Atualizar</button>
+      </div>
+      <div id="defeso-list"></div>
+    `);
+    $("#defeso-search").addEventListener("input", (e) => {
+      state.defesoSearch = e.target.value;
+      paintDefesoLista();
+    });
+    $("#defeso-refresh").addEventListener("click", () => api("load_defeso_lista"));
+    paintDefesoLista();
+    api("load_defeso_lista");
+  }
+
+  function paintDefesoLista() {
+    const list = $("#defeso-list");
+    const count = $("#defeso-count");
+    if (!list) return;
+    const q = (state.defesoSearch || "").trim().toLowerCase();
+    const digits = q.replace(/\D/g, "");
+    let itens = state.defesoItens || [];
+    if (q) {
+      itens = itens.filter((x) =>
+        String(x.nome || "").toLowerCase().includes(q)
+        || (digits && String(x.cpf || "").includes(digits))
+      );
+    }
+    if (count) count.textContent = `${itens.length} de ${(state.defesoItens || []).length}`;
+    if (!itens.length) {
+      list.innerHTML = `<div class="empty-msg">${(state.defesoItens || []).length ? "Nenhum resultado." : "Carregando ou sem sócios no REAP."}</div>`;
+      return;
+    }
+    list.innerHTML = itens.map((x) => {
+      const st = x.tem_ficha ? (x.status || "salvo") : "sem ficha";
+      const docs = [
+        x.tem_identidade ? "ID" : null,
+        x.tem_carteira_pesca ? "Pesca" : null,
+        x.tem_caf ? "CAF" : null,
+      ].filter(Boolean).join(" · ") || "sem anexos";
+      return `
+        <div class="card">
+          <div class="card-head">
+            <div class="card-info">
+              <p class="card-name">${esc(x.nome_display || x.nome)}</p>
+              <p class="card-cpf">CPF ${esc(x.cpf_formatado || x.cpf)} · ${esc(st)}${x.municipio ? ` · ${esc(x.municipio)}` : ""}</p>
+              <p class="card-cpf">${esc(docs)}</p>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="btn btn-primary btn-sm" data-defeso-open="${esc(x.person_id || "")}" data-cpf="${esc(x.cpf || "")}" data-ficha="${esc(x.ficha_id || "")}">Abrir ficha</button>
+            </div>
+          </div>
+        </div>`;
+    }).join("");
+    list.querySelectorAll("[data-defeso-open]").forEach((b) => {
+      b.addEventListener("click", () => {
+        state.defesoFicha = {
+          person_id: b.dataset.defesoOpen || "",
+          cpf: b.dataset.cpf || "",
+          ficha_id: b.dataset.ficha || "",
+        };
+        navigate("defeso_ficha");
+      });
+    });
+  }
+
+  function renderDefesoFicha() {
+    const ref = state.defesoFicha || {};
+    setPage(`
+      <div>
+        <span class="page-title">Ficha Defeso</span>
+        <span class="page-meta" id="defeso-ficha-meta">Carregando…</span>
+      </div>
+      <div class="form-panel defeso-form" id="defeso-form-wrap">
+        <p class="page-sub">Nome e CPF vêm do REAP. Complete o restante e salve.</p>
+        <input type="hidden" id="df-id" />
+        <input type="hidden" id="df-person" />
+        <div class="defeso-grid">
+          <div><label>Nome completo</label><input id="df-nome" /></div>
+          <div><label>CPF</label><input id="df-cpf" /></div>
+          <div><label>RG / CIN</label><input id="df-rg" /></div>
+          <div><label>Nacionalidade</label><input id="df-nac" value="Brasileira" /></div>
+          <div><label>Profissão</label><input id="df-prof" value="Pescador profissional" /></div>
+          <div><label>CEP</label><input id="df-cep" placeholder="00000-000" /></div>
+          <div class="span-2"><label>Endereço / rua</label><input id="df-end" /></div>
+          <div><label>Número</label><input id="df-num" /></div>
+          <div><label>Bairro</label><input id="df-bairro" /></div>
+          <div><label>Município</label><input id="df-mun" /></div>
+          <div><label>UF</label><input id="df-uf" maxlength="2" placeholder="BA" /></div>
+          <div><label>Telefone</label><input id="df-tel" /></div>
+          <div><label>E-mail</label><input id="df-email" /></div>
+        </div>
+        <div class="form-actions" style="margin-top:14px">
+          <button type="button" class="btn btn-outline-dark" id="df-back">← Lista</button>
+          <button type="button" class="btn btn-primary" id="df-save">Salvar na planilha</button>
+          <button type="button" class="btn btn-primary" id="df-print">Gerar declaração / Imprimir</button>
+        </div>
+        <div class="defeso-anexos" id="df-anexos">
+          <h4>Anexos (Drive)</h4>
+          <p class="page-sub" id="df-drive-hint">Salve a ficha antes de anexar.</p>
+          <div class="btn-row">
+            <label class="btn btn-outline-dark btn-sm">Identidade<input type="file" id="df-file-id" accept=".pdf,.jpg,.jpeg,.png,.webp" hidden /></label>
+            <label class="btn btn-outline-dark btn-sm">Carteira pesca<input type="file" id="df-file-pesca" accept=".pdf,.jpg,.jpeg,.png,.webp" hidden /></label>
+            <label class="btn btn-outline-dark btn-sm">CAF<input type="file" id="df-file-caf" accept=".pdf,.jpg,.jpeg,.png,.webp" hidden /></label>
+          </div>
+          <ul id="df-anexo-list" class="defeso-anexo-list"></ul>
+        </div>
+      </div>
+    `);
+    $("#df-back").addEventListener("click", () => navigate("defeso", { push: false }));
+    $("#df-save").addEventListener("click", () => {
+      api("save_defeso_ficha", collectDefesoPayload());
+    });
+    $("#df-print").addEventListener("click", () => {
+      const payload = collectDefesoPayload();
+      api("print_defeso_declaracao", payload.id || "", payload);
+    });
+    bindDefesoUpload("df-file-id", "identidade");
+    bindDefesoUpload("df-file-pesca", "pesca");
+    bindDefesoUpload("df-file-caf", "caf");
+    api("load_defeso_ficha", ref.person_id || "", ref.cpf || "", ref.ficha_id || "");
+  }
+
+  function collectDefesoPayload() {
+    return {
+      id: $("#df-id")?.value || "",
+      person_id: $("#df-person")?.value || "",
+      nome: $("#df-nome")?.value || "",
+      cpf: $("#df-cpf")?.value || "",
+      rg: $("#df-rg")?.value || "",
+      nacionalidade: $("#df-nac")?.value || "",
+      profissao: $("#df-prof")?.value || "",
+      cep: $("#df-cep")?.value || "",
+      endereco: $("#df-end")?.value || "",
+      numero: $("#df-num")?.value || "",
+      bairro: $("#df-bairro")?.value || "",
+      municipio: $("#df-mun")?.value || "",
+      uf: $("#df-uf")?.value || "",
+      telefone: $("#df-tel")?.value || "",
+      email: $("#df-email")?.value || "",
+      status: "salvo",
+    };
+  }
+
+  function fillDefesoForm(d) {
+    if (!d) return;
+    const set = (id, v) => { const el = $(id); if (el) el.value = v || ""; };
+    set("#df-id", d.id);
+    set("#df-person", d.person_id);
+    set("#df-nome", d.nome_display || d.nome);
+    set("#df-cpf", d.cpf_formatado || d.cpf);
+    set("#df-rg", d.rg);
+    set("#df-nac", d.nacionalidade || "Brasileira");
+    set("#df-prof", d.profissao || "Pescador profissional");
+    set("#df-cep", d.cep);
+    set("#df-end", d.endereco);
+    set("#df-num", d.numero);
+    set("#df-bairro", d.bairro);
+    set("#df-mun", d.municipio);
+    set("#df-uf", d.uf);
+    set("#df-tel", d.telefone);
+    set("#df-email", d.email);
+    const meta = $("#defeso-ficha-meta");
+    if (meta) meta.textContent = d.atualizado_em ? `Atualizado ${d.atualizado_em}` : "Nova ficha";
+    const hint = $("#df-drive-hint");
+    if (hint) {
+      hint.textContent = d.drive_ok
+        ? (d.id ? "Anexos vão para Drive/Defeso/{CPF}/" : "Salve a ficha antes de anexar.")
+        : "Configure defeso_drive_folder_id no config.json para anexos.";
+    }
+    const ul = $("#df-anexo-list");
+    if (ul) {
+      const anexos = d.anexos || [];
+      ul.innerHTML = anexos.length
+        ? anexos.map((a) => `<li>${esc(a.name)}${a.url ? ` · <a href="#" data-url="${esc(a.url)}">abrir</a>` : ""}</li>`).join("")
+        : "<li>Nenhum anexo ainda.</li>";
+      ul.querySelectorAll("[data-url]").forEach((a) => {
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          api("open_url", a.dataset.url);
+        });
+      });
+    }
+  }
+
+  function bindDefesoUpload(inputId, kind) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.addEventListener("change", async () => {
+      const file = input.files && input.files[0];
+      input.value = "";
+      if (!file) return;
+      const fichaId = $("#df-id")?.value || "";
+      if (!fichaId) {
+        toast("Salve a ficha antes de anexar.");
+        return;
+      }
+      try {
+        const dataUrl = await readFileAsDataUrl(file);
+        api("upload_defeso_anexo", fichaId, kind, file.name || kind, dataUrl, file.type || "");
+      } catch (_e) {
+        toast("Falha ao ler o arquivo.");
+      }
+    });
+  }
+
+  function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = () => reject(reader.error || new Error("read fail"));
+      reader.readAsDataURL(file);
+    });
+  }
+
   function wireEvents() {
     AppEvents.on("status", (p) => setStatus(p.msg));
     AppEvents.on("pessoas", (r) => {
@@ -1407,6 +1679,40 @@
     });
     AppEvents.on("qrs", (r) => {
       toast(r.ok ? `QRs → ${r.data?.base}` : r.error);
+    });
+    AppEvents.on("defeso_lista", (r) => {
+      if (r.ok) {
+        state.defesoItens = r.data?.itens || [];
+        if (state.screen === "defeso") paintDefesoLista();
+      } else toast(r.error);
+    });
+    AppEvents.on("defeso_ficha", (r) => {
+      if (r.ok) {
+        state.defesoFicha = { ...(state.defesoFicha || {}), ...r.data };
+        if (state.screen === "defeso_ficha") fillDefesoForm(r.data);
+      } else toast(r.error || "Erro ao abrir ficha.");
+    });
+    AppEvents.on("defeso_saved", (r) => {
+      if (r.ok) {
+        toast("Ficha Defeso salva.");
+        state.defesoFicha = { ...(state.defesoFicha || {}), ...r.data, ficha_id: r.data.id };
+        if (state.screen === "defeso_ficha") fillDefesoForm({ ...(r.data || {}), drive_ok: state.defesoFicha.drive_ok, anexos: state.defesoFicha.anexos || [] });
+        api("load_defeso_lista");
+      } else toast(r.error);
+    });
+    AppEvents.on("defeso_print", (r) => {
+      if (r.ok) {
+        toast("Declaração aberta para imprimir.");
+        if (r.data?.ficha_id && $("#df-id")) $("#df-id").value = r.data.ficha_id;
+      } else toast(r.error);
+    });
+    AppEvents.on("defeso_anexo", (r) => {
+      if (r.ok) {
+        toast(`Anexo enviado: ${r.data?.name || "ok"}`);
+        const ref = state.defesoFicha || {};
+        api("load_defeso_ficha", ref.person_id || "", ref.cpf || $("#df-cpf")?.value || "", $("#df-id")?.value || ref.ficha_id || "");
+        api("load_defeso_lista");
+      } else toast(r.error);
     });
   }
 

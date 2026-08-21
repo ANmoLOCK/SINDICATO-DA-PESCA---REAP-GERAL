@@ -17,9 +17,12 @@ from config import import_credentials_file, is_sheets_configured, load_config, s
 from controle.auditoria import combina_busca
 from controle.backup import backup_root, gravar_backup, listar_backups
 from controle.calendario import meses_para_texto
+from controle.defeso import montar_declaracao_html, salvar_declaracao_html
 from controle.pendencias import classificar
 from controle.relatorio import itens_para_relatorio, montar_html, nome_arquivo_relatorio, salvar_html
+from drive import DriveDefesoClient
 from sheets import MESES, MESES_LABEL, MesKey, SheetsConfigError, SheetsService
+from sheets.defeso_service import DefesoService
 from ui.formatters import display_nome, format_cpf, format_nome, only_digits, parse_lote_lines
 from ui.public_link import ensure_site_qrs, urls_for
 from ui.qr_vault import normalize_public_base, preferred_public_base, qr_dir
@@ -44,6 +47,7 @@ class SinapescApi:
         self._logged_in = False
         self._admin_user = ""
         self._service: Optional[SheetsService] = None
+        self._defeso_service: Optional[DefesoService] = None
 
     def bind_window(self, window: Any) -> None:
         self._window = window
@@ -69,6 +73,8 @@ class SinapescApi:
                 "admin_email": str(cfg.get("admin_email") or ""),
                 "admin_user": self._admin_user,
                 "spreadsheet_id": str(cfg.get("spreadsheet_id") or ""),
+                "defeso_spreadsheet_id": str(cfg.get("defeso_spreadsheet_id") or ""),
+                "defeso_drive_folder_id": str(cfg.get("defeso_drive_folder_id") or ""),
                 "public_site_url": site,
                 "ultimo_backup_em": str(cfg.get("ultimo_backup_em") or "Nunca"),
                 "credentials_label": cred_label,
@@ -90,12 +96,14 @@ class SinapescApi:
         self._logged_in = True
         self._admin_user = email.strip()
         self._service = None
+        self._defeso_service = None
         return ok(admin_user=self._admin_user)
 
     def logout(self) -> Dict[str, Any]:
         self._logged_in = False
         self._admin_user = ""
         self._service = None
+        self._defeso_service = None
         return ok()
 
     def get_settings(self) -> Dict[str, Any]:
@@ -104,6 +112,8 @@ class SinapescApi:
         return ok(
             {
                 "spreadsheet_id": str(cfg.get("spreadsheet_id") or ""),
+                "defeso_spreadsheet_id": str(cfg.get("defeso_spreadsheet_id") or ""),
+                "defeso_drive_folder_id": str(cfg.get("defeso_drive_folder_id") or ""),
                 "public_site_url": normalize_public_base(
                     cfg.get("public_site_url") or cfg.get("public_base_url") or ""
                 ),
@@ -121,6 +131,10 @@ class SinapescApi:
         cfg = load_config()
         if "spreadsheet_id" in payload:
             cfg["spreadsheet_id"] = str(payload.get("spreadsheet_id") or "").strip()
+        if "defeso_spreadsheet_id" in payload:
+            cfg["defeso_spreadsheet_id"] = str(payload.get("defeso_spreadsheet_id") or "").strip()
+        if "defeso_drive_folder_id" in payload:
+            cfg["defeso_drive_folder_id"] = str(payload.get("defeso_drive_folder_id") or "").strip()
         if "public_site_url" in payload:
             base = normalize_public_base(str(payload.get("public_site_url") or ""))
             cfg["public_site_url"] = base
@@ -131,6 +145,7 @@ class SinapescApi:
             cfg["admin_password"] = str(payload.get("admin_password") or "")
         save_config(cfg)
         self._service = None
+        self._defeso_service = None
         self._sync_site_config_js(cfg.get("spreadsheet_id", ""))
         return ok()
 
@@ -218,6 +233,16 @@ class SinapescApi:
         actor = self._admin_user if self._logged_in else str(cfg.get("admin_email") or "")
         self._service.actor = actor
         return self._service
+
+    def _ensure_defeso(self) -> DefesoService:
+        if not self._logged_in:
+            raise SheetsConfigError("Faça login como administrador.")
+        cfg = load_config()
+        if not is_sheets_configured(cfg):
+            raise SheetsConfigError("Google Sheets ainda não configurado.")
+        if self._defeso_service is None:
+            self._defeso_service = DefesoService.from_config(cfg)
+        return self._defeso_service
 
     def _sync_site_config_js(self, spreadsheet_id: str) -> None:
         sid = (spreadsheet_id or "").strip()
@@ -659,6 +684,201 @@ class SinapescApi:
             return ok()
         except Exception as exc:  # noqa: BLE001
             return err(str(exc))
+
+    # ---- Defeso Fácil ----------------------------------------------------
+
+    def load_defeso_lista(self) -> Dict[str, Any]:
+        def work():
+            reap = self._ensure_service()
+            defeso = self._ensure_defeso()
+            pessoas = reap.get_all_pessoas()
+            fichas = {only_digits(f.cpf): f for f in defeso.listar() if only_digits(f.cpf)}
+            rows = []
+            for p in pessoas:
+                cpf = only_digits(p.cpf)
+                f = fichas.pop(cpf, None)
+                rows.append(
+                    {
+                        "person_id": p.id,
+                        "nome": p.nome,
+                        "nome_display": display_nome(p.nome),
+                        "cpf": cpf,
+                        "cpf_formatado": format_cpf(cpf),
+                        "tem_ficha": bool(f),
+                        "ficha_id": f.id if f else "",
+                        "municipio": f.municipio if f else "",
+                        "status": f.status if f else "sem_ficha",
+                        "atualizado_em": f.atualizado_em if f else "",
+                        "tem_identidade": bool(f and f.tem_identidade),
+                        "tem_carteira_pesca": bool(f and f.tem_carteira_pesca),
+                        "tem_caf": bool(f and f.tem_caf),
+                    }
+                )
+            for f in fichas.values():
+                rows.append(
+                    {
+                        "person_id": f.person_id,
+                        "nome": f.nome,
+                        "nome_display": display_nome(f.nome),
+                        "cpf": only_digits(f.cpf),
+                        "cpf_formatado": format_cpf(f.cpf),
+                        "tem_ficha": True,
+                        "ficha_id": f.id,
+                        "municipio": f.municipio,
+                        "status": f.status or "rascunho",
+                        "atualizado_em": f.atualizado_em,
+                        "tem_identidade": bool(f.tem_identidade),
+                        "tem_carteira_pesca": bool(f.tem_carteira_pesca),
+                        "tem_caf": bool(f.tem_caf),
+                    }
+                )
+            rows.sort(key=lambda r: str(r.get("nome_display") or "").lower())
+            cfg = load_config()
+            return {
+                "itens": rows,
+                "defeso_spreadsheet_id": str(cfg.get("defeso_spreadsheet_id") or ""),
+                "drive_ok": bool(str(cfg.get("defeso_drive_folder_id") or "").strip()),
+            }
+
+        return self._run_async("defeso_lista", work, "Carregando Defeso Fácil…")
+
+    def load_defeso_ficha(self, person_id: str = "", cpf: str = "", ficha_id: str = "") -> Dict[str, Any]:
+        def work():
+            reap = self._ensure_service()
+            defeso = self._ensure_defeso()
+            ficha = defeso.por_id(ficha_id) if ficha_id else None
+            cpf_d = only_digits(cpf)
+            if ficha is None and cpf_d:
+                ficha = defeso.por_cpf(cpf_d)
+            pessoa = None
+            if person_id:
+                for p in reap.get_all_pessoas():
+                    if p.id == person_id:
+                        pessoa = p
+                        break
+            if pessoa is None and cpf_d:
+                for p in reap.get_all_pessoas():
+                    if only_digits(p.cpf) == cpf_d:
+                        pessoa = p
+                        break
+            if ficha is None and pessoa is None:
+                raise ValueError("Sócio/ficha não encontrado.")
+
+            if ficha:
+                base = ficha.to_dict()
+            else:
+                assert pessoa is not None
+                base = {
+                    "id": "",
+                    "person_id": pessoa.id,
+                    "nome": pessoa.nome,
+                    "nome_display": display_nome(pessoa.nome),
+                    "cpf": only_digits(pessoa.cpf),
+                    "cpf_formatado": format_cpf(pessoa.cpf),
+                    "rg": "",
+                    "nacionalidade": "Brasileira",
+                    "profissao": "Pescador profissional",
+                    "cep": "",
+                    "endereco": "",
+                    "numero": "",
+                    "bairro": "",
+                    "municipio": "",
+                    "uf": "",
+                    "telefone": "",
+                    "email": "",
+                    "status": "rascunho",
+                    "tem_identidade": "",
+                    "tem_carteira_pesca": "",
+                    "tem_caf": "",
+                    "atualizado_em": "",
+                    "criado_em": "",
+                    "tem_ficha": False,
+                }
+            if pessoa:
+                base["person_id"] = pessoa.id
+                if not base.get("nome"):
+                    base["nome"] = pessoa.nome
+                base["nome_display"] = display_nome(str(base.get("nome") or pessoa.nome))
+                base["cpf"] = only_digits(pessoa.cpf)
+                base["cpf_formatado"] = format_cpf(pessoa.cpf)
+
+            anexos: List[Dict[str, str]] = []
+            drive_ok = False
+            cfg = load_config()
+            if str(cfg.get("defeso_drive_folder_id") or "").strip():
+                drive_ok = True
+                try:
+                    anexos = DriveDefesoClient.from_config(cfg).listar_anexos(str(base["cpf"]))
+                except Exception:
+                    anexos = []
+            base["anexos"] = anexos
+            base["drive_ok"] = drive_ok
+            return base
+
+        return self._run_async("defeso_ficha", work, "Abrindo ficha Defeso…")
+
+    def save_defeso_ficha(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        def work():
+            if not isinstance(payload, dict):
+                raise ValueError("Dados inválidos.")
+            ficha = self._ensure_defeso().salvar(payload)
+            return ficha.to_dict()
+
+        return self._run_async("defeso_saved", work, "Salvando ficha Defeso…")
+
+    def print_defeso_declaracao(
+        self, ficha_id: str = "", payload: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        def work():
+            defeso = self._ensure_defeso()
+            ficha = defeso.por_id(ficha_id) if ficha_id else None
+            if ficha is None and isinstance(payload, dict) and payload:
+                ficha = defeso.salvar(payload)
+            if ficha is None:
+                raise ValueError("Salve a ficha antes de imprimir.")
+            html_txt = montar_declaracao_html(ficha, org_full=ORG_FULL)
+            path = salvar_declaracao_html(html_txt, cpf=ficha.cpf, nome=ficha.nome)
+            try:
+                if os.name == "nt":
+                    os.startfile(str(path))  # type: ignore[attr-defined]
+                else:
+                    webbrowser.open(path.resolve().as_uri())
+            except OSError as exc:
+                raise ValueError(f"Não foi possível abrir a declaração: {exc}") from exc
+            return {"path": str(path), "ficha_id": ficha.id}
+
+        return self._run_async("defeso_print", work, "Gerando declaração…")
+
+    def upload_defeso_anexo(
+        self,
+        ficha_id: str,
+        kind: str,
+        filename: str,
+        data_b64: str,
+        mime: str = "",
+    ) -> Dict[str, Any]:
+        def work():
+            cfg = load_config()
+            if not str(cfg.get("defeso_drive_folder_id") or "").strip():
+                raise ValueError(
+                    "Configure defeso_drive_folder_id no config.json (ID da pasta no Drive)."
+                )
+            defeso = self._ensure_defeso()
+            ficha = defeso.por_id(ficha_id)
+            if not ficha:
+                raise ValueError("Salve a ficha antes de anexar documentos.")
+            drive = DriveDefesoClient.from_config(cfg)
+            up = drive.upload_base64(
+                cpf=ficha.cpf,
+                kind=kind,
+                filename=filename,
+                data_b64=data_b64,
+                mime=mime,
+            )
+            defeso.marcar_anexo(ficha.id, kind, True)
+            return up
+
+        return self._run_async("defeso_anexo", work, "Enviando anexo ao Drive…")
 
     def quit_app(self) -> Dict[str, Any]:
         if webview:

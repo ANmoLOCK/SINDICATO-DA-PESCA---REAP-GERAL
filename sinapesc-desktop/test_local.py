@@ -343,6 +343,41 @@ def test_qr_selo_usa_logo() -> None:
     assert img.size[0] >= 200 and img.size[1] >= 200
 
 
+def test_defeso_ficha_e_html() -> None:
+    from controle.defeso import (
+        FichaDefeso,
+        montar_declaracao_html,
+        payload_to_ficha,
+        row_to_ficha,
+        validar_ficha,
+    )
+
+    f = payload_to_ficha(
+        {
+            "nome": "joao da silva",
+            "cpf": "10582575524",
+            "endereco": "Rua A",
+            "numero": "10",
+            "bairro": "Centro",
+            "municipio": "Casa Nova",
+            "uf": "ba",
+            "cep": "47300000",
+        }
+    )
+    assert f.nome.startswith("Joao") or f.nome.startswith("João") or "Silva" in f.nome
+    assert f.cpf == "10582575524"
+    assert f.uf == "BA"
+    assert f.cep == "47300-000"
+    assert validar_ficha(f) is None
+    html = montar_declaracao_html(f, org_full="Sinapesc")
+    assert "Declaração de Residência" in html
+    assert "105.825.755-24" in html or "10582575524" in html
+    row = f.to_row()
+    back = row_to_ficha(row)
+    assert back and back.cpf == f.cpf
+    assert validar_ficha(FichaDefeso(nome="", cpf="123")) == "Informe o nome completo."
+
+
 if __name__ == "__main__":
     test_formatters()
     test_display_nome()
@@ -352,6 +387,7 @@ if __name__ == "__main__":
     test_controle_pendencias()
     test_auditoria_parse()
     test_relatorio_mostra_cpf_completo()
+    test_defeso_ficha_e_html()
     test_backup_rotacao()
     test_chrome_routes()
     test_brand_assets()
