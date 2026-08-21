@@ -29,7 +29,12 @@
     connLabel: "",
     sortMode: (typeof localStorage !== "undefined" && localStorage.getItem("sinapesc_sort")) || "recent",
     loteBackdrop: null,
+    autoSyncSilent: false,
   };
+
+  /** Sync automático com a planilha (sócios + contador da Auditoria). */
+  const AUTO_SYNC_MS = 3 * 60 * 1000;
+  let autoSyncTimer = null;
 
   const $ = (sel) => document.querySelector(sel);
   const content = $("#content");
@@ -903,8 +908,48 @@
     });
   }
 
-  function loadPessoas() {
-    api("load_pessoas");
+  function loadPessoas(silent) {
+    state.autoSyncSilent = !!silent;
+    api("load_pessoas", !!silent);
+  }
+
+  function startAutoSync() {
+    if (autoSyncTimer) return;
+    autoSyncTimer = setInterval(tickAutoSync, AUTO_SYNC_MS);
+  }
+
+  function tickAutoSync() {
+    if (!state.bootstrap || !state.bootstrap.configured) return;
+    if (state.loteBackdrop) return;
+    if (modalRoot && modalRoot.children.length) return;
+    // Só sincroniza quando a lista já foi usada ou o admin está logado.
+    if (!state.loggedIn && !state.pessoas.length) return;
+
+    loadPessoas(true);
+    if (state.screen === "pendencias") {
+      const anoEl = $("#pend-ano");
+      if (anoEl) api("load_pendencias", parseInt(anoEl.value, 10));
+    } else if (state.screen === "auditoria") {
+      api("load_auditoria");
+    }
+  }
+
+  function mergePessoasFromSheet(incoming) {
+    const prev = new Map((state.pessoas || []).map((p) => [p.id, p]));
+    return (incoming || []).map((p, i) => {
+      const old = prev.get(p.id);
+      let next = { ...p, _idx: i };
+      // Não apaga o "agora" local se a planilha ainda não refletiu o toggle.
+      if (old && old.ultimo_toggle_label === "agora" && old.ultimo_toggle_em) {
+        const sheetEm = String(p.ultimo_toggle_em || "");
+        const localEm = String(old.ultimo_toggle_em || "");
+        if (!sheetEm || sheetEm < localEm) {
+          next.ultimo_toggle_label = "agora";
+          next.ultimo_toggle_em = localEm;
+        }
+      }
+      return next;
+    });
   }
 
   function renderPendencias() {
@@ -1279,13 +1324,17 @@
   function wireEvents() {
     AppEvents.on("status", (p) => setStatus(p.msg));
     AppEvents.on("pessoas", (r) => {
+      const wasSilent = state.autoSyncSilent;
+      state.autoSyncSilent = false;
       if (r.ok) {
-        state.pessoas = (r.data || []).map((p, i) => ({ ...p, _idx: i }));
+        state.pessoas = mergePessoasFromSheet(r.data || []);
         state.connLabel = "Conectado";
         setFooter();
         if (state.screen === "admin") renderAdminList();
         if (state.screen === "lista") renderListaCards();
-      } else toast(r.error);
+      } else if (!wasSilent) {
+        toast(r.error);
+      }
     });
     AppEvents.on("pessoa_saved", (r) => {
       if (r.ok) { toast("Salvo."); loadPessoas(); }
@@ -1397,6 +1446,7 @@
   async function init() {
     wireEvents();
     await refreshBootstrap();
+    startAutoSync();
     $("#app").classList.remove("hidden");
     navigate("home", { push: false });
   }

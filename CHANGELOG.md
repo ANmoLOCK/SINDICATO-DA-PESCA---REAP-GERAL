@@ -6,6 +6,18 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.19] — 2026-08-21 — Sync automático a cada 3 minutos
+
+**Tag:** [`v1.6.19`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.19)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.19/SinapescREAP-Windows-v1.6.19.zip
+
+### O que entrou
+- EXE sincroniza a planilha automaticamente a cada **3 minutos** (sócios + última alteração da Auditoria)
+- Pausado enquanto houver modal/lote aberto; status “Sincronizando…”
+- Outros admins veem contadores atualizados sem clicar em Atualizar (até ~3 min)
+
+---
+
 ## [v1.6.18] — 2026-08-21 — Filtro por alterações recentes + contador instantâneo
 
 **Tag:** [`v1.6.18`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.18)  

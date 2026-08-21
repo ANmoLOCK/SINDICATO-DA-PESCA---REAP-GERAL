@@ -1,11 +1,11 @@
-# Tutorial de implementação — Sinapesc REAP v1.6.18
+# Tutorial de implementação — Sinapesc REAP v1.6.19
 
 Guia para o **programa Windows** e o **site público** (consulta por CPF sem o notebook ligado).
 
-**Download do EXE:** [SinapescREAP-Windows-v1.6.18.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.18/SinapescREAP-Windows-v1.6.18.zip)  
-**Página da release:** [v1.6.18](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.18)
+**Download do EXE:** [SinapescREAP-Windows-v1.6.19.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.19/SinapescREAP-Windows-v1.6.19.zip)  
+**Página da release:** [v1.6.19](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.19)
 
-> v1.6.18: filtro em Sócios por alterações REAP (30 dias / 1 ano / mais recente); contador ao lado do nome atualiza na hora.
+> v1.6.19: o EXE sincroniza a planilha automaticamente a cada 3 minutos (sócios e contador da Auditoria).
 
 Site: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 

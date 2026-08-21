@@ -15,7 +15,7 @@ A interface padrão é **HTML/CSS** dentro da janela (WebView2), idêntica ao mo
 
 ## Versão
 
-**v1.6.18** — Filtro 30d/1ano + contador instantâneo; sem legenda redundante.
+**v1.6.19** — Sync automático da planilha a cada 3 minutos.
 
 ## Requisitos (Windows)
 
@@ -41,7 +41,7 @@ Gera `dist\SinapescREAP.exe` e pasta `release\` pronta para zipar.
 
 Ou dispare o workflow [build-windows-exe.yml](../.github/workflows/build-windows-exe.yml) (branch `main` ou tag `v*`).
 
-**Download pronto:** [SinapescREAP-Windows-v1.6.18.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.18/SinapescREAP-Windows-v1.6.18.zip)
+**Download pronto:** [SinapescREAP-Windows-v1.6.19.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.19/SinapescREAP-Windows-v1.6.19.zip)
 
 ## Estrutura
 
