@@ -456,14 +456,7 @@
       <div>
         <span class="page-title">Sócios</span>
         <span class="page-meta" id="admin-count"></span>
-        <p class="page-sub">Clique no nome para abrir o REAP · ao lado, há quanto tempo foi a última marca/desmarca de mês</p>
-      </div>
-      <div class="touch-legend" title="Atalho rápido — só conta marcar/desmarcar mês; detalhes completos na aba Auditoria">
-        <strong>Última alteração REAP:</strong>
-        <span class="touch-sample">1min atrás</span>
-        <span class="touch-sample">4h atrás</span>
-        <span class="touch-sample">14d</span>
-        <span class="touch-sample">1ano15d</span>
+        <p class="page-sub">Clique no nome para abrir o REAP</p>
       </div>
       <div class="toolbar">
         <div class="search-wrap">
@@ -474,6 +467,8 @@
           <label class="filter-wrap">Filtro
             <select id="admin-sort">
               <option value="recent">Mais recente</option>
+              <option value="30d">Alterados (30 dias)</option>
+              <option value="1y">Alterados (1 ano)</option>
               <option value="az">A–Z</option>
             </select>
           </label>
@@ -490,6 +485,8 @@
     });
     const sortSel = $("#admin-sort");
     if (sortSel) {
+      const allowed = ["recent", "30d", "1y", "az"];
+      if (!allowed.includes(state.sortMode)) state.sortMode = "recent";
       sortSel.value = state.sortMode;
       sortSel.addEventListener("change", () => {
         state.sortMode = sortSel.value;
@@ -504,6 +501,20 @@
     if (!state.pessoas.length) loadPessoas();
   }
 
+  function parseToggleDate(valor) {
+    const s = String(valor || "").trim().slice(0, 19);
+    if (!s) return null;
+    const normalized = s.includes("T") ? s : s.replace(" ", "T");
+    const dt = new Date(normalized);
+    return Number.isNaN(dt.getTime()) ? null : dt;
+  }
+
+  function diasDesdeToggle(p) {
+    const dt = parseToggleDate(p.ultimo_toggle_em);
+    if (!dt) return null;
+    return Math.max(0, (Date.now() - dt.getTime()) / 86400000);
+  }
+
   function filteredPessoas() {
     const q = state.search.trim().toLowerCase();
     const digits = q.replace(/\D/g, "");
@@ -512,6 +523,17 @@
       list = list.filter((p) =>
         p.nome.toLowerCase().includes(q) || (digits && p.cpf_raw.includes(digits))
       );
+    }
+    if (state.sortMode === "30d") {
+      list = list.filter((p) => {
+        const d = diasDesdeToggle(p);
+        return d !== null && d <= 30;
+      });
+    } else if (state.sortMode === "1y") {
+      list = list.filter((p) => {
+        const d = diasDesdeToggle(p);
+        return d !== null && d <= 365;
+      });
     }
     return sortedPessoas(list);
   }
@@ -527,7 +549,13 @@
         )
       );
     } else {
+      // Mais recente / 30d / 1y: prioriza última marca/desmarca REAP
       copy.sort((a, b) => {
+        const ta = a.p.ultimo_toggle_em || "";
+        const tb = b.p.ultimo_toggle_em || "";
+        if (ta && tb && ta !== tb) return tb.localeCompare(ta);
+        if (ta && !tb) return -1;
+        if (!ta && tb) return 1;
         const ca = a.p.criado_em || "";
         const cb = b.p.criado_em || "";
         if (ca && cb && ca !== cb) return cb.localeCompare(ca);
@@ -542,9 +570,18 @@
     if (!list) return;
     const pessoas = filteredPessoas();
     const count = $("#admin-count");
-    if (count) count.textContent = state.pessoas.length ? `${state.pessoas.length} cadastrados` : "";
+    if (count) {
+      if (!state.pessoas.length) count.textContent = "";
+      else if (pessoas.length === state.pessoas.length) count.textContent = `${state.pessoas.length} cadastrados`;
+      else count.textContent = `${pessoas.length} de ${state.pessoas.length}`;
+    }
     if (!pessoas.length) {
-      list.innerHTML = `<div class="empty-msg">${state.pessoas.length ? "Nenhum sócio encontrado." : "Nenhum sócio cadastrado."}</div>`;
+      const emptyMsg = !state.pessoas.length
+        ? "Nenhum sócio cadastrado."
+        : (state.sortMode === "30d" || state.sortMode === "1y")
+          ? "Nenhum sócio com alteração REAP neste período."
+          : "Nenhum sócio encontrado.";
+      list.innerHTML = `<div class="empty-msg">${emptyMsg}</div>`;
       return;
     }
     list.innerHTML = pessoas.map((p) => pessoaCardHtml(p, true)).join("");
@@ -876,7 +913,6 @@
       <div>
         <span class="page-title">Pendências REAP</span>
         <span class="page-meta" id="pend-stats">Carregando…</span>
-        <p class="page-sub">Ao lado do nome: há quanto tempo foi a última marca/desmarca (aba Auditoria da planilha — todos os admins veem)</p>
       </div>
       <div class="toolbar">
         <label>Ano</label>
@@ -1261,7 +1297,14 @@
     });
     AppEvents.on("mes_toggled", (r) => {
       if (r.ok && r.data && r.data.person_id) {
-        loadPessoas();
+        // Atualiza o contador na hora (sem esperar a planilha).
+        const p = state.pessoas.find((x) => x.id === r.data.person_id);
+        if (p) {
+          p.ultimo_toggle_label = "agora";
+          p.ultimo_toggle_em = new Date().toISOString().slice(0, 19).replace("T", " ");
+          if (state.screen === "admin") renderAdminList();
+          if (state.screen === "lista") renderListaCards();
+        }
         if (state.screen === "pendencias") {
           const anoEl = $("#pend-ano");
           if (anoEl) api("load_pendencias", parseInt(anoEl.value, 10));

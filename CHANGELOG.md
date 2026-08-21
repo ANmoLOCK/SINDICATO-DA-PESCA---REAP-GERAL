@@ -6,6 +6,18 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.6.18] — 2026-08-21 — Filtro por alterações recentes + contador instantâneo
+
+**Tag:** [`v1.6.18`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.18)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.18/SinapescREAP-Windows-v1.6.18.zip
+
+### O que entrou
+- Removida a legenda redundante (`1min atrás` / `4h atrás` / …)
+- Filtro em Sócios: **Mais recente**, **Alterados (30 dias)**, **Alterados (1 ano)**, **A–Z**
+- Contador ao lado do nome atualiza na hora ao marcar/desmarcar (sem recarregar a planilha)
+
+---
+
 ## [v1.6.17] — 2026-08-19 — Última alteração REAP ao lado do nome
 
 **Tag:** [`v1.6.17`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.17)  

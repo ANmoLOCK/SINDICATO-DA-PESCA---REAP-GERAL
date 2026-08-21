@@ -1,11 +1,11 @@
-# Tutorial de implementação — Sinapesc REAP v1.6.17
+# Tutorial de implementação — Sinapesc REAP v1.6.18
 
 Guia para o **programa Windows** e o **site público** (consulta por CPF sem o notebook ligado).
 
-**Download do EXE:** [SinapescREAP-Windows-v1.6.17.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.17/SinapescREAP-Windows-v1.6.17.zip)  
-**Página da release:** [v1.6.17](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.17)
+**Download do EXE:** [SinapescREAP-Windows-v1.6.18.zip](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.6.18/SinapescREAP-Windows-v1.6.18.zip)  
+**Página da release:** [v1.6.18](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.6.18)
 
-> v1.6.17: ao lado do nome do sócio aparece há quanto tempo foi a última marca/desmarca de mês REAP (`1min atrás`, `4h atrás`, …), lido da aba **Auditoria** — todos os admins veem o mesmo contador.
+> v1.6.18: filtro em Sócios por alterações REAP (30 dias / 1 ano / mais recente); contador ao lado do nome atualiza na hora.
 
 Site: https://anmolock.github.io/sinapesc-casanova-reap/consulta.html
 
