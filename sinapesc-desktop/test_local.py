@@ -398,6 +398,15 @@ def test_normalize_sheet_id() -> None:
     )
 
 
+def test_drive_client_tem_upload() -> None:
+    from drive.client import DriveDefesoClient, normalize_folder_id
+
+    assert hasattr(DriveDefesoClient, "upload_base64")
+    assert hasattr(DriveDefesoClient, "listar_anexos")
+    assert hasattr(DriveDefesoClient, "ensure_cpf_folder")
+    assert normalize_folder_id("abc?hl=pt-br") == "abc"
+
+
 if __name__ == "__main__":
     test_formatters()
     test_display_nome()
@@ -409,6 +418,7 @@ if __name__ == "__main__":
     test_relatorio_mostra_cpf_completo()
     test_defeso_ficha_e_html()
     test_normalize_sheet_id()
+    test_drive_client_tem_upload()
     test_backup_rotacao()
     test_chrome_routes()
     test_brand_assets()

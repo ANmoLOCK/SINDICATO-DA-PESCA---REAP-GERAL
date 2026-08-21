@@ -10,7 +10,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaInMemoryUpload
 
-from sheets.client import DRIVE_SCOPES, SheetsConfigError
+from sheets.client import DRIVE_SCOPES, SheetsConfigError, normalize_sheet_id
 from ui.formatters import only_digits
 
 
@@ -20,6 +20,10 @@ ANEXO_NOMES = {
     "carteira_pesca": "carteira-pesca",
     "caf": "caf",
 }
+
+
+def normalize_folder_id(value: str) -> str:
+    return normalize_sheet_id(value)
 
 
 class DriveDefesoClient:
@@ -43,12 +47,6 @@ class DriveDefesoClient:
         creds = cfg.get("credentials_json")
         return cls(creds if isinstance(creds, dict) else {}, parent_folder_id=folder)
 
-
-def normalize_folder_id(value: str) -> str:
-    from sheets.client import normalize_sheet_id
-
-    return normalize_sheet_id(value)
-
     def _find_child_folder(self, parent_id: str, name: str) -> Optional[str]:
         safe = name.replace("'", "\\'")
         q = (
@@ -57,7 +55,14 @@ def normalize_folder_id(value: str) -> str:
         )
         res = (
             self._drive.files()
-            .list(q=q, spaces="drive", fields="files(id, name)", pageSize=5)
+            .list(
+                q=q,
+                spaces="drive",
+                fields="files(id, name)",
+                pageSize=5,
+                supportsAllDrives=True,
+                includeItemsFromAllDrives=True,
+            )
             .execute()
         )
         files = res.get("files") or []
@@ -75,7 +80,11 @@ def normalize_folder_id(value: str) -> str:
             "mimeType": "application/vnd.google-apps.folder",
             "parents": [self.parent_folder_id],
         }
-        created = self._drive.files().create(body=meta, fields="id").execute()
+        created = (
+            self._drive.files()
+            .create(body=meta, fields="id", supportsAllDrives=True)
+            .execute()
+        )
         return created["id"]
 
     def listar_anexos(self, cpf: str) -> List[Dict[str, str]]:
@@ -89,6 +98,8 @@ def normalize_folder_id(value: str) -> str:
                 spaces="drive",
                 fields="files(id, name, mimeType, modifiedTime, webViewLink)",
                 pageSize=50,
+                supportsAllDrives=True,
+                includeItemsFromAllDrives=True,
             )
             .execute()
         )
@@ -143,13 +154,20 @@ def normalize_folder_id(value: str) -> str:
         q = f"'{folder_id}' in parents and name = '{final_name}' and trashed = false"
         old = (
             self._drive.files()
-            .list(q=q, spaces="drive", fields="files(id)", pageSize=10)
+            .list(
+                q=q,
+                spaces="drive",
+                fields="files(id)",
+                pageSize=10,
+                supportsAllDrives=True,
+                includeItemsFromAllDrives=True,
+            )
             .execute()
             .get("files")
             or []
         )
         for item in old:
-            self._drive.files().delete(fileId=item["id"]).execute()
+            self._drive.files().delete(fileId=item["id"], supportsAllDrives=True).execute()
 
         media = MediaInMemoryUpload(content, mimetype=mime, resumable=False)
         created = (
@@ -158,6 +176,7 @@ def normalize_folder_id(value: str) -> str:
                 body={"name": final_name, "parents": [folder_id]},
                 media_body=media,
                 fields="id, name, webViewLink",
+                supportsAllDrives=True,
             )
             .execute()
         )

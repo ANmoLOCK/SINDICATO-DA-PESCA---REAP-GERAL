@@ -6,6 +6,16 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.7.2] — 2026-08-21 — Fix anexos no Google Drive
+
+**Tag:** [`v1.7.2`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.2)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.2/SinapescREAP-Windows-v1.7.2.zip
+
+### O que entrou
+- Corrige bug: métodos de upload estavam fora da classe — anexar não ia para o Drive
+
+---
+
 ## [v1.7.1] — 2026-08-21 — Fix lista Defeso / CPFs REAP
 
 **Tag:** [`v1.7.1`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.1)  
