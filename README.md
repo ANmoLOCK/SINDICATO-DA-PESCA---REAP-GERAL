@@ -11,21 +11,21 @@ Controle de **REAP** (não é pagamento): a secretaria usa o EXE no Windows; o a
 | | |
 |--|--|
 | Repositório | https://github.com/ANmoLOCK/sinapesc-casanova-reap |
-| Versão atual | [**v1.7.3**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.3) |
+| Versão atual | [**v1.7.4**](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.4) |
 | Site (consulta) | https://anmolock.github.io/sinapesc-casanova-reap/consulta.html |
 | Planilha (leitor) | https://docs.google.com/spreadsheets/d/1ydaWGF53VTkXyIyhf5XKJek5PKMDZO1_cD3CrRePft4/edit?usp=sharing |
 
 ---
 
-## Download do EXE (v1.7.3)
+## Download do EXE (v1.7.4)
 
 **Link direto (ZIP):**
 
-https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.3/SinapescREAP-Windows-v1.7.3.zip
+https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.4/SinapescREAP-Windows-v1.7.4.zip
 
-Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.3
+Página da release: https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.4
 
-Versão anterior: [v1.7.2](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.2) · [v1.7.1](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.1)
+Versão anterior: [v1.7.3](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.3) · [v1.7.2](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.2)
 
 Guia Defeso: [`docs/DEFESO-FACIL.md`](./docs/DEFESO-FACIL.md)
 
@@ -48,6 +48,11 @@ https://anmolock.github.io/sinapesc-casanova-reap
 O site lê só as abas **Pessoas** e **Reap**. CPF no celular fica **mascarado**.
 
 ---
+
+## O que há na v1.7.4
+
+- Anexos Defeso: **escolher pasta** do Google Drive no PC (ex. `G:\Meu Drive\Sinapesc-Defeso`) — o Drive sincroniza com a sua cota
+- Sem pasta: continua em AppData local; ID Drive API fica opcional/avançado
 
 ## O que há na v1.7.3
 
@@ -176,6 +181,7 @@ Mesma planilha: EXE grava (Editor); site só lê (Leitor).
 
 | Versão | O que entrou | EXE |
 |--------|----------------|-----|
+| **v1.7.4** | Pasta Google Drive sync para anexos Defeso | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.4/SinapescREAP-Windows-v1.7.4.zip) |
 | **v1.7.3** | Anexos: fallback local se Drive SA sem cota | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.3/SinapescREAP-Windows-v1.7.3.zip) |
 | **v1.7.2** | Fix anexos Defeso → Google Drive | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.2/SinapescREAP-Windows-v1.7.2.zip) |
 | **v1.7.1** | Fix lista Defeso (CPFs REAP isolados + ID limpo) | [ZIP](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.1/SinapescREAP-Windows-v1.7.1.zip) |

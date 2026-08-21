@@ -6,6 +6,18 @@ Formato: mais recente primeiro.
 
 ---
 
+## [v1.7.4] — 2026-08-21 — Pasta Google Drive sync para anexos
+
+**Tag:** [`v1.7.4`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.4)  
+**Download:** https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/download/v1.7.4/SinapescREAP-Windows-v1.7.4.zip
+
+### O que entrou
+- Configurações: **Escolher pasta…** / **Abrir pasta** para anexos Defeso
+- Grava em pasta do Google Drive no PC (ex. `G:\Meu Drive\Sinapesc-Defeso\{CPF}\`) — sync usa a cota do usuário
+- Campo `defeso_anexos_dir` no `config.json`; ID Drive API fica avançado/opcional
+
+---
+
 ## [v1.7.3] — 2026-08-21 — Anexos locais se Drive sem cota
 
 **Tag:** [`v1.7.3`](https://github.com/ANmoLOCK/sinapesc-casanova-reap/releases/tag/v1.7.3)  

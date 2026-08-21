@@ -1,4 +1,4 @@
-"""Anexos Defeso — armazenamento local (fallback quando Drive SA sem cota)."""
+"""Anexos Defeso — pasta local / sincronizada (Google Drive no PC)."""
 
 from __future__ import annotations
 
@@ -6,13 +6,42 @@ import base64
 import mimetypes
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from drive.client import ANEXO_NOMES
 from ui.formatters import only_digits
 
 
-def pasta_anexos_root() -> Path:
+def anexos_mode(cfg: Optional[dict] = None) -> str:
+    """Modo de anexos: sync (pasta Drive no PC), drive (API Shared Drive) ou local."""
+    if cfg is None:
+        from config import load_config
+
+        cfg = load_config()
+    if str(cfg.get("defeso_anexos_dir") or "").strip().strip('"'):
+        return "sync"
+    if str(cfg.get("defeso_drive_folder_id") or "").strip():
+        return "drive"
+    return "local"
+
+
+def pasta_anexos_root(cfg: Optional[dict] = None) -> Path:
+    """Pasta raiz dos anexos: config defeso_anexos_dir ou AppData/backups/defeso_anexos."""
+    if cfg is None:
+        from config import load_config
+
+        cfg = load_config()
+    custom = str(cfg.get("defeso_anexos_dir") or "").strip().strip('"')
+    if custom:
+        dest = Path(custom).expanduser()
+        try:
+            dest.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            raise ValueError(
+                f"Não foi possível usar a pasta de anexos Defeso:\n{dest}\n{exc}"
+            ) from exc
+        return dest
+
     from controle.backup import backup_root
 
     dest = backup_root() / "defeso_anexos"
@@ -20,11 +49,11 @@ def pasta_anexos_root() -> Path:
     return dest
 
 
-def pasta_cpf(cpf: str) -> Path:
+def pasta_cpf(cpf: str, cfg: Optional[dict] = None) -> Path:
     digits = only_digits(cpf)
     if len(digits) != 11:
         raise ValueError("CPF inválido para pasta de anexos.")
-    dest = pasta_anexos_root() / digits
+    dest = pasta_anexos_root(cfg) / digits
     dest.mkdir(parents=True, exist_ok=True)
     return dest
 
@@ -65,13 +94,19 @@ def salvar_anexo_local(
     filename: str,
     data_b64: str,
     mime: str = "",
+    cfg: Optional[dict] = None,
 ) -> Dict[str, Any]:
+    if cfg is None:
+        from config import load_config
+
+        cfg = load_config()
     final_name = _final_name(kind, filename)
     content = _decode_b64(data_b64)
-    folder = pasta_cpf(cpf)
+    folder = pasta_cpf(cpf, cfg)
     path = folder / final_name
     path.write_bytes(content)
     guessed = mime or mimetypes.guess_type(final_name)[0] or "application/octet-stream"
+    sync = bool(str(cfg.get("defeso_anexos_dir") or "").strip())
     return {
         "id": "",
         "name": final_name,
@@ -79,19 +114,25 @@ def salvar_anexo_local(
         "path": str(path),
         "folder_id": "",
         "kind": (kind or "").strip().lower(),
-        "where": "local",
+        "where": "sync" if sync else "local",
         "mime": guessed,
         "modified": datetime.now().isoformat(timespec="seconds"),
+        "root": str(pasta_anexos_root(cfg)),
     }
 
 
-def listar_anexos_local(cpf: str) -> List[Dict[str, str]]:
+def listar_anexos_local(cpf: str, cfg: Optional[dict] = None) -> List[Dict[str, str]]:
+    if cfg is None:
+        from config import load_config
+
+        cfg = load_config()
     digits = only_digits(cpf)
     if len(digits) != 11:
         return []
-    folder = pasta_anexos_root() / digits
+    folder = pasta_anexos_root(cfg) / digits
     if not folder.exists():
         return []
+    sync = bool(str(cfg.get("defeso_anexos_dir") or "").strip())
     out: List[Dict[str, str]] = []
     for path in sorted(folder.iterdir()):
         if not path.is_file():
@@ -106,7 +147,7 @@ def listar_anexos_local(cpf: str) -> List[Dict[str, str]]:
                 ),
                 "url": "",
                 "path": str(path),
-                "where": "local",
+                "where": "sync" if sync else "local",
             }
         )
     return out

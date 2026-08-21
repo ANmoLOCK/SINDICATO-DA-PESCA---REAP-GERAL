@@ -364,7 +364,7 @@
         </div>
         <div class="home-card">
           <h3>Defeso Fácil</h3>
-          <p>Ficha do pescador, declaração de residência para imprimir e anexos no Drive.</p>
+          <p>Ficha do pescador, declaração de residência e anexos na pasta do Google Drive.</p>
           <button type="button" class="btn btn-primary" id="go-defeso">Abrir Defeso Fácil</button>
         </div>
         <div class="home-card">
@@ -442,8 +442,15 @@
         <input id="cfg-sheet" value="${esc(s.spreadsheet_id || "")}" />
         <label>ID da planilha Defeso Fácil</label>
         <input id="cfg-defeso-sheet" value="${esc(s.defeso_spreadsheet_id || "")}" placeholder="1UxDjb78h7tYUnKXPcLVniuqAfWwrbvyf" />
-        <label>ID da pasta Drive Defeso (anexos)</label>
-        <input id="cfg-defeso-drive" value="${esc(s.defeso_drive_folder_id || "")}" placeholder="Cole o ID da pasta Sinapesc-Defeso" />
+        <label>Pasta anexos Defeso (Google Drive no PC)</label>
+        <input id="cfg-defeso-anexos" value="${esc(s.defeso_anexos_dir || "")}" placeholder="G:\\Meu Drive\\Sinapesc-Defeso" />
+        <div class="btn-row" style="margin:6px 0 12px">
+          <button type="button" class="btn btn-outline-dark btn-sm" id="cfg-defeso-pick">Escolher pasta…</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="cfg-defeso-open">Abrir pasta</button>
+        </div>
+        <p class="page-sub" style="margin-top:-6px">Recomendado: pasta dentro do Google Drive instalado (ex. unidade G:). O EXE grava ali e o Drive sincroniza com a sua cota.</p>
+        <label>ID pasta Drive API (avançado / Shared Drive)</label>
+        <input id="cfg-defeso-drive" value="${esc(s.defeso_drive_folder_id || "")}" placeholder="Só se usar Drive compartilhado via API" />
         <label>URL do site público (sem /consulta.html)</label>
         <input id="cfg-site" value="${esc(s.public_site_url || "")}" placeholder="https://anmolock.github.io/sinapesc-casanova-reap" />
         <label>E-mail do administrador</label>
@@ -472,6 +479,7 @@
     const persist = () => api("save_settings", {
       spreadsheet_id: $("#cfg-sheet").value,
       defeso_spreadsheet_id: $("#cfg-defeso-sheet").value,
+      defeso_anexos_dir: $("#cfg-defeso-anexos").value,
       defeso_drive_folder_id: $("#cfg-defeso-drive").value,
       public_site_url: $("#cfg-site").value,
       admin_email: $("#cfg-email").value,
@@ -485,6 +493,23 @@
       const r = await api("import_credentials_json", await file.text());
       if (r.ok) { $("#cfg-cred").textContent = r.credentials_label; toast("Credenciais importadas."); }
       else toast(r.error);
+    });
+    $("#cfg-defeso-pick").addEventListener("click", async () => {
+      const r = await api("pick_defeso_anexos_dir");
+      if (r.ok) {
+        const path = r.defeso_anexos_dir || r.data?.defeso_anexos_dir || "";
+        if ($("#cfg-defeso-anexos")) $("#cfg-defeso-anexos").value = path;
+        toast(path ? `Pasta Defeso: ${path}` : "Pasta salva.");
+        refreshBootstrap();
+      } else if (r.error && !/nenhuma pasta/i.test(r.error)) {
+        toast(r.error);
+      }
+    });
+    $("#cfg-defeso-open").addEventListener("click", async () => {
+      const typed = ($("#cfg-defeso-anexos")?.value || "").trim();
+      if (typed) await persist();
+      const r = await api("open_defeso_anexos_dir");
+      if (!r.ok) toast(r.error);
     });
     $("#cfg-save").addEventListener("click", async () => {
       const r = await persist();
@@ -1446,12 +1471,13 @@
           <button type="button" class="btn btn-primary" id="df-print">Gerar declaração / Imprimir</button>
         </div>
         <div class="defeso-anexos" id="df-anexos">
-          <h4>Anexos (Drive)</h4>
+          <h4>Anexos</h4>
           <p class="page-sub" id="df-drive-hint">Salve a ficha antes de anexar.</p>
           <div class="btn-row">
             <label class="btn btn-outline-dark btn-sm">Identidade<input type="file" id="df-file-id" accept=".pdf,.jpg,.jpeg,.png,.webp" hidden /></label>
             <label class="btn btn-outline-dark btn-sm">Carteira pesca<input type="file" id="df-file-pesca" accept=".pdf,.jpg,.jpeg,.png,.webp" hidden /></label>
             <label class="btn btn-outline-dark btn-sm">CAF<input type="file" id="df-file-caf" accept=".pdf,.jpg,.jpeg,.png,.webp" hidden /></label>
+            <button type="button" class="btn btn-ghost btn-sm" id="df-open-anexos">Abrir pasta</button>
           </div>
           <ul id="df-anexo-list" class="defeso-anexo-list"></ul>
         </div>
@@ -1468,6 +1494,9 @@
     bindDefesoUpload("df-file-id", "identidade");
     bindDefesoUpload("df-file-pesca", "pesca");
     bindDefesoUpload("df-file-caf", "caf");
+    $("#df-open-anexos")?.addEventListener("click", () => {
+      api("open_defeso_anexos_dir").then((r) => { if (!r.ok) toast(r.error); });
+    });
     api("load_defeso_ficha", ref.person_id || "", ref.cpf || "", ref.ficha_id || "");
   }
 
@@ -1514,14 +1543,16 @@
     if (meta) meta.textContent = d.atualizado_em ? `Atualizado ${d.atualizado_em}` : "Nova ficha";
     const hint = $("#df-drive-hint");
     if (hint) {
-      if (d.drive_ok) {
-        hint.textContent = d.id
-          ? "Anexos: tenta Drive; se a conta de serviço não tiver cota, salva na pasta local do EXE."
-          : "Salve a ficha antes de anexar.";
+      const root = d.anexos_local_root || d.defeso_anexos_dir || "";
+      const mode = d.anexos_mode || (d.defeso_anexos_dir ? "sync" : (d.drive_ok ? "drive" : "local"));
+      if (!d.id) {
+        hint.textContent = "Salve a ficha antes de anexar.";
+      } else if (mode === "sync") {
+        hint.textContent = `Anexos na pasta sincronizada: ${root}`;
+      } else if (mode === "drive") {
+        hint.textContent = "Anexos via API Drive (Shared Drive). Preferível: pasta do Google Drive no PC em Configurações.";
       } else {
-        hint.textContent = d.id
-          ? `Anexos salvos localmente em: ${d.anexos_local_root || "pasta defeso_anexos"}`
-          : "Salve a ficha antes de anexar.";
+        hint.textContent = `Anexos locais: ${root || "pasta defeso_anexos"}. Em Configurações, escolha a pasta do Google Drive (G:).`;
       }
     }
     const ul = $("#df-anexo-list");
@@ -1529,7 +1560,7 @@
       const anexos = d.anexos || [];
       ul.innerHTML = anexos.length
         ? anexos.map((a) => {
-            const where = a.where === "local" || a.path ? "local" : "drive";
+            const where = a.where === "sync" ? "sync" : (a.where === "local" || a.path ? "local" : "drive");
             const openAttr = a.path
               ? `data-path="${esc(a.path)}"`
               : (a.url ? `data-url="${esc(a.url)}"` : "");
@@ -1714,8 +1745,18 @@
     AppEvents.on("defeso_saved", (r) => {
       if (r.ok) {
         toast("Ficha Defeso salva.");
-        state.defesoFicha = { ...(state.defesoFicha || {}), ...r.data, ficha_id: r.data.id };
-        if (state.screen === "defeso_ficha") fillDefesoForm({ ...(r.data || {}), drive_ok: state.defesoFicha.drive_ok, anexos: state.defesoFicha.anexos || [] });
+        const prev = state.defesoFicha || {};
+        state.defesoFicha = {
+          ...prev,
+          ...r.data,
+          ficha_id: r.data.id,
+          anexos: prev.anexos || [],
+          anexos_mode: prev.anexos_mode,
+          anexos_local_root: prev.anexos_local_root,
+          defeso_anexos_dir: prev.defeso_anexos_dir,
+          drive_ok: prev.drive_ok,
+        };
+        if (state.screen === "defeso_ficha") fillDefesoForm(state.defesoFicha);
         api("load_defeso_lista");
       } else toast(r.error);
     });
@@ -1727,7 +1768,8 @@
     });
     AppEvents.on("defeso_anexo", (r) => {
       if (r.ok) {
-        const where = r.data?.where === "drive" ? "Drive" : "pasta local";
+        const w = r.data?.where;
+        const where = w === "sync" ? "pasta Drive sync" : (w === "drive" ? "Drive API" : "pasta local");
         toast(`Anexo enviado (${where}): ${r.data?.name || "ok"}`);
         if (r.data?.aviso) toast(r.data.aviso, 7000);
         const ref = state.defesoFicha || {};

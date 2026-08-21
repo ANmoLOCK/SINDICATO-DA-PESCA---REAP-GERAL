@@ -19,6 +19,7 @@ from controle.backup import backup_root, gravar_backup, listar_backups
 from controle.calendario import meses_para_texto
 from controle.defeso import montar_declaracao_html, salvar_declaracao_html
 from controle.defeso_anexos import (
+    anexos_mode,
     is_storage_quota_error,
     listar_anexos_local,
     pasta_anexos_root,
@@ -81,6 +82,7 @@ class SinapescApi:
                 "admin_user": self._admin_user,
                 "spreadsheet_id": str(cfg.get("spreadsheet_id") or ""),
                 "defeso_spreadsheet_id": str(cfg.get("defeso_spreadsheet_id") or ""),
+                "defeso_anexos_dir": str(cfg.get("defeso_anexos_dir") or ""),
                 "defeso_drive_folder_id": str(cfg.get("defeso_drive_folder_id") or ""),
                 "public_site_url": site,
                 "ultimo_backup_em": str(cfg.get("ultimo_backup_em") or "Nunca"),
@@ -120,6 +122,7 @@ class SinapescApi:
             {
                 "spreadsheet_id": str(cfg.get("spreadsheet_id") or ""),
                 "defeso_spreadsheet_id": str(cfg.get("defeso_spreadsheet_id") or ""),
+                "defeso_anexos_dir": str(cfg.get("defeso_anexos_dir") or ""),
                 "defeso_drive_folder_id": str(cfg.get("defeso_drive_folder_id") or ""),
                 "public_site_url": normalize_public_base(
                     cfg.get("public_site_url") or cfg.get("public_base_url") or ""
@@ -142,6 +145,14 @@ class SinapescApi:
             cfg["defeso_spreadsheet_id"] = normalize_sheet_id(
                 str(payload.get("defeso_spreadsheet_id") or "")
             )
+        if "defeso_anexos_dir" in payload:
+            raw_dir = str(payload.get("defeso_anexos_dir") or "").strip().strip('"')
+            if raw_dir:
+                try:
+                    pasta_anexos_root({**cfg, "defeso_anexos_dir": raw_dir})
+                except ValueError as exc:
+                    return err(str(exc))
+            cfg["defeso_anexos_dir"] = raw_dir
         if "defeso_drive_folder_id" in payload:
             cfg["defeso_drive_folder_id"] = normalize_sheet_id(
                 str(payload.get("defeso_drive_folder_id") or "")
@@ -696,6 +707,50 @@ class SinapescApi:
         except Exception as exc:  # noqa: BLE001
             return err(str(exc))
 
+    def pick_defeso_anexos_dir(self) -> Dict[str, Any]:
+        """Abre diálogo para escolher pasta sincronizada (ex.: G:\\Meu Drive\\Sinapesc-Defeso)."""
+        try:
+            import tkinter as tk
+            from tkinter import filedialog
+        except ImportError as exc:  # pragma: no cover
+            return err(f"Seletor de pasta indisponível: {exc}")
+
+        cfg = load_config()
+        initial = str(cfg.get("defeso_anexos_dir") or "").strip()
+        root = tk.Tk()
+        root.withdraw()
+        try:
+            root.attributes("-topmost", True)
+        except tk.TclError:
+            pass
+        try:
+            chosen = filedialog.askdirectory(
+                parent=root,
+                title="Pasta Defeso — Google Drive no PC (sincronizada)",
+                initialdir=initial or None,
+                mustexist=True,
+            )
+        finally:
+            root.destroy()
+
+        if not chosen:
+            return err("Nenhuma pasta selecionada.")
+        path = str(Path(chosen).expanduser().resolve())
+        try:
+            pasta_anexos_root({**cfg, "defeso_anexos_dir": path})
+        except ValueError as exc:
+            return err(str(exc))
+        cfg["defeso_anexos_dir"] = path
+        save_config(cfg)
+        return ok(defeso_anexos_dir=path, anexos_mode="sync")
+
+    def open_defeso_anexos_dir(self) -> Dict[str, Any]:
+        try:
+            root = pasta_anexos_root()
+        except ValueError as exc:
+            return err(str(exc))
+        return self.open_path(str(root))
+
     # ---- Defeso Fácil ----------------------------------------------------
 
     def load_defeso_lista(self) -> Dict[str, Any]:
@@ -764,14 +819,15 @@ class SinapescApi:
                 )
             rows.sort(key=lambda r: str(r.get("nome_display") or "").lower())
             cfg = load_config()
+            mode = anexos_mode(cfg)
             return {
                 "itens": rows,
                 "defeso_spreadsheet_id": normalize_sheet_id(
                     str(cfg.get("defeso_spreadsheet_id") or "")
                 ),
-                "drive_ok": bool(
-                    normalize_sheet_id(str(cfg.get("defeso_drive_folder_id") or ""))
-                ),
+                "defeso_anexos_dir": str(cfg.get("defeso_anexos_dir") or ""),
+                "anexos_mode": mode,
+                "drive_ok": mode in ("sync", "drive"),
                 "aviso": defeso_aviso,
             }
 
@@ -838,22 +894,22 @@ class SinapescApi:
                 base["cpf_formatado"] = format_cpf(pessoa.cpf)
 
             anexos: List[Dict[str, str]] = []
-            drive_ok = False
             cfg = load_config()
-            # Sempre lista anexos locais
+            mode = anexos_mode(cfg)
+            # Sempre lista anexos da pasta configurada (sync ou AppData)
             try:
-                anexos.extend(listar_anexos_local(str(base["cpf"])))
+                anexos.extend(listar_anexos_local(str(base["cpf"]), cfg))
             except Exception:
                 pass
-            if str(cfg.get("defeso_drive_folder_id") or "").strip():
-                drive_ok = True
+            # API Drive só se não houver pasta sync (evita 403 e duplicata)
+            if mode == "drive":
                 try:
                     anexos.extend(
                         DriveDefesoClient.from_config(cfg).listar_anexos(str(base["cpf"]))
                     )
                 except Exception:
                     pass
-            # dedupe by name (local first)
+            # dedupe by name (pasta local/sync primeiro)
             seen = set()
             uniq = []
             for a in anexos:
@@ -863,8 +919,13 @@ class SinapescApi:
                 seen.add(key)
                 uniq.append(a)
             base["anexos"] = uniq
-            base["drive_ok"] = drive_ok
-            base["anexos_local_root"] = str(pasta_anexos_root())
+            base["anexos_mode"] = mode
+            base["drive_ok"] = mode in ("sync", "drive")
+            base["defeso_anexos_dir"] = str(cfg.get("defeso_anexos_dir") or "")
+            try:
+                base["anexos_local_root"] = str(pasta_anexos_root(cfg))
+            except ValueError:
+                base["anexos_local_root"] = ""
             return base
 
         return self._run_async("defeso_ficha", work, "Abrindo ficha Defeso…")
@@ -916,13 +977,27 @@ class SinapescApi:
             if not ficha:
                 raise ValueError("Salve a ficha antes de anexar documentos.")
 
-            folder_cfg = str(cfg.get("defeso_drive_folder_id") or "").strip()
+            mode = anexos_mode(cfg)
             aviso = ""
             up: Dict[str, Any]
 
-            # Conta de serviço NÃO tem cota no "Meu Drive".
-            # Tentamos Drive; se der storageQuotaExceeded, salvamos local.
-            if folder_cfg:
+            # Preferência: pasta sincronizada (Google Drive no PC) — usa a cota do usuário.
+            if mode == "sync":
+                up = salvar_anexo_local(
+                    cpf=ficha.cpf,
+                    kind=kind,
+                    filename=filename,
+                    data_b64=data_b64,
+                    mime=mime,
+                    cfg=cfg,
+                )
+                aviso = (
+                    f"Anexo gravado em:\n{up.get('path')}\n"
+                    "O Google Drive no PC sobe para a nuvem (sua cota)."
+                )
+            elif mode == "drive":
+                # Conta de serviço NÃO tem cota no "Meu Drive".
+                # Tentamos Drive API; se der storageQuotaExceeded, salvamos local.
                 try:
                     drive = DriveDefesoClient.from_config(cfg)
                     up = drive.upload_base64(
@@ -934,29 +1009,22 @@ class SinapescApi:
                     )
                     up["where"] = "drive"
                 except Exception as exc:  # noqa: BLE001
+                    up = salvar_anexo_local(
+                        cpf=ficha.cpf,
+                        kind=kind,
+                        filename=filename,
+                        data_b64=data_b64,
+                        mime=mime,
+                        cfg=cfg,
+                    )
                     if is_storage_quota_error(exc):
-                        up = salvar_anexo_local(
-                            cpf=ficha.cpf,
-                            kind=kind,
-                            filename=filename,
-                            data_b64=data_b64,
-                            mime=mime,
-                        )
                         aviso = (
-                            "O Google bloqueou o upload: conta de serviço não tem cota no Meu Drive. "
-                            "Arquivo salvo na pasta local do EXE. "
-                            "Para ir ao Drive na nuvem, use um Drive compartilhado (Shared Drive) "
-                            "e coloque a pasta Defeso lá, com o robô como membro."
+                            "O Google bloqueou o upload pela API (conta de serviço sem cota). "
+                            "Arquivo salvo na pasta local. "
+                            "Melhor: em Configurações, escolha a pasta do Google Drive no PC "
+                            "(ex.: G:\\Meu Drive\\Sinapesc-Defeso)."
                         )
                     else:
-                        # Outro erro de Drive → ainda salva local para não perder o anexo
-                        up = salvar_anexo_local(
-                            cpf=ficha.cpf,
-                            kind=kind,
-                            filename=filename,
-                            data_b64=data_b64,
-                            mime=mime,
-                        )
                         aviso = f"Drive falhou ({exc}). Anexo guardado localmente."
             else:
                 up = salvar_anexo_local(
@@ -965,11 +1033,16 @@ class SinapescApi:
                     filename=filename,
                     data_b64=data_b64,
                     mime=mime,
+                    cfg=cfg,
                 )
-                aviso = "Anexo salvo localmente (defeso_drive_folder_id não configurado)."
+                aviso = (
+                    "Anexo salvo na pasta local do EXE. "
+                    "Em Configurações → escolha a pasta do Google Drive (G:) para sincronizar."
+                )
 
             defeso.marcar_anexo(ficha.id, kind, True)
             up["aviso"] = aviso
+            up["anexos_mode"] = mode
             return up
 
         return self._run_async("defeso_anexo", work, "Enviando anexo…")
