@@ -409,13 +409,16 @@ def test_drive_client_tem_upload() -> None:
 
 def test_defeso_anexo_local() -> None:
     from controle.defeso_anexos import (
+        anexos_mode,
         is_storage_quota_error,
         listar_anexos_local,
+        pasta_anexos_root,
         salvar_anexo_local,
     )
 
     raw = b"%PDF-1.4 test"
     import base64
+    import tempfile
 
     b64 = base64.b64encode(raw).decode("ascii")
     up = salvar_anexo_local(
@@ -424,15 +427,37 @@ def test_defeso_anexo_local() -> None:
         filename="rg.pdf",
         data_b64=b64,
         mime="application/pdf",
+        cfg={"defeso_anexos_dir": ""},
     )
     assert up["where"] == "local"
     assert up["name"] == "identidade.pdf"
     assert Path(up["path"]).exists()
-    listed = listar_anexos_local("10582575524")
+    listed = listar_anexos_local("10582575524", cfg={"defeso_anexos_dir": ""})
     assert any(x["name"] == "identidade.pdf" for x in listed)
     assert is_storage_quota_error(
         Exception("Service Accounts do not have storage quota. storageQuotaExceeded")
     )
+
+    with tempfile.TemporaryDirectory() as tmp:
+        cfg_sync = {"defeso_anexos_dir": tmp, "defeso_drive_folder_id": ""}
+        assert anexos_mode(cfg_sync) == "sync"
+        assert pasta_anexos_root(cfg_sync) == Path(tmp)
+        up2 = salvar_anexo_local(
+            cpf="52998224725",
+            kind="caf",
+            filename="caf.jpg",
+            data_b64=b64,
+            mime="image/jpeg",
+            cfg=cfg_sync,
+        )
+        assert up2["where"] == "sync"
+        assert up2["name"] == "caf.jpg"
+        assert str(up2["path"]).startswith(str(Path(tmp)))
+        listed2 = listar_anexos_local("52998224725", cfg=cfg_sync)
+        assert any(x["name"] == "caf.jpg" and x["where"] == "sync" for x in listed2)
+
+    assert anexos_mode({"defeso_anexos_dir": "", "defeso_drive_folder_id": "abc"}) == "drive"
+    assert anexos_mode({"defeso_anexos_dir": "", "defeso_drive_folder_id": ""}) == "local"
 
 
 if __name__ == "__main__":
